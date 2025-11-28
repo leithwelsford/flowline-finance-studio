@@ -1,0 +1,102 @@
+# generated: 2025-11-28
+# project: flowline-finance-studio
+# project_key: flowline-finance-studio
+# tracking_system: file-system
+# story_location: '{project-root}/docs/sprint-artifacts'
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic exists in epic file but not contexted
+#   - contexted: Epic tech context created (required before drafting stories)
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - drafted: Story file created in stories folder
+#   - ready-for-dev: Draft approved and story context created
+#   - in-progress: Developer actively working on implementation
+#   - review: Under SM review (via code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - completed: Retrospective has been done
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epics should be 'contexted' before stories can be 'drafted'
+# - Stories can be worked in parallel if team capacity allows
+# - SM typically drafts next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', SM reviews, then Dev moves to 'done'
+
+generated: 2025-11-28
+project: flowline-finance-studio
+project_key: flowline-finance-studio
+tracking_system: file-system
+story_location: '{project-root}/docs/sprint-artifacts'
+
+development_status:
+  # Epic 1: Foundation & Project Setup
+  epic-1: backlog
+  1-1-initialize-vite-react-typescript-project: backlog
+  1-2-implement-dexie-database-schema-and-core-types: backlog
+  1-3-create-application-shell-with-navigation: backlog
+  1-4-implement-zustand-ui-store-and-toast-notifications: backlog
+  epic-1-retrospective: optional
+
+  # Epic 2: Account & Data Management
+  epic-2: backlog
+  2-1-implement-debt-account-management: backlog
+  2-2-implement-flexi-facility-management: backlog
+  2-3-implement-income-entry: backlog
+  2-4-implement-expense-tracking-by-category: backlog
+  2-5-implement-financial-snapshot-view: backlog
+  2-6-implement-quick-balance-update-flow: backlog
+  epic-2-retrospective: optional
+
+  # Epic 3: Financial Health Dashboard
+  epic-3: backlog
+  3-1-implement-cash-flow-health-card: backlog
+  3-2-implement-income-vs-expenditure-card: backlog
+  3-3-implement-true-cost-of-debt-card: backlog
+  3-4-assemble-dashboard-page-with-three-numbers-grid: backlog
+  epic-3-retrospective: optional
+
+  # Epic 4: Calculation Engine & Strategy Modeling
+  epic-4: backlog
+  4-1-implement-interest-calculation-functions: backlog
+  4-2-implement-projection-generator: backlog
+  4-3-implement-baseline-and-traditional-strategies: backlog
+  4-4-implement-flexi-chunking-strategies: backlog
+  4-5-implement-velocity-banking-strategy: backlog
+  4-6-implement-hybrid-strategies: backlog
+  4-7-implement-strategy-configuration-options: backlog
+  4-8-create-strategy-calculation-orchestrator: backlog
+  epic-4-retrospective: optional
+
+  # Epic 5: Strategy Comparison & Recommendations
+  epic-5: backlog
+  5-1-implement-winners-podium-component: backlog
+  5-2-implement-strategy-comparison-table: backlog
+  5-3-implement-debt-reduction-curve-chart: backlog
+  5-4-implement-interest-comparison-bar-chart: backlog
+  5-5-implement-recommendation-engine: backlog
+  5-6-implement-strategy-selection-and-filter: backlog
+  epic-5-retrospective: optional
+
+  # Epic 6: Progress Tracking & Validation
+  epic-6: backlog
+  6-1-implement-balance-logging: backlog
+  6-2-implement-actual-vs-projected-comparison: backlog
+  6-3-implement-variance-calculation-and-display: backlog
+  6-4-implement-historical-progress-timeline: backlog
+  6-5-implement-deviation-alerts-and-annotations: backlog
+  epic-6-retrospective: optional
+
+  # Epic 7: User Experience Polish
+  epic-7: backlog
+  7-1-implement-responsive-layout-polish: backlog
+  7-2-implement-help-text-and-tooltips: backlog
+  7-3-implement-auto-save-functionality: backlog
+  7-4-implement-confirmation-feedback-system: backlog
+  epic-7-retrospective: optional

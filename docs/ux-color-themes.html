@@ -1,0 +1,669 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flowline Finance Studio - Color Theme Explorer</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', sans-serif;
+            background: #f5f5f5;
+            padding: 40px 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            margin-bottom: 12px;
+            color: #1a1a1a;
+            font-size: 36px;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 48px;
+            font-size: 18px;
+        }
+
+        .theme-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(600px, 1fr));
+            gap: 32px;
+            margin-bottom: 48px;
+        }
+
+        .theme-card {
+            background: white;
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .theme-header {
+            margin-bottom: 24px;
+        }
+
+        .theme-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .theme-description {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+
+        .theme-personality {
+            font-size: 13px;
+            color: #888;
+            font-style: italic;
+        }
+
+        /* Color Palette */
+        .color-palette {
+            margin-bottom: 24px;
+        }
+
+        .palette-section {
+            margin-bottom: 16px;
+        }
+
+        .palette-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 8px;
+        }
+
+        .color-swatches {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .swatch {
+            flex: 1;
+            min-width: 80px;
+            height: 60px;
+            border-radius: 8px;
+            display: flex;
+            align-items: flex-end;
+            padding: 8px;
+            color: white;
+            font-size: 11px;
+            font-weight: 600;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+            border: 1px solid rgba(0,0,0,0.1);
+        }
+
+        .swatch-label {
+            font-size: 10px;
+            color: white;
+            margin-top: 4px;
+        }
+
+        /* Component Preview */
+        .component-preview {
+            margin-bottom: 24px;
+        }
+
+        .preview-label {
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            color: #666;
+            margin-bottom: 12px;
+        }
+
+        /* Dashboard Preview */
+        .dashboard-preview {
+            background: #f9fafb;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+        }
+
+        .health-cards {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .health-card {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .health-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            font-weight: 600;
+            margin-bottom: 8px;
+            opacity: 0.7;
+        }
+
+        .health-value {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 4px;
+        }
+
+        .health-status {
+            font-size: 12px;
+            padding: 4px 8px;
+            border-radius: 4px;
+            display: inline-block;
+            font-weight: 600;
+        }
+
+        /* Buttons */
+        .button-group {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s;
+        }
+
+        .btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+        }
+
+        /* Forms */
+        .form-preview {
+            margin-bottom: 16px;
+        }
+
+        .input-group {
+            margin-bottom: 12px;
+        }
+
+        .input-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 6px;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 6px;
+            border: 1px solid #ddd;
+            font-size: 14px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px var(--primary-light);
+        }
+
+        /* Chart Preview */
+        .chart-preview {
+            background: white;
+            padding: 16px;
+            border-radius: 8px;
+            height: 150px;
+            display: flex;
+            align-items: flex-end;
+            justify-content: space-around;
+            gap: 8px;
+        }
+
+        .bar {
+            border-radius: 4px 4px 0 0;
+            width: 40px;
+            transition: all 0.3s;
+        }
+
+        .bar:hover {
+            opacity: 0.8;
+        }
+
+        /* Comparison Section */
+        .comparison-section {
+            background: white;
+            padding: 32px;
+            border-radius: 16px;
+            margin-top: 32px;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .theme-summary {
+            text-align: center;
+        }
+
+        .theme-summary-name {
+            font-weight: 700;
+            margin-bottom: 12px;
+            font-size: 18px;
+        }
+
+        .theme-swatch-small {
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            margin: 0 auto 8px;
+        }
+
+        .theme-pros {
+            text-align: left;
+            font-size: 13px;
+        }
+
+        .theme-pros li {
+            margin-bottom: 4px;
+            color: #666;
+        }
+
+        @media (max-width: 768px) {
+            .theme-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .health-cards {
+                grid-template-columns: 1fr;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🎨 Flowline Finance Studio</h1>
+        <p class="subtitle">Color Theme Explorer - Choose the visual identity that embodies hope and empowerment</p>
+
+        <div class="theme-grid">
+            <!-- THEME 1: Trust Blue (Professional Fintech) -->
+            <div class="theme-card" id="theme-1">
+                <div class="theme-header">
+                    <div class="theme-name" style="color: #2563eb;">1. Trust Blue</div>
+                    <div class="theme-description"><strong>Personality:</strong> Professional, Trustworthy, Data-Focused</div>
+                    <div class="theme-personality">Best for: Users who want serious financial tools with proven credibility</div>
+                </div>
+
+                <div class="color-palette">
+                    <div class="palette-section">
+                        <div class="palette-label">Primary & Accent Colors</div>
+                        <div class="color-swatches">
+                            <div class="swatch" style="background: #2563eb;">#2563eb<br><span class="swatch-label">Primary</span></div>
+                            <div class="swatch" style="background: #1e40af;">#1e40af<br><span class="swatch-label">Primary Dark</span></div>
+                            <div class="swatch" style="background: #dbeafe; color: #1e40af;">#dbeafe<br><span class="swatch-label">Primary Light</span></div>
+                        </div>
+                    </div>
+                    <div class="palette-section">
+                        <div class="palette-label">Semantic Colors (Status)</div>
+                        <div class="color-swatches">
+                            <div class="swatch" style="background: #10b981;">#10b981<br><span class="swatch-label">Success</span></div>
+                            <div class="swatch" style="background: #f59e0b;">#f59e0b<br><span class="swatch-label">Warning</span></div>
+                            <div class="swatch" style="background: #ef4444;">#ef4444<br><span class="swatch-label">Error/Debt</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-preview">
+                    <div class="preview-label">Dashboard Preview</div>
+                    <div class="dashboard-preview">
+                        <div class="health-cards">
+                            <div class="health-card">
+                                <div class="health-label" style="color: #2563eb;">Cash Flow</div>
+                                <div class="health-value" style="color: #10b981;">R8,450</div>
+                                <span class="health-status" style="background: #d1fae5; color: #065f46;">Breathing</span>
+                            </div>
+                            <div class="health-card">
+                                <div class="health-label" style="color: #2563eb;">Income vs Expense</div>
+                                <div class="health-value" style="color: #1e40af;">78%</div>
+                                <span class="health-status" style="background: #dbeafe; color: #1e40af;">Healthy</span>
+                            </div>
+                            <div class="health-card">
+                                <div class="health-label" style="color: #2563eb;">Debt Cost</div>
+                                <div class="health-value" style="color: #ef4444;">R4,230</div>
+                                <span class="health-status" style="background: #fee2e2; color: #991b1b;">High</span>
+                            </div>
+                        </div>
+                        <div class="chart-preview">
+                            <div class="bar" style="background: #2563eb; height: 60%;"></div>
+                            <div class="bar" style="background: #3b82f6; height: 80%;"></div>
+                            <div class="bar" style="background: #60a5fa; height: 100%;"></div>
+                            <div class="bar" style="background: #93c5fd; height: 45%;"></div>
+                            <div class="bar" style="background: #2563eb; height: 70%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="preview-label">Buttons & Forms</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #2563eb; color: white;">Compare Strategies</button>
+                        <button class="btn" style="background: white; color: #2563eb; border: 2px solid #2563eb;">Update Balances</button>
+                        <button class="btn" style="background: #f3f4f6; color: #374151;">Cancel</button>
+                    </div>
+
+                    <div class="form-preview">
+                        <div class="input-group">
+                            <label class="input-label" style="color: #1e40af;">Account Balance (ZAR)</label>
+                            <input type="text" class="input-field" placeholder="R 125,000" style="--primary: #2563eb; --primary-light: #dbeafe;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THEME 2: Growth Green (Financial Health) -->
+            <div class="theme-card" id="theme-2">
+                <div class="theme-header">
+                    <div class="theme-name" style="color: #059669;">2. Growth Green</div>
+                    <div class="theme-description"><strong>Personality:</strong> Hopeful, Health-Focused, Progress-Oriented</div>
+                    <div class="theme-personality">Best for: Users motivated by positive progress and financial wellness</div>
+                </div>
+
+                <div class="color-palette">
+                    <div class="palette-section">
+                        <div class="palette-label">Primary & Accent Colors</div>
+                        <div class="color-swatches">
+                            <div class="swatch" style="background: #059669;">#059669<br><span class="swatch-label">Primary</span></div>
+                            <div class="swatch" style="background: #047857;">#047857<br><span class="swatch-label">Primary Dark</span></div>
+                            <div class="swatch" style="background: #d1fae5; color: #047857;">#d1fae5<br><span class="swatch-label">Primary Light</span></div>
+                        </div>
+                    </div>
+                    <div class="palette-section">
+                        <div class="palette-label">Semantic Colors (Status)</div>
+                        <div class="color-swatches">
+                            <div class="swatch" style="background: #10b981;">#10b981<br><span class="swatch-label">Success</span></div>
+                            <div class="swatch" style="background: #f59e0b;">#f59e0b<br><span class="swatch-label">Warning</span></div>
+                            <div class="swatch" style="background: #ef4444;">#ef4444<br><span class="swatch-label">Error/Debt</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-preview">
+                    <div class="preview-label">Dashboard Preview</div>
+                    <div class="dashboard-preview">
+                        <div class="health-cards">
+                            <div class="health-card">
+                                <div class="health-label" style="color: #059669;">Cash Flow</div>
+                                <div class="health-value" style="color: #10b981;">R8,450</div>
+                                <span class="health-status" style="background: #d1fae5; color: #065f46;">Breathing</span>
+                            </div>
+                            <div class="health-card">
+                                <div class="health-label" style="color: #059669;">Income vs Expense</div>
+                                <div class="health-value" style="color: #047857;">78%</div>
+                                <span class="health-status" style="background: #d1fae5; color: #065f46;">Healthy</span>
+                            </div>
+                            <div class="health-card">
+                                <div class="health-label" style="color: #059669;">Debt Cost</div>
+                                <div class="health-value" style="color: #ef4444;">R4,230</div>
+                                <span class="health-status" style="background: #fee2e2; color: #991b1b;">High</span>
+                            </div>
+                        </div>
+                        <div class="chart-preview">
+                            <div class="bar" style="background: #059669; height: 60%;"></div>
+                            <div class="bar" style="background: #10b981; height: 80%;"></div>
+                            <div class="bar" style="background: #34d399; height: 100%;"></div>
+                            <div class="bar" style="background: #6ee7b7; height: 45%;"></div>
+                            <div class="bar" style="background: #059669; height: 70%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="preview-label">Buttons & Forms</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #059669; color: white;">Compare Strategies</button>
+                        <button class="btn" style="background: white; color: #059669; border: 2px solid #059669;">Update Balances</button>
+                        <button class="btn" style="background: #f3f4f6; color: #374151;">Cancel</button>
+                    </div>
+
+                    <div class="form-preview">
+                        <div class="input-group">
+                            <label class="input-label" style="color: #047857;">Account Balance (ZAR)</label>
+                            <input type="text" class="input-field" placeholder="R 125,000" style="--primary: #059669; --primary-light: #d1fae5;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THEME 3: Slate Modern (Clean & Professional) -->
+            <div class="theme-card" id="theme-3">
+                <div class="theme-header">
+                    <div class="theme-name" style="color: #0f172a;">3. Slate Modern</div>
+                    <div class="theme-description"><strong>Personality:</strong> Sophisticated, Clean, Data-Driven</div>
+                    <div class="theme-personality">Best for: Users who appreciate minimal, modern design with clarity</div>
+                </div>
+
+                <div class="color-palette">
+                    <div class="palette-section">
+                        <div class="palette-label">Primary & Accent Colors</div>
+                        <div class="color-swatches">
+                            <div class="swatch" style="background: #0f172a;">#0f172a<br><span class="swatch-label">Primary</span></div>
+                            <div class="swatch" style="background: #334155;">#334155<br><span class="swatch-label">Slate</span></div>
+                            <div class="swatch" style="background: #6366f1;">#6366f1<br><span class="swatch-label">Accent (Indigo)</span></div>
+                            <div class="swatch" style="background: #e0e7ff; color: #4338ca;">#e0e7ff<br><span class="swatch-label">Accent Light</span></div>
+                        </div>
+                    </div>
+                    <div class="palette-section">
+                        <div class="palette-label">Semantic Colors (Status)</div>
+                        <div class="color-swatches">
+                            <div class="swatch" style="background: #10b981;">#10b981<br><span class="swatch-label">Success</span></div>
+                            <div class="swatch" style="background: #f59e0b;">#f59e0b<br><span class="swatch-label">Warning</span></div>
+                            <div class="swatch" style="background: #ef4444;">#ef4444<br><span class="swatch-label">Error/Debt</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-preview">
+                    <div class="preview-label">Dashboard Preview</div>
+                    <div class="dashboard-preview">
+                        <div class="health-cards">
+                            <div class="health-card">
+                                <div class="health-label" style="color: #0f172a;">Cash Flow</div>
+                                <div class="health-value" style="color: #10b981;">R8,450</div>
+                                <span class="health-status" style="background: #d1fae5; color: #065f46;">Breathing</span>
+                            </div>
+                            <div class="health-card">
+                                <div class="health-label" style="color: #0f172a;">Income vs Expense</div>
+                                <div class="health-value" style="color: #6366f1;">78%</div>
+                                <span class="health-status" style="background: #e0e7ff; color: #4338ca;">Healthy</span>
+                            </div>
+                            <div class="health-card">
+                                <div class="health-label" style="color: #0f172a;">Debt Cost</div>
+                                <div class="health-value" style="color: #ef4444;">R4,230</div>
+                                <span class="health-status" style="background: #fee2e2; color: #991b1b;">High</span>
+                            </div>
+                        </div>
+                        <div class="chart-preview">
+                            <div class="bar" style="background: #0f172a; height: 60%;"></div>
+                            <div class="bar" style="background: #334155; height: 80%;"></div>
+                            <div class="bar" style="background: #6366f1; height: 100%;"></div>
+                            <div class="bar" style="background: #818cf8; height: 45%;"></div>
+                            <div class="bar" style="background: #0f172a; height: 70%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="preview-label">Buttons & Forms</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #0f172a; color: white;">Compare Strategies</button>
+                        <button class="btn" style="background: #6366f1; color: white;">Update Balances</button>
+                        <button class="btn" style="background: #f3f4f6; color: #374151;">Cancel</button>
+                    </div>
+
+                    <div class="form-preview">
+                        <div class="input-group">
+                            <label class="input-label" style="color: #0f172a;">Account Balance (ZAR)</label>
+                            <input type="text" class="input-field" placeholder="R 125,000" style="--primary: #6366f1; --primary-light: #e0e7ff;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- THEME 4: Balanced Teal (Trust + Growth) -->
+            <div class="theme-card" id="theme-4">
+                <div class="theme-header">
+                    <div class="theme-name" style="color: #0d9488;">4. Balanced Teal</div>
+                    <div class="theme-description"><strong>Personality:</strong> Calm, Balanced, Trustworthy + Hopeful</div>
+                    <div class="theme-personality">Best for: Users seeking reliability with optimistic progress visualization</div>
+                </div>
+
+                <div class="color-palette">
+                    <div class="palette-section">
+                        <div class="palette-label">Primary & Accent Colors</div>
+                        <div class="color-swatches">
+                            <div class="swatch" style="background: #0d9488;">#0d9488<br><span class="swatch-label">Primary (Teal)</span></div>
+                            <div class="swatch" style="background: #0f766e;">#0f766e<br><span class="swatch-label">Primary Dark</span></div>
+                            <div class="swatch" style="background: #ccfbf1; color: #0f766e;">#ccfbf1<br><span class="swatch-label">Primary Light</span></div>
+                        </div>
+                    </div>
+                    <div class="palette-section">
+                        <div class="palette-label">Semantic Colors (Status)</div>
+                        <div class="color-swatches">
+                            <div class="swatch" style="background: #10b981;">#10b981<br><span class="swatch-label">Success</span></div>
+                            <div class="swatch" style="background: #f59e0b;">#f59e0b<br><span class="swatch-label">Warning</span></div>
+                            <div class="swatch" style="background: #ef4444;">#ef4444<br><span class="swatch-label">Error/Debt</span></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="component-preview">
+                    <div class="preview-label">Dashboard Preview</div>
+                    <div class="dashboard-preview">
+                        <div class="health-cards">
+                            <div class="health-card">
+                                <div class="health-label" style="color: #0d9488;">Cash Flow</div>
+                                <div class="health-value" style="color: #10b981;">R8,450</div>
+                                <span class="health-status" style="background: #d1fae5; color: #065f46;">Breathing</span>
+                            </div>
+                            <div class="health-card">
+                                <div class="health-label" style="color: #0d9488;">Income vs Expense</div>
+                                <div class="health-value" style="color: #0f766e;">78%</div>
+                                <span class="health-status" style="background: #ccfbf1; color: #0f766e;">Healthy</span>
+                            </div>
+                            <div class="health-card">
+                                <div class="health-label" style="color: #0d9488;">Debt Cost</div>
+                                <div class="health-value" style="color: #ef4444;">R4,230</div>
+                                <span class="health-status" style="background: #fee2e2; color: #991b1b;">High</span>
+                            </div>
+                        </div>
+                        <div class="chart-preview">
+                            <div class="bar" style="background: #0d9488; height: 60%;"></div>
+                            <div class="bar" style="background: #14b8a6; height: 80%;"></div>
+                            <div class="bar" style="background: #2dd4bf; height: 100%;"></div>
+                            <div class="bar" style="background: #5eead4; height: 45%;"></div>
+                            <div class="bar" style="background: #0d9488; height: 70%;"></div>
+                        </div>
+                    </div>
+
+                    <div class="preview-label">Buttons & Forms</div>
+                    <div class="button-group">
+                        <button class="btn" style="background: #0d9488; color: white;">Compare Strategies</button>
+                        <button class="btn" style="background: white; color: #0d9488; border: 2px solid #0d9488;">Update Balances</button>
+                        <button class="btn" style="background: #f3f4f6; color: #374151;">Cancel</button>
+                    </div>
+
+                    <div class="form-preview">
+                        <div class="input-group">
+                            <label class="input-label" style="color: #0f766e;">Account Balance (ZAR)</label>
+                            <input type="text" class="input-field" placeholder="R 125,000" style="--primary: #0d9488; --primary-light: #ccfbf1;">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Comparison Section -->
+        <div class="comparison-section">
+            <h2 style="text-align: center; margin-bottom: 32px;">Side-by-Side Comparison</h2>
+            <div class="comparison-grid">
+                <div class="theme-summary">
+                    <div class="theme-swatch-small" style="background: #2563eb;"></div>
+                    <div class="theme-summary-name" style="color: #2563eb;">Trust Blue</div>
+                    <ul class="theme-pros">
+                        <li>✓ Most common in fintech</li>
+                        <li>✓ Conveys reliability</li>
+                        <li>✓ Professional credibility</li>
+                        <li>✓ Safe, proven choice</li>
+                    </ul>
+                </div>
+
+                <div class="theme-summary">
+                    <div class="theme-swatch-small" style="background: #059669;"></div>
+                    <div class="theme-summary-name" style="color: #059669;">Growth Green</div>
+                    <ul class="theme-pros">
+                        <li>✓ Emphasizes hope & progress</li>
+                        <li>✓ Financial health focus</li>
+                        <li>✓ Positive, uplifting</li>
+                        <li>✓ Differentiates from banks</li>
+                    </ul>
+                </div>
+
+                <div class="theme-summary">
+                    <div class="theme-swatch-small" style="background: #0f172a;"></div>
+                    <div class="theme-summary-name" style="color: #0f172a;">Slate Modern</div>
+                    <ul class="theme-pros">
+                        <li>✓ Sophisticated, premium</li>
+                        <li>✓ Data-focused clarity</li>
+                        <li>✓ Modern, minimal aesthetic</li>
+                        <li>✓ Indigo accent adds energy</li>
+                    </ul>
+                </div>
+
+                <div class="theme-summary">
+                    <div class="theme-swatch-small" style="background: #0d9488;"></div>
+                    <div class="theme-summary-name" style="color: #0d9488;">Balanced Teal</div>
+                    <ul class="theme-pros">
+                        <li>✓ Trust + Growth blend</li>
+                        <li>✓ Calm, balanced feel</li>
+                        <li>✓ Less common (unique)</li>
+                        <li>✓ Optimistic but reliable</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div style="margin-top: 32px; text-align: center; padding: 24px; background: #f9fafb; border-radius: 12px;">
+                <h3 style="margin-bottom: 12px;">Your Choice Matters</h3>
+                <p style="color: #666; max-width: 800px; margin: 0 auto;">
+                    This color foundation will shape every interaction. Think about your users facing debt -
+                    do they need <strong style="color: #2563eb;">trust and stability</strong>,
+                    <strong style="color: #059669;">hope and growth</strong>,
+                    <strong style="color: #0f172a;">sophisticated clarity</strong>, or
+                    <strong style="color: #0d9488;">balanced optimism</strong>?
+                </p>
+                <p style="color: #888; font-size: 14px; margin-top: 12px;">
+                    All themes meet WCAG AA accessibility standards and work in light/dark modes.
+                </p>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

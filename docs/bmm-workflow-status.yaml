@@ -1,0 +1,126 @@
+# Workflow Status - Flowline Finance Studio
+# Generated: 2025-11-25
+# Tracks progress through BMM methodology phases
+
+# STATUS DEFINITIONS:
+# ==================
+# Initial Status (before completion):
+#   - required: Must be completed to progress
+#   - optional: Can be completed but not required
+#   - recommended: Strongly suggested but not required
+#   - conditional: Required only if certain conditions met (e.g., if_has_ui)
+#
+# Completion Status:
+#   - {file-path}: File created/found (e.g., "docs/product-brief.md")
+#   - skipped: Optional/conditional workflow that was skipped
+
+generated: "2025-11-25"
+project: "Flowline Finance Studio"
+project_type: "Velocity Banking application for South African market"
+selected_track: "bmad-method"
+field_type: "greenfield"
+workflow_path: ".bmad/bmm/workflows/workflow-status/paths/method-greenfield.yaml"
+
+workflow_status:
+  # Phase 0: Discovery (Optional)
+  - phase: 0
+    name: "Discovery"
+    workflows:
+      - id: "brainstorm-project"
+        name: "Guided Brainstorming"
+        agent: "analyst"
+        command: "/bmad:bmm:workflows:brainstorm-project"
+        status: "docs/bmm-brainstorming-session-2025-11-25.md"
+
+      - id: "research"
+        name: "Guided Research"
+        agent: "analyst"
+        command: "/bmad:bmm:workflows:research"
+        status: "docs/research-market-competitive-2025-11-25.md"
+        note: "Market research + competitive intelligence completed"
+
+      - id: "product-brief"
+        name: "Create Product Brief"
+        agent: "analyst"
+        command: "/bmad:bmm:workflows:product-brief"
+        status: "docs/product-brief-flowline-finance-studio-2025-11-26.md"
+
+  # Phase 1: Planning
+  - phase: 1
+    name: "Planning"
+    workflows:
+      - id: "prd"
+        name: "Product Requirements Document"
+        agent: "pm"
+        command: "/bmad:bmm:workflows:prd"
+        status: "docs/prd.md"
+        output: "PRD with 55 functional requirements and 21 non-functional requirements"
+
+      - id: "validate-prd"
+        name: "Validate PRD"
+        agent: "pm"
+        command: "/bmad:bmm:workflows:validate-prd"
+        status: "optional"
+        note: "Quality check for PRD completeness"
+
+      - id: "create-design"
+        name: "Create UX Design"
+        agent: "ux-designer"
+        command: "/bmad:bmm:workflows:create-ux-design"
+        status: "docs/ux-design-specification.md"
+        note: "Required if application has UI (determined after PRD)"
+
+  # Phase 2: Solutioning
+  - phase: 2
+    name: "Solutioning"
+    workflows:
+      - id: "create-architecture"
+        name: "Create Architecture"
+        agent: "architect"
+        command: "/bmad:bmm:workflows:architecture"
+        status: "docs/architecture.md"
+        output: "Complete architecture with 6 ADRs, decision summary, project structure, implementation patterns"
+        note: "Vite + React + TypeScript + shadcn/ui + Dexie.js + Zustand + big.js"
+
+      - id: "create-epics-and-stories"
+        name: "Create Epics and Stories"
+        agent: "pm"
+        command: "/bmad:bmm:workflows:create-epics-and-stories"
+        status: "docs/epics.md"
+        output: "7 epics, 37 stories, 100% FR coverage (55/55)"
+        note: "Full context: PRD + UX Design + Architecture incorporated"
+
+      - id: "test-design"
+        name: "Test Design Review"
+        agent: "tea"
+        command: "/bmad:bmm:workflows:test-design"
+        status: "docs/test-design-system.md"
+        output: "System-level testability review - PASS (Controllability 9/10, Observability 8/10, Reliability 9/10)"
+        note: "4 high-risk ASRs identified, 70/20/10 test split recommended, no blockers"
+
+      - id: "validate-architecture"
+        name: "Validate Architecture"
+        agent: "architect"
+        command: "/bmad:bmm:workflows:validate-architecture"
+        status: "optional"
+        note: "Quality check for architecture completeness"
+
+      - id: "implementation-readiness"
+        name: "Implementation Readiness Check"
+        agent: "architect"
+        command: "/bmad:bmm:workflows:implementation-readiness"
+        status: "docs/implementation-readiness-report-2025-11-28.md"
+        output: "READY FOR IMPLEMENTATION - 100% FR coverage, no critical gaps, all artifacts aligned"
+        note: "Validates PRD + UX + Architecture + Epics cohesion"
+
+  # Phase 3: Implementation
+  - phase: 3
+    name: "Implementation"
+    workflows:
+      - id: "sprint-planning"
+        name: "Sprint Planning"
+        agent: "sm"
+        command: "/bmad:bmm:workflows:sprint-planning"
+        status: "docs/sprint-artifacts/sprint-status.yaml"
+        output: "7 epics, 37 stories extracted and tracked"
+        note: "Sprint status file created - subsequent work tracked in sprint-status.yaml"

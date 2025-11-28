@@ -1,0 +1,16 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "window.title": "🛠 Flowline Finance Studio – Dev (${folderName})",
+    "workbench.colorCustomizations": {
+      "titleBar.activeBackground": "#123c64",
+      "titleBar.activeForeground": "#ffffff",
+      "titleBar.inactiveBackground": "#123c64",
+      "titleBar.inactiveForeground": "#cccccc"
+    }
+  }
+}
