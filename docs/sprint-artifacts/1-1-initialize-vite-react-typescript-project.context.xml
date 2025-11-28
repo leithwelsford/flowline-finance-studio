@@ -1,0 +1,202 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>1</storyId>
+    <title>Initialize Vite + React + TypeScript Project</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-28</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-1-initialize-vite-react-typescript-project.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>a properly configured Vite + React + TypeScript project with all core dependencies</iWant>
+    <soThat>I have a solid foundation for building the application</soThat>
+    <tasks>
+      <task id="1" ac="1">Create Vite + React + TypeScript project
+        <subtask>Run npm create vite@latest flowline-finance-studio -- --template react-ts</subtask>
+        <subtask>Navigate into project directory</subtask>
+        <subtask>Run npm install to install base dependencies</subtask>
+        <subtask>Verify npm run dev starts successfully</subtask>
+      </task>
+      <task id="2" ac="2">Configure Tailwind CSS with custom theme
+        <subtask>Initialize Tailwind CSS via shadcn/ui init or direct install</subtask>
+        <subtask>Configure tailwind.config.ts with Balanced Teal theme colors</subtask>
+        <subtask>Set primary color to teal-600 (#0d9488)</subtask>
+        <subtask>Configure semantic colors (green-500 success, red-500 error, amber-500 warning)</subtask>
+      </task>
+      <task id="3" ac="3">Initialize shadcn/ui components
+        <subtask>Run npx shadcn@latest init</subtask>
+        <subtask>Select TypeScript, Balanced Teal theme, CSS variables</subtask>
+        <subtask>Install required components: Button, Card, Input, Form, Table, Toast, Tabs</subtask>
+        <subtask>Verify components are accessible in src/components/ui/</subtask>
+      </task>
+      <task id="4" ac="4">Configure path aliases
+        <subtask>Update tsconfig.json with @/* path mapping to ./src/*</subtask>
+        <subtask>Update vite.config.ts with resolve.alias configuration</subtask>
+        <subtask>Verify imports work with @/ prefix</subtask>
+      </task>
+      <task id="5" ac="5">Set up ESLint + Prettier
+        <subtask>Configure ESLint with TypeScript and React rules</subtask>
+        <subtask>Install and configure Prettier</subtask>
+        <subtask>Create .eslintrc.cjs and .prettierrc configuration files</subtask>
+        <subtask>Add lint scripts to package.json</subtask>
+        <subtask>Verify npm run lint works</subtask>
+      </task>
+      <task id="6" ac="6">Install core dependencies
+        <subtask>Install production deps: recharts dexie dexie-react-hooks zustand big.js date-fns react-hook-form zod @hookform/resolvers</subtask>
+        <subtask>Install dev deps: @types/big.js vitest @testing-library/react @testing-library/jest-dom</subtask>
+        <subtask>Verify all packages in package.json</subtask>
+      </task>
+      <task id="7" ac="9">Configure Vitest for testing
+        <subtask>Create vite.config.ts test configuration</subtask>
+        <subtask>Create tests/setup.ts with Testing Library setup</subtask>
+        <subtask>Create placeholder test file that passes</subtask>
+        <subtask>Add test script to package.json</subtask>
+        <subtask>Verify npm run test passes</subtask>
+      </task>
+      <task id="8" ac="1,6,7,8">Set up folder structure
+        <subtask>Create folder structure per Architecture doc</subtask>
+        <subtask>Create placeholder files to preserve structure</subtask>
+      </task>
+      <task id="9" ac="7,8">Verify build commands
+        <subtask>Run npm run dev and verify server starts</subtask>
+        <subtask>Run npm run build and verify build completes</subtask>
+        <subtask>Run npm run preview and verify production build works</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Given a fresh development environment When I run the project initialization commands Then Vite + React + TypeScript template is initialized successfully</criterion>
+    <criterion id="2">Given the project is initialized When I check the configuration Then Tailwind CSS is configured with custom teal theme colors (primary: teal-600 #0d9488)</criterion>
+    <criterion id="3">Given Tailwind is configured When I initialize shadcn/ui Then default components are installed (Button, Card, Input, Form, Table, Toast, Tabs)</criterion>
+    <criterion id="4">Given the project structure exists When I check tsconfig.json Then path alias @/ is configured for clean imports</criterion>
+    <criterion id="5">Given the project is initialized When I check code quality tools Then ESLint + Prettier are configured and working</criterion>
+    <criterion id="6">Given the project is ready When I check package.json Then all dependencies from Architecture doc are installed: recharts, dexie, dexie-react-hooks, zustand, big.js, date-fns, react-hook-form, zod, @hookform/resolvers, vitest, @testing-library/react, @testing-library/jest-dom</criterion>
+    <criterion id="7">Given all dependencies are installed When I run npm run dev Then development server starts successfully</criterion>
+    <criterion id="8">Given all dependencies are installed When I run npm run build Then production bundle is generated without errors</criterion>
+    <criterion id="9">Given Vitest is configured When I run npm run test Then tests run with placeholder test passing</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Initialization</section>
+        <snippet>Defines exact initialization commands: npm create vite@latest, shadcn init, and all dependency installation commands for the tech stack.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Structure</section>
+        <snippet>Defines the complete folder structure: src/components/, src/lib/, src/hooks/, src/store/, src/types/, src/pages/, and tests/ directories with specific subdirectories.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Decision Summary</section>
+        <snippet>Technology decisions: Dexie.js 4.x for persistence, Zustand 4.x for state, big.js 6.x for precision math, React Hook Form 7.x + Zod 3.x for forms, Vitest 1.x for testing, Recharts 2.x for charts.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Implementation Patterns</section>
+        <snippet>Naming conventions: kebab-case files, PascalCase components, use* hooks, camelCase functions. Error handling via Result type pattern. Logging with console prefixes.</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>Web Application Specific Requirements</section>
+        <snippet>Platform: Web-based SPA. Technology: React/Vue/Svelte, Tailwind CSS, Chart.js/Recharts. Deployment: Static hosting (GitHub Pages, Netlify, Vercel free tier).</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Story 1.1: Initialize Vite + React + TypeScript Project</section>
+        <snippet>Acceptance criteria for project initialization including Vite setup, Tailwind CSS with teal theme, shadcn/ui components, path aliases, ESLint/Prettier, and all core dependencies.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <!-- Greenfield project - no existing code artifacts -->
+      <note>This is Story 1.1 - first story in a greenfield project. No existing source code to reference. All code will be created by this story.</note>
+    </code>
+    <dependencies>
+      <target-ecosystem>Node.js/npm</target-ecosystem>
+      <production>
+        <package name="react" version="^19.0.0" />
+        <package name="react-dom" version="^19.0.0" />
+        <package name="recharts" version="^2.x" />
+        <package name="dexie" version="^4.x" />
+        <package name="dexie-react-hooks" version="^1.x" />
+        <package name="zustand" version="^4.x" />
+        <package name="big.js" version="^6.x" />
+        <package name="date-fns" version="^3.x" />
+        <package name="react-hook-form" version="^7.x" />
+        <package name="zod" version="^3.x" />
+        <package name="@hookform/resolvers" version="^3.x" />
+      </production>
+      <development>
+        <package name="typescript" version="^5.x" />
+        <package name="vite" version="^5.x" />
+        <package name="@vitejs/plugin-react" version="^4.x" />
+        <package name="tailwindcss" version="^3.x" />
+        <package name="@types/big.js" version="^6.x" />
+        <package name="vitest" version="^1.x" />
+        <package name="@testing-library/react" version="^14.x" />
+        <package name="@testing-library/jest-dom" version="^6.x" />
+        <package name="eslint" version="^8.x" />
+        <package name="prettier" version="^3.x" />
+      </development>
+      <ui-framework>
+        <name>shadcn/ui</name>
+        <components>Button, Card, Input, Form, Table, Toast, Tabs</components>
+        <primitives>Radix UI</primitives>
+      </ui-framework>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architecture">Client-side only SPA - no backend, no server-side rendering</constraint>
+    <constraint type="architecture">All data persisted locally via IndexedDB (Dexie.js)</constraint>
+    <constraint type="architecture">Calculation logic must be framework-agnostic in src/lib/</constraint>
+    <constraint type="naming">Files: kebab-case, Components: PascalCase, Hooks: use* prefix, Functions: camelCase</constraint>
+    <constraint type="import">Use @/ path alias for all src/ imports - no deep relative paths</constraint>
+    <constraint type="styling">Tailwind utility classes only - no custom CSS files except index.css</constraint>
+    <constraint type="theme">Primary color: teal-600 (#0d9488) - Balanced Teal theme from UX spec</constraint>
+    <constraint type="precision">All monetary calculations must use big.js - no floating point arithmetic</constraint>
+    <constraint type="testing">Vitest with React Testing Library - tests in tests/ directory or *.test.ts colocated</constraint>
+  </constraints>
+
+  <interfaces>
+    <!-- Greenfield project - no existing interfaces -->
+    <note>Story 1.1 establishes the project foundation. No existing interfaces to implement against. This story creates the baseline configuration that all subsequent stories will build upon.</note>
+    <future-interfaces>
+      <interface name="Dexie Database" kind="IndexedDB wrapper">Will be defined in Story 1.2</interface>
+      <interface name="Zustand Stores" kind="State management">Will be defined in Story 1.4</interface>
+    </future-interfaces>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Use Vitest as the test runner with React Testing Library for component testing. Tests should be fast, isolated, and focused on behavior rather than implementation. Test files use *.test.ts or *.test.tsx naming convention. Setup file at tests/setup.ts imports @testing-library/jest-dom matchers for DOM assertions.
+    </standards>
+    <locations>
+      <location>tests/</location>
+      <location>**/*.test.ts</location>
+      <location>**/*.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea ac="1">Verify Vite dev server starts without errors (integration test)</idea>
+      <idea ac="2">Verify Tailwind CSS classes compile correctly (build test)</idea>
+      <idea ac="3">Verify shadcn/ui Button component renders (component test)</idea>
+      <idea ac="4">Verify @/ path alias resolves correctly (import test)</idea>
+      <idea ac="5">Verify ESLint runs without config errors (lint test)</idea>
+      <idea ac="6">Verify all packages importable without errors (smoke test)</idea>
+      <idea ac="7,8">Verify npm run dev and npm run build complete successfully (script tests)</idea>
+      <idea ac="9">Placeholder test: expect(true).toBe(true) - confirms Vitest works</idea>
+    </ideas>
+  </tests>
+</story-context>
