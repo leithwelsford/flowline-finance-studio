@@ -1,0 +1,251 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>2</storyId>
+    <title>Implement Dexie Database Schema and Core Types</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-28</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-2-implement-dexie-database-schema-and-core-types.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>a properly configured IndexedDB database with TypeScript types</iWant>
+    <soThat>all financial data can be persisted locally with type safety</soThat>
+    <tasks>
+      <task id="1" ac="8,9,10,11,12,14">
+        <name>Create TypeScript interfaces and types</name>
+        <subtasks>
+          <subtask>Create src/types/account.ts with DebtAccount interface</subtask>
+          <subtask>Add AccountType union type: 'home_loan' | 'vehicle_finance' | 'personal_loan' | 'credit_card'</subtask>
+          <subtask>Add InterestType union type: 'monthly' | 'daily'</subtask>
+          <subtask>Create src/types/flexi-facility.ts with FlexiFacility interface</subtask>
+          <subtask>Add FlexiFacilityType union type: 'fnb_flexi' | 'standard_bank_access'</subtask>
+          <subtask>Create src/types/income.ts with IncomeEntry interface</subtask>
+          <subtask>Create src/types/expense.ts with ExpenseEntry interface</subtask>
+          <subtask>Add ExpenseCategory union type: 'housing' | 'transport' | 'food' | 'utilities' | 'insurance' | 'entertainment' | 'other'</subtask>
+          <subtask>Create src/types/balance-snapshot.ts with BalanceSnapshot interface</subtask>
+          <subtask>Create src/types/settings.ts with AppSettings interface</subtask>
+          <subtask>Update src/types/index.ts with barrel exports for all types</subtask>
+        </subtasks>
+      </task>
+      <task id="2" ac="1,2,3,4,5,6,7,13">
+        <name>Create Dexie database schema</name>
+        <subtasks>
+          <subtask>Create src/lib/db/schema.ts with FlowlineDB class extending Dexie</subtask>
+          <subtask>Define accounts table with indexes: '++id, name, type, createdAt'</subtask>
+          <subtask>Define flexiFacility table with indexes: '++id, name, createdAt'</subtask>
+          <subtask>Define income table with indexes: '++id, source, date'</subtask>
+          <subtask>Define expenses table with indexes: '++id, category, date'</subtask>
+          <subtask>Define balanceSnapshots table with indexes: '++id, accountId, date'</subtask>
+          <subtask>Define settings table with index: 'key'</subtask>
+          <subtask>Set database version to 1</subtask>
+          <subtask>Create src/lib/db/index.ts exporting database instance</subtask>
+        </subtasks>
+      </task>
+      <task id="3" ac="All">
+        <name>Write unit tests for types and database</name>
+        <subtasks>
+          <subtask>Create tests/types/account.test.ts testing type validation</subtask>
+          <subtask>Create tests/lib/db/schema.test.ts testing database operations</subtask>
+          <subtask>Test CRUD operations: add, get, update, delete for accounts table</subtask>
+          <subtask>Test that monetary values store as strings correctly</subtask>
+          <subtask>Test that dates store as ISO strings correctly</subtask>
+          <subtask>Verify all tests pass with npm run test</subtask>
+        </subtasks>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Given the initialized project When I implement the database layer Then a Dexie database instance is created with name 'flowline-finance-studio'</criterion>
+    <criterion id="2">Given the database is initialized When I check the schema Then the accounts table exists with fields: id, name, type, balance, interestRate, minimumPayment, lender, interestType, createdAt, updatedAt</criterion>
+    <criterion id="3">Given the database is initialized When I check the schema Then the flexiFacility table exists with fields: id, name, type, creditLimit, currentBalance, interestRate, createdAt, updatedAt</criterion>
+    <criterion id="4">Given the database is initialized When I check the schema Then the income table exists with fields: id, source, amount, paymentDate, createdAt</criterion>
+    <criterion id="5">Given the database is initialized When I check the schema Then the expenses table exists with fields: id, category, amount, date, createdAt</criterion>
+    <criterion id="6">Given the database is initialized When I check the schema Then the balanceSnapshots table exists with fields: id, accountId, date, balance, notes, createdAt</criterion>
+    <criterion id="7">Given the database is initialized When I check the schema Then the settings table exists with fields: key, value</criterion>
+    <criterion id="8">Given the types are created When I check src/types/ Then TypeScript interfaces exist for: DebtAccount, FlexiFacility, IncomeEntry, ExpenseEntry, BalanceSnapshot</criterion>
+    <criterion id="9">Given the types are created When I check account types Then AccountType enum includes: 'home_loan' | 'vehicle_finance' | 'personal_loan' | 'credit_card'</criterion>
+    <criterion id="10">Given the types are created When I check facility types Then FlexiFacilityType enum includes: 'fnb_flexi' | 'standard_bank_access'</criterion>
+    <criterion id="11">Given all types are defined When I check monetary value storage Then all monetary values (balance, amounts, rates) are stored as strings for big.js precision</criterion>
+    <criterion id="12">Given all types are defined When I check date storage Then all dates are stored as ISO strings</criterion>
+    <criterion id="13">Given the database module is complete When I import from src/lib/db/index.ts Then the database instance is exported and usable</criterion>
+    <criterion id="14">Given the types module is complete When I import from src/types/index.ts Then all types are re-exported via barrel exports</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Database Schema (Dexie.js)</section>
+        <snippet>FlowlineDB class definition with accounts, flexiFacility, income, expenses, balanceSnapshots, settings tables. Uses Dexie.js for IndexedDB wrapper.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Core Data Types</section>
+        <snippet>Monetary values stored as string for big.js precision. Dates as ISO strings. Rates as decimal strings (0.115 = 11.5%). IDs auto-incremented (++id).</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>ADR-002: Dexie.js for Data Persistence</section>
+        <snippet>Use Dexie.js wrapper over IndexedDB for structured queries, async operations, React hooks integration (useLiveQuery), and future Dexie Cloud migration path.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>ADR-003: big.js for Financial Calculations</section>
+        <snippet>Use big.js for all monetary calculations to avoid floating-point precision errors. Store as strings to preserve precision.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Flowline Finance Studio - Epic Breakdown</title>
+        <section>Story 1.2: Implement Dexie Database Schema and Core Types</section>
+        <snippet>Database layer with 6 tables and TypeScript interfaces for DebtAccount, FlexiFacility, IncomeEntry, ExpenseEntry, BalanceSnapshot.</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>PRD</title>
+        <section>FR7</section>
+        <snippet>System persists all financial data locally (browser storage or local database).</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/types/index.ts</path>
+        <kind>barrel-export</kind>
+        <symbol>types barrel</symbol>
+        <lines>1-4</lines>
+        <reason>Empty barrel export file to be populated with type re-exports</reason>
+      </file>
+      <file>
+        <path>src/lib/utils.ts</path>
+        <kind>utility</kind>
+        <symbol>cn</symbol>
+        <lines>1-6</lines>
+        <reason>Utility function pattern to follow for new utilities</reason>
+      </file>
+    </code>
+    <dependencies>
+      <node>
+        <package name="dexie" version="^4.2.1">IndexedDB wrapper for structured queries</package>
+        <package name="dexie-react-hooks" version="^4.2.0">React hooks for Dexie (useLiveQuery)</package>
+        <package name="big.js" version="^7.0.1">Arbitrary precision arithmetic for financial calculations</package>
+        <package name="date-fns" version="^4.1.0">Date manipulation and formatting</package>
+        <package name="zod" version="^4.1.13">TypeScript-first schema validation</package>
+        <package name="vitest" version="^4.0.14" dev="true">Test framework</package>
+        <package name="@testing-library/react" version="^16.3.0" dev="true">React testing utilities</package>
+        <package name="@testing-library/jest-dom" version="^6.9.1" dev="true">DOM testing matchers</package>
+        <package name="@types/big.js" version="^6.2.2" dev="true">TypeScript types for big.js</package>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="ADR-003">All monetary values MUST be stored as strings (e.g., "500000.00") to preserve big.js precision</constraint>
+    <constraint source="ADR-002">Use Dexie.js Table type with generics: Dexie.Table&lt;Type, number&gt; for auto-increment id, Dexie.Table&lt;Type, string&gt; for string keys</constraint>
+    <constraint source="Architecture">Dates MUST be stored as ISO strings (e.g., "2025-11-28T00:00:00.000Z")</constraint>
+    <constraint source="Architecture">Interest rates stored as decimal strings (0.115 = 11.5%)</constraint>
+    <constraint source="Architecture">Use path alias @/ for all imports (configured in tsconfig.json and vite.config.ts)</constraint>
+    <constraint source="Architecture">Database version starts at 1, increment for schema migrations</constraint>
+    <constraint source="Architecture">Folder structure: types in src/types/, db in src/lib/db/</constraint>
+    <constraint source="Story 1-1">All dependencies already installed - no npm install needed</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>DebtAccount</name>
+      <kind>TypeScript interface</kind>
+      <signature>
+interface DebtAccount {
+  id?: number;
+  name: string;
+  type: AccountType;
+  balance: string;
+  interestRate: string;
+  minimumPayment: string;
+  lender: string;
+  interestType: InterestType;
+  createdAt: string;
+  updatedAt: string;
+}
+      </signature>
+      <path>src/types/account.ts (to be created)</path>
+    </interface>
+    <interface>
+      <name>FlexiFacility</name>
+      <kind>TypeScript interface</kind>
+      <signature>
+interface FlexiFacility {
+  id?: number;
+  name: string;
+  type: FlexiFacilityType;
+  creditLimit: string;
+  currentBalance: string;
+  interestRate: string;
+  createdAt: string;
+  updatedAt: string;
+}
+      </signature>
+      <path>src/types/flexi-facility.ts (to be created)</path>
+    </interface>
+    <interface>
+      <name>FlowlineDB</name>
+      <kind>Dexie database class</kind>
+      <signature>
+class FlowlineDB extends Dexie {
+  accounts!: Dexie.Table&lt;DebtAccount, number&gt;;
+  flexiFacility!: Dexie.Table&lt;FlexiFacility, number&gt;;
+  income!: Dexie.Table&lt;IncomeEntry, number&gt;;
+  expenses!: Dexie.Table&lt;ExpenseEntry, number&gt;;
+  balanceSnapshots!: Dexie.Table&lt;BalanceSnapshot, number&gt;;
+  settings!: Dexie.Table&lt;AppSettings, string&gt;;
+}
+      </signature>
+      <path>src/lib/db/schema.ts (to be created)</path>
+    </interface>
+    <interface>
+      <name>Dexie Table Indexes</name>
+      <kind>Dexie schema definition</kind>
+      <signature>
+this.version(1).stores({
+  accounts: '++id, name, type, createdAt',
+  flexiFacility: '++id, name, createdAt',
+  income: '++id, source, date',
+  expenses: '++id, category, date',
+  balanceSnapshots: '++id, accountId, date',
+  settings: 'key',
+});
+      </signature>
+      <path>src/lib/db/schema.ts (to be created)</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Use Vitest with React Testing Library. Test files use *.test.ts extension. Test setup at tests/setup.ts imports @testing-library/jest-dom matchers. Tests run with `npm run test` or `npm run test:run`. Use jsdom environment for browser APIs like IndexedDB.
+    </standards>
+    <locations>
+      <location>tests/</location>
+      <location>tests/types/</location>
+      <location>tests/lib/db/</location>
+    </locations>
+    <ideas>
+      <idea ac="1">Test that FlowlineDB instance is created with correct database name</idea>
+      <idea ac="2,3,4,5,6,7">Test that each table can be accessed from db instance</idea>
+      <idea ac="2">Test accounts CRUD: add account, get by id, update balance, delete</idea>
+      <idea ac="3">Test flexiFacility: add facility, verify only one allowed</idea>
+      <idea ac="4">Test income: add income source, list all sources</idea>
+      <idea ac="5">Test expenses: add expense by category, filter by category</idea>
+      <idea ac="6">Test balanceSnapshots: add snapshot for account, query by date range</idea>
+      <idea ac="7">Test settings: set key-value, get by key</idea>
+      <idea ac="11">Test that balance field stores "500000.00" as string without precision loss</idea>
+      <idea ac="12">Test that createdAt field stores ISO date string correctly</idea>
+      <idea ac="14">Test that all types can be imported from @/types barrel export</idea>
+    </ideas>
+  </tests>
+</story-context>

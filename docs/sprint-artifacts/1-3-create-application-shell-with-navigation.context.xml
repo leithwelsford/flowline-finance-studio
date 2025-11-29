@@ -1,0 +1,164 @@
+<story-context id="1-3-create-application-shell-with-navigation" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>3</storyId>
+    <title>Create Application Shell with Navigation</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-29</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-3-create-application-shell-with-navigation.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to navigate between the main sections of the application</iWant>
+    <soThat>I can access different features easily</soThat>
+    <tasks>
+      <task id="1" acs="1,2,8,9,10,11">Create layout components
+        <subtask>Create src/components/layout/Header.tsx with app title/logo</subtask>
+        <subtask>Create src/components/layout/Navigation.tsx with desktop tab navigation</subtask>
+        <subtask>Add shadcn/ui Tabs component for desktop navigation</subtask>
+        <subtask>Add teal underline indicator for active tab (teal-600 #0d9488)</subtask>
+        <subtask>Create src/components/layout/MobileNav.tsx with hamburger menu</subtask>
+        <subtask>Add shadcn/ui Sheet component for mobile drawer</subtask>
+        <subtask>Implement responsive breakpoint logic (show tabs > 640px, hamburger &lt; 640px)</subtask>
+        <subtask>Create src/components/layout/PageContainer.tsx wrapper component</subtask>
+        <subtask>Create src/components/layout/index.ts barrel exports</subtask>
+      </task>
+      <task id="2" acs="3,4,5,6,12">Create page placeholder components
+        <subtask>Create src/pages/DashboardPage.tsx with centered "Dashboard" heading</subtask>
+        <subtask>Create src/pages/DataEntryPage.tsx with centered "Data Entry" heading</subtask>
+        <subtask>Create src/pages/ComparePage.tsx with centered "Compare" heading</subtask>
+        <subtask>Create src/pages/TrackPage.tsx with centered "Track" heading</subtask>
+        <subtask>Create src/pages/index.ts barrel exports</subtask>
+      </task>
+      <task id="3" acs="7">Implement navigation state and routing
+        <subtask>Add currentPage state to App.tsx: 'dashboard' | 'data-entry' | 'compare' | 'track'</subtask>
+        <subtask>Implement conditional rendering based on currentPage state</subtask>
+        <subtask>Pass setCurrentPage handler to Navigation components</subtask>
+        <subtask>Ensure mobile drawer closes on navigation (controlled state)</subtask>
+      </task>
+      <task id="4" acs="1,2,3,4,5,6,7">Update App.tsx with application shell
+        <subtask>Import and compose Header, Navigation, and PageContainer components</subtask>
+        <subtask>Render correct page based on currentPage state</subtask>
+        <subtask>Set Dashboard as default page on app load</subtask>
+        <subtask>Apply Tailwind responsive classes for layout</subtask>
+      </task>
+      <task id="5" acs="all">Write tests for navigation functionality
+        <subtask>Create tests/components/layout/Navigation.test.tsx</subtask>
+        <subtask>Test that all four tabs are rendered on desktop</subtask>
+        <subtask>Test that clicking tabs changes the active indicator</subtask>
+        <subtask>Test mobile hamburger menu interaction</subtask>
+        <subtask>Test responsive breakpoint behavior (mock resize)</subtask>
+        <subtask>Verify all tests pass with npm run test</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="1">Given I open the application When the app loads Then I see a navigation header with tabs: Dashboard | Data Entry | Compare | Track</ac>
+    <ac id="2">Given the navigation is displayed When I view the header Then I see the app title "Flowline Finance Studio" with the logo</ac>
+    <ac id="3">Given I click the "Dashboard" tab When navigation completes Then the Dashboard page placeholder is displayed</ac>
+    <ac id="4">Given I click the "Data Entry" tab When navigation completes Then the Data Entry page placeholder is displayed</ac>
+    <ac id="5">Given I click the "Compare" tab When navigation completes Then the Compare page placeholder is displayed</ac>
+    <ac id="6">Given I click the "Track" tab When navigation completes Then the Track page placeholder is displayed</ac>
+    <ac id="7">Given I am on any page When I view the navigation Then the current page tab has a teal underline indicator (#0d9488)</ac>
+    <ac id="8">Given I am viewing on mobile (&lt; 640px width) When I view the navigation Then the navigation collapses to a hamburger menu</ac>
+    <ac id="9">Given I am on mobile and click the hamburger menu When the menu opens Then I see a drawer (Sheet component) with all navigation options listed vertically</ac>
+    <ac id="10">Given I click a navigation item in the mobile drawer When navigation completes Then the drawer closes automatically and the selected page is displayed</ac>
+    <ac id="11">Given I resize the browser When the width crosses the 640px breakpoint Then the layout adapts responsively (tabs on desktop, hamburger on mobile)</ac>
+    <ac id="12">Given the pages are created When I view each placeholder page Then each page shows a centered heading with the page name</ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/architecture.md" title="Architecture" section="Project Structure" snippet="Defines layout component structure: src/components/layout/ for Header.tsx, Navigation.tsx, PageContainer.tsx. Page components in src/pages/." />
+      <doc path="docs/architecture.md" title="Architecture" section="FR Category to Architecture Mapping" snippet="FR53 (navigation) maps to components/layout/ and pages/. Dashboard as primary landing page (FR42)." />
+      <doc path="docs/ux-design-specification.md" title="UX Design" section="7.1 Consistency Rules" snippet="Navigation pattern: Top-level tabs (Dashboard | Data Entry | Compare | Track). Mobile: hamburger menu. Current page: teal underline indicator." />
+      <doc path="docs/ux-design-specification.md" title="UX Design" section="8.1 Responsive Strategy" snippet="Breakpoints: Mobile &lt; 640px (sm), Tablet 640-1024px (md, lg), Desktop > 1024px. Mobile: navigation becomes hamburger menu." />
+      <doc path="docs/ux-design-specification.md" title="UX Design" section="3.1 Color System" snippet="Primary: teal-600 (#0d9488) for active indicators. Primary Dark: teal-700 (#0f766e) for hover. Text: slate-900. Background: slate-50." />
+      <doc path="docs/ux-design-specification.md" title="UX Design" section="6.1 Component Strategy" snippet="Use shadcn/ui Tabs for section navigation, Sheet for mobile drawer. Customize with Balanced Teal theme." />
+      <doc path="docs/epics.md" title="Epics" section="Story 1.3" snippet="Create Application Shell with Navigation. Prerequisite: Story 1.1. No router library needed, use conditional rendering in App.tsx." />
+      <doc path="docs/prd.md" title="PRD" section="FR53" snippet="User can navigate between main sections: data entry, strategy comparison, progress tracking, health dashboard." />
+      <doc path="docs/prd.md" title="PRD" section="FR49-50" snippet="Web browser access on desktop/mobile. Responsive design working on common screen sizes." />
+    </docs>
+
+    <code>
+      <file path="src/App.tsx" kind="component" symbol="App" lines="1-11" reason="Main application component to be modified. Currently shows placeholder title. Will be replaced with application shell." />
+      <file path="src/components/ui/tabs.tsx" kind="component" symbol="Tabs, TabsList, TabsTrigger, TabsContent" lines="1-53" reason="shadcn/ui Tabs component for desktop navigation. Already installed via @radix-ui/react-tabs." />
+      <file path="src/lib/utils.ts" kind="utility" symbol="cn" lines="1-7" reason="Tailwind class merging utility. Use for combining Tailwind classes in components." />
+      <file path="src/main.tsx" kind="entry" reason="Application entry point. Renders App component." />
+      <file path="src/types/index.ts" kind="barrel" reason="Barrel exports for types. Pattern to follow for layout/pages barrel exports." />
+      <file path="src/lib/db/index.ts" kind="module" reason="Database exports pattern. Follow same barrel export pattern for new modules." />
+    </code>
+
+    <dependencies>
+      <node>
+        <runtime>
+          <pkg name="react" version="^19.2.0" />
+          <pkg name="react-dom" version="^19.2.0" />
+          <pkg name="@radix-ui/react-tabs" version="^1.1.13" note="Already installed - used for Tabs component" />
+          <pkg name="lucide-react" version="^0.555.0" note="Icons library - use for hamburger menu icon (Menu, X)" />
+          <pkg name="tailwind-merge" version="^3.4.0" />
+          <pkg name="clsx" version="^2.1.1" />
+          <pkg name="class-variance-authority" version="^0.7.1" />
+        </runtime>
+        <dev>
+          <pkg name="vitest" version="^4.0.14" />
+          <pkg name="@testing-library/react" version="^16.3.0" />
+          <pkg name="@testing-library/jest-dom" version="^6.9.1" />
+          <pkg name="tailwindcss" version="^3.4.18" />
+          <pkg name="typescript" version="^5.9.3" />
+        </dev>
+        <toInstall>
+          <pkg name="shadcn/ui sheet" cmd="npx shadcn@latest add sheet" reason="Required for mobile navigation drawer (AC: 8, 9, 10)" />
+        </toInstall>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="architecture.md">No router library - use simple conditional rendering in App.tsx for MVP navigation</constraint>
+    <constraint source="architecture.md">Use path alias @/ for all imports from src/</constraint>
+    <constraint source="architecture.md">One component per file, barrel exports (index.ts) in each folder</constraint>
+    <constraint source="architecture.md">Files: kebab-case, Components: PascalCase, Hooks: use prefix</constraint>
+    <constraint source="ux-design.md">Mobile breakpoint at 640px (Tailwind sm:)</constraint>
+    <constraint source="ux-design.md">Primary teal-600 (#0d9488) for active indicators</constraint>
+    <constraint source="ux-design.md">Touch targets minimum 44x44px on mobile</constraint>
+    <constraint source="previous-story">Use barrel exports (index.ts) for clean imports - pattern from Story 1.2</constraint>
+    <constraint source="story-1.4">Keep currentPage state in App.tsx for now - Story 1.4 will move to Zustand store</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="PageType" kind="type" path="src/App.tsx">
+      <signature>type PageType = 'dashboard' | 'data-entry' | 'compare' | 'track'</signature>
+      <note>Navigation state type to be defined in App.tsx</note>
+    </interface>
+    <interface name="NavigationProps" kind="interface" path="src/components/layout/Navigation.tsx">
+      <signature>interface NavigationProps { currentPage: PageType; onNavigate: (page: PageType) => void; }</signature>
+      <note>Props for Navigation component</note>
+    </interface>
+    <interface name="Tabs" kind="component" path="src/components/ui/tabs.tsx">
+      <signature>Tabs, TabsList, TabsTrigger, TabsContent from @radix-ui/react-tabs</signature>
+      <note>Already available shadcn/ui component for desktop navigation</note>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Use Vitest with React Testing Library. Test setup at tests/setup.ts includes @testing-library/jest-dom matchers and fake-indexeddb. Follow existing test patterns in tests/types/account.test.ts and tests/lib/db/schema.test.ts. Tests should be co-located in tests/ directory mirroring src/ structure.</standards>
+    <locations>
+      <location>tests/components/layout/Navigation.test.tsx</location>
+      <location>tests/components/layout/Header.test.tsx</location>
+      <location>tests/pages/*.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea ac="1">Test that Navigation renders all four tabs (Dashboard, Data Entry, Compare, Track)</idea>
+      <idea ac="2">Test that Header displays "Flowline Finance Studio" title</idea>
+      <idea ac="3,4,5,6">Test that clicking each tab triggers onNavigate with correct page value</idea>
+      <idea ac="7">Test that active tab has teal-600 underline class applied</idea>
+      <idea ac="8,11">Test responsive behavior using matchMedia mock - tabs visible > 640px, hidden otherwise</idea>
+      <idea ac="9,10">Test mobile drawer opens on hamburger click, closes on navigation item click</idea>
+      <idea ac="12">Test each page component renders centered heading with page name</idea>
+    </ideas>
+  </tests>
+</story-context>
