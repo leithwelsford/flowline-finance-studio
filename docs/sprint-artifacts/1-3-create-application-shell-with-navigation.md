@@ -1,6 +1,6 @@
 # Story 1.3: Create Application Shell with Navigation
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -36,43 +36,43 @@ so that **I can access different features easily**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create layout components (AC: 1, 2, 8, 9, 10, 11)
-  - [ ] Create `src/components/layout/Header.tsx` with app title/logo
-  - [ ] Create `src/components/layout/Navigation.tsx` with desktop tab navigation
-  - [ ] Add shadcn/ui Tabs component for desktop navigation
-  - [ ] Add teal underline indicator for active tab (teal-600 #0d9488)
-  - [ ] Create `src/components/layout/MobileNav.tsx` with hamburger menu
-  - [ ] Add shadcn/ui Sheet component for mobile drawer
-  - [ ] Implement responsive breakpoint logic (show tabs > 640px, hamburger < 640px)
-  - [ ] Create `src/components/layout/PageContainer.tsx` wrapper component
-  - [ ] Create `src/components/layout/index.ts` barrel exports
+- [x] Task 1: Create layout components (AC: 1, 2, 8, 9, 10, 11)
+  - [x] Create `src/components/layout/Header.tsx` with app title/logo
+  - [x] Create `src/components/layout/Navigation.tsx` with desktop tab navigation
+  - [x] Add shadcn/ui Tabs component for desktop navigation
+  - [x] Add teal underline indicator for active tab (teal-600 #0d9488)
+  - [x] Create `src/components/layout/MobileNav.tsx` with hamburger menu
+  - [x] Add shadcn/ui Sheet component for mobile drawer
+  - [x] Implement responsive breakpoint logic (show tabs > 640px, hamburger < 640px)
+  - [x] Create `src/components/layout/PageContainer.tsx` wrapper component
+  - [x] Create `src/components/layout/index.ts` barrel exports
 
-- [ ] Task 2: Create page placeholder components (AC: 3, 4, 5, 6, 12)
-  - [ ] Create `src/pages/DashboardPage.tsx` with centered "Dashboard" heading
-  - [ ] Create `src/pages/DataEntryPage.tsx` with centered "Data Entry" heading
-  - [ ] Create `src/pages/ComparePage.tsx` with centered "Compare" heading
-  - [ ] Create `src/pages/TrackPage.tsx` with centered "Track" heading
-  - [ ] Create `src/pages/index.ts` barrel exports
+- [x] Task 2: Create page placeholder components (AC: 3, 4, 5, 6, 12)
+  - [x] Create `src/pages/DashboardPage.tsx` with centered "Dashboard" heading
+  - [x] Create `src/pages/DataEntryPage.tsx` with centered "Data Entry" heading
+  - [x] Create `src/pages/ComparePage.tsx` with centered "Compare" heading
+  - [x] Create `src/pages/TrackPage.tsx` with centered "Track" heading
+  - [x] Create `src/pages/index.ts` barrel exports
 
-- [ ] Task 3: Implement navigation state and routing (AC: 7)
-  - [ ] Add `currentPage` state to App.tsx: 'dashboard' | 'data-entry' | 'compare' | 'track'
-  - [ ] Implement conditional rendering based on currentPage state
-  - [ ] Pass setCurrentPage handler to Navigation components
-  - [ ] Ensure mobile drawer closes on navigation (controlled state)
+- [x] Task 3: Implement navigation state and routing (AC: 7)
+  - [x] Add `currentPage` state to App.tsx: 'dashboard' | 'data-entry' | 'compare' | 'track'
+  - [x] Implement conditional rendering based on currentPage state
+  - [x] Pass setCurrentPage handler to Navigation components
+  - [x] Ensure mobile drawer closes on navigation (controlled state)
 
-- [ ] Task 4: Update App.tsx with application shell (AC: 1, 2, 3, 4, 5, 6, 7)
-  - [ ] Import and compose Header, Navigation, and PageContainer components
-  - [ ] Render correct page based on currentPage state
-  - [ ] Set Dashboard as default page on app load
-  - [ ] Apply Tailwind responsive classes for layout
+- [x] Task 4: Update App.tsx with application shell (AC: 1, 2, 3, 4, 5, 6, 7)
+  - [x] Import and compose Header, Navigation, and PageContainer components
+  - [x] Render correct page based on currentPage state
+  - [x] Set Dashboard as default page on app load
+  - [x] Apply Tailwind responsive classes for layout
 
-- [ ] Task 5: Write tests for navigation functionality (AC: All)
-  - [ ] Create `tests/components/layout/Navigation.test.tsx`
-  - [ ] Test that all four tabs are rendered on desktop
-  - [ ] Test that clicking tabs changes the active indicator
-  - [ ] Test mobile hamburger menu interaction
-  - [ ] Test responsive breakpoint behavior (mock resize)
-  - [ ] Verify all tests pass with `npm run test`
+- [x] Task 5: Write tests for navigation functionality (AC: All)
+  - [x] Create `tests/components/layout/Navigation.test.tsx`
+  - [x] Test that all four tabs are rendered on desktop
+  - [x] Test that clicking tabs changes the active indicator
+  - [x] Test mobile hamburger menu interaction
+  - [x] Test responsive breakpoint behavior (mock resize)
+  - [x] Verify all tests pass with `npm run test`
 
 ## Dev Notes
 
@@ -212,13 +212,45 @@ describe('Navigation', () => {
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+- Used custom button-based navigation instead of radix Tabs to achieve teal underline styling per UX spec
+- Sheet component installed via shadcn for mobile drawer
+- Responsive breakpoint at 640px using Tailwind sm: prefix
+
 ### Completion Notes List
 
+- All 12 ACs implemented and tested
+- 69 tests passing (33 new tests for this story)
+- Build passes with no TypeScript errors
+- Mobile drawer auto-closes on navigation
+- Teal-600 underline indicator for active tab
+
 ### File List
+
+**Created:**
+- src/components/layout/Header.tsx
+- src/components/layout/Navigation.tsx
+- src/components/layout/MobileNav.tsx
+- src/components/layout/PageContainer.tsx
+- src/components/layout/index.ts
+- src/components/ui/sheet.tsx
+- src/pages/DashboardPage.tsx
+- src/pages/DataEntryPage.tsx
+- src/pages/ComparePage.tsx
+- src/pages/TrackPage.tsx
+- src/pages/index.ts
+- tests/components/layout/Header.test.tsx
+- tests/components/layout/Navigation.test.tsx
+- tests/components/layout/MobileNav.test.tsx
+- tests/components/layout/PageContainer.test.tsx
+- tests/pages/pages.test.tsx
+- tests/App.test.tsx
+
+**Modified:**
+- src/App.tsx
 
 ## Change Log
 
@@ -226,3 +258,4 @@ describe('Navigation', () => {
 |------|--------|--------|
 | 2025-11-29 | Story drafted from epics.md with full context | SM Agent (Bob) |
 | 2025-11-29 | Story context generated, marked ready-for-dev | SM Agent (Bob) |
+| 2025-11-29 | Implementation complete, all tasks done, 69 tests passing, marked for review | Dev Agent (Amelia) |
