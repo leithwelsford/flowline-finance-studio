@@ -8,6 +8,9 @@ import type {
   AppSettings,
 } from '@/types';
 
+/** Default database name for production use */
+export const DB_NAME = 'flowline-finance-studio';
+
 /**
  * FlowlineDB - IndexedDB database for Flowline Finance Studio
  *
@@ -35,8 +38,8 @@ export class FlowlineDB extends Dexie {
   /** Application settings (key-value store) */
   settings!: Table<AppSettings, string>;
 
-  constructor() {
-    super('flowline-finance-studio');
+  constructor(dbName: string = DB_NAME) {
+    super(dbName);
 
     this.version(1).stores({
       // Accounts: auto-increment id, indexed by name, type, createdAt

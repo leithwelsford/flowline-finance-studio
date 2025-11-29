@@ -24,5 +24,5 @@ import { FlowlineDB } from './schema';
  */
 export const db = new FlowlineDB();
 
-// Re-export the class for type usage
-export { FlowlineDB } from './schema';
+// Re-export the class and constants for type usage
+export { FlowlineDB, DB_NAME } from './schema';
