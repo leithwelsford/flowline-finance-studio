@@ -1,0 +1,290 @@
+<story-context id="1-4-implement-zustand-ui-store-and-toast-notifications" v="1.0">
+  <metadata>
+    <epicId>1</epicId>
+    <storyId>4</storyId>
+    <title>Implement Zustand UI Store and Toast Notifications</title>
+    <status>drafted</status>
+    <generatedAt>2025-11-29</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/1-4-implement-zustand-ui-store-and-toast-notifications.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>feedback when I perform actions in the app</iWant>
+    <soThat>I know my changes were saved successfully</soThat>
+    <tasks>
+      <task id="1" acs="1,2,3">Create Zustand UI Store
+        <subtasks>
+          <subtask>Install zustand if not already installed: npm install zustand</subtask>
+          <subtask>Create src/store/uiStore.ts with UI state and actions</subtask>
+          <subtask>Define currentPage state with type 'dashboard' | 'data-entry' | 'compare' | 'track'</subtask>
+          <subtask>Define selectedStrategyId state as string | null</subtask>
+          <subtask>Define isLoading state as boolean</subtask>
+          <subtask>Implement setCurrentPage(page) action</subtask>
+          <subtask>Implement setSelectedStrategy(id) action</subtask>
+          <subtask>Implement setIsLoading(loading) action</subtask>
+          <subtask>Create src/store/index.ts barrel export</subtask>
+        </subtasks>
+      </task>
+      <task id="2" acs="4,5">Migrate Navigation to Zustand Store
+        <subtasks>
+          <subtask>Update src/App.tsx to remove local currentPage useState</subtask>
+          <subtask>Import useUIStore in App.tsx to get currentPage</subtask>
+          <subtask>Update Navigation component to use useUIStore for state</subtask>
+          <subtask>Update MobileNav component to use useUIStore for state</subtask>
+          <subtask>Verify navigation still functions correctly after migration</subtask>
+        </subtasks>
+      </task>
+      <task id="3" acs="6,7,8,9,10">Implement Toast Notification System
+        <subtasks>
+          <subtask>Add shadcn/ui toast component: npx shadcn@latest add sonner</subtask>
+          <subtask>Add Toaster component to src/App.tsx</subtask>
+          <subtask>Configure toast positioning to bottom-right</subtask>
+          <subtask>Configure success toasts: green color, 3-second auto-dismiss</subtask>
+          <subtask>Configure error toasts: red color, require manual dismiss</subtask>
+          <subtask>Create a demo button (temporary) to test toast functionality</subtask>
+        </subtasks>
+      </task>
+      <task id="4" acs="11,12">Create Result Type Utility
+        <subtasks>
+          <subtask>Create src/lib/utils/result.ts with Result type definition</subtask>
+          <subtask>Export Result&lt;T, E = Error&gt; type with success and failure variants</subtask>
+          <subtask>Add helper functions: ok&lt;T&gt;(data: T) and err&lt;E&gt;(error: E)</subtask>
+          <subtask>Create src/lib/utils/index.ts barrel export</subtask>
+        </subtasks>
+      </task>
+      <task id="5" acs="all">Write Tests
+        <subtasks>
+          <subtask>Create tests/store/uiStore.test.ts</subtask>
+          <subtask>Test initial state values</subtask>
+          <subtask>Test setCurrentPage action</subtask>
+          <subtask>Test setSelectedStrategy action</subtask>
+          <subtask>Test setIsLoading action</subtask>
+          <subtask>Create tests/lib/utils/result.test.ts</subtask>
+          <subtask>Test Result type ok() helper</subtask>
+          <subtask>Test Result type err() helper</subtask>
+          <subtask>Update existing navigation tests if needed</subtask>
+          <subtask>Verify all tests pass with npm run test</subtask>
+        </subtasks>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <ac id="1">Given the application is running When the UI store is initialized Then a Zustand store exists at src/store/uiStore.ts with state: currentPage ('dashboard'|'data-entry'|'compare'|'track'), selectedStrategyId (string|null), isLoading (boolean)</ac>
+    <ac id="2">Given the UI store exists When I call setCurrentPage(page) action Then the currentPage state updates to the specified page</ac>
+    <ac id="3">Given the UI store exists When I call setSelectedStrategy(id) action Then the selectedStrategyId state updates to the specified ID</ac>
+    <ac id="4">Given the application loads When the Navigation component renders Then it reads currentPage from the Zustand store (instead of local App.tsx state)</ac>
+    <ac id="5">Given I click a navigation tab When the click handler fires Then it calls setCurrentPage from the Zustand store to update the active page</ac>
+    <ac id="6">Given the application is running When I view the app Then the shadcn/ui Toaster component is rendered in App.tsx</ac>
+    <ac id="7">Given a success event occurs When I call toast.success('message') Then a green toast notification appears in the bottom-right corner</ac>
+    <ac id="8">Given an error event occurs When I call toast.error('message') Then a red toast notification appears in the bottom-right corner</ac>
+    <ac id="9">Given a success toast is displayed When 3 seconds pass Then the toast auto-dismisses</ac>
+    <ac id="10">Given an error toast is displayed When I view the toast Then it requires manual dismissal (does not auto-dismiss)</ac>
+    <ac id="11">Given the codebase requires error handling When I need to return success or failure Then a Result type utility exists at src/lib/utils/result.ts with type Result&lt;T, E = Error&gt;</ac>
+    <ac id="12">Given the Result type exists When I use it in code Then I can pattern match on { success: true; data: T } or { success: false; error: E }</ac>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Project Structure - Store Organization</section>
+        <snippet>Zustand stores live in src/store/ with uiStore.ts for UI state (selected strategy, modals) and calculationStore.ts for calculation state.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>ADR-005: State Management</section>
+        <snippet>Use Zustand for UI state, Dexie for persistent data. Zustand chosen over React Context for no provider nesting, selector-based re-renders (performance), clean separation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Error Handling Pattern</section>
+        <snippet>Result&lt;T, E&gt; type with success/failure variants. Calculation functions return Result, React components show toast on error.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>7.1 Consistency Rules - Feedback &amp; Confirmation</section>
+        <snippet>Saves: Green toast notification, 3-second auto-dismiss. Errors: Red alert banner, manual dismiss.</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR55</section>
+        <snippet>The system provides confirmation feedback for data modifications via toast notifications.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics Document</title>
+        <section>Epic 1 - Story 1.4</section>
+        <snippet>Implements Zustand UI store, toast notification system, and Result type utility for error handling.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file>
+        <path>src/App.tsx</path>
+        <kind>component</kind>
+        <symbol>App</symbol>
+        <lines>1-45</lines>
+        <reason>Contains currentPage useState (line 6) to migrate to Zustand. Renders Navigation and MobileNav with props to refactor. Entry point for adding Toaster component.</reason>
+      </file>
+      <file>
+        <path>src/components/layout/Navigation.tsx</path>
+        <kind>component</kind>
+        <symbol>Navigation, PageType</symbol>
+        <lines>1-52</lines>
+        <reason>Exports PageType type needed for store. Currently receives currentPage and onNavigate as props - needs refactor to use useUIStore hook.</reason>
+      </file>
+      <file>
+        <path>src/components/layout/MobileNav.tsx</path>
+        <kind>component</kind>
+        <symbol>MobileNav</symbol>
+        <lines>1-72</lines>
+        <reason>Currently receives currentPage and onNavigate as props - needs refactor to use useUIStore hook.</reason>
+      </file>
+      <file>
+        <path>src/components/layout/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <lines>1-5</lines>
+        <reason>Barrel export file - may need to re-export PageType from new location if moved to store.</reason>
+      </file>
+      <file>
+        <path>src/store/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <lines>1-4</lines>
+        <reason>Empty store barrel file - needs to export useUIStore after creation.</reason>
+      </file>
+      <file>
+        <path>src/lib/utils.ts</path>
+        <kind>utility</kind>
+        <symbol>cn</symbol>
+        <lines>1-7</lines>
+        <reason>Existing utils file. Result type utility should be created in new src/lib/utils/result.ts to avoid bloating this file.</reason>
+      </file>
+      <file>
+        <path>tests/App.test.tsx</path>
+        <kind>test</kind>
+        <symbol>App tests</symbol>
+        <lines>1-79</lines>
+        <reason>Existing App tests that verify navigation state changes. May need updates after Zustand migration to mock store state.</reason>
+      </file>
+      <file>
+        <path>tests/components/layout/Navigation.test.tsx</path>
+        <kind>test</kind>
+        <symbol>Navigation tests</symbol>
+        <reason>Existing Navigation tests. May need updates to mock useUIStore hook after migration.</reason>
+      </file>
+      <file>
+        <path>tests/components/layout/MobileNav.test.tsx</path>
+        <kind>test</kind>
+        <symbol>MobileNav tests</symbol>
+        <reason>Existing MobileNav tests. May need updates to mock useUIStore hook after migration.</reason>
+      </file>
+    </code>
+
+    <dependencies>
+      <node>
+        <runtime>
+          <package name="zustand" version="^5.0.8">Already installed - Zustand state management library</package>
+          <package name="react" version="^19.2.0">React framework</package>
+          <package name="react-dom" version="^19.2.0">React DOM renderer</package>
+          <package name="@radix-ui/react-toast" version="^1.2.15">Radix toast primitive - base for sonner</package>
+          <package name="lucide-react" version="^0.555.0">Icons library</package>
+          <package name="tailwind-merge" version="^3.4.0">Tailwind class merging utility</package>
+          <package name="clsx" version="^2.1.1">Class name utility</package>
+        </runtime>
+        <dev>
+          <package name="vitest" version="^4.0.14">Test runner</package>
+          <package name="@testing-library/react" version="^16.3.0">React testing utilities</package>
+          <package name="@testing-library/jest-dom" version="^6.9.1">Jest DOM matchers</package>
+          <package name="typescript" version="^5.9.3">TypeScript compiler</package>
+        </dev>
+        <toInstall>
+          <package name="sonner">Toast notification library for shadcn/ui - install via: npx shadcn@latest add sonner</package>
+        </toInstall>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architecture">Zustand stores must be in src/store/ directory with barrel export from index.ts</constraint>
+    <constraint type="architecture">UI state (currentPage, selectedStrategyId, isLoading) belongs in Zustand, persistent data in Dexie</constraint>
+    <constraint type="architecture">Result type utility goes in src/lib/utils/result.ts with barrel export</constraint>
+    <constraint type="pattern">Use @/ path alias for all imports</constraint>
+    <constraint type="pattern">Follow barrel export pattern - create index.ts files for clean imports</constraint>
+    <constraint type="pattern">Store selectors should be used to prevent unnecessary re-renders</constraint>
+    <constraint type="ux">Success toasts: green color, bottom-right, 3-second auto-dismiss</constraint>
+    <constraint type="ux">Error toasts: red color, bottom-right, require manual dismissal (duration: Infinity)</constraint>
+    <constraint type="testing">All new code must have corresponding tests</constraint>
+    <constraint type="testing">Current test count: 69 - maintain or increase</constraint>
+    <constraint type="testing">Use Vitest with React Testing Library</constraint>
+    <constraint type="migration">PageType type currently exported from Navigation.tsx - maintain backwards compatibility</constraint>
+    <constraint type="migration">Navigation and MobileNav components must continue to work after store migration</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>PageType</name>
+      <kind>type</kind>
+      <signature>type PageType = 'dashboard' | 'data-entry' | 'compare' | 'track'</signature>
+      <path>src/components/layout/Navigation.tsx:3</path>
+    </interface>
+    <interface>
+      <name>NavigationProps</name>
+      <kind>interface</kind>
+      <signature>interface NavigationProps { currentPage: PageType; onNavigate: (page: PageType) =&gt; void; className?: string }</signature>
+      <path>src/components/layout/Navigation.tsx:5-9</path>
+    </interface>
+    <interface>
+      <name>MobileNavProps</name>
+      <kind>interface</kind>
+      <signature>interface MobileNavProps { currentPage: PageType; onNavigate: (page: PageType) =&gt; void; open: boolean; onOpenChange: (open: boolean) =&gt; void; className?: string }</signature>
+      <path>src/components/layout/MobileNav.tsx:13-19</path>
+    </interface>
+    <interface>
+      <name>UIState (to create)</name>
+      <kind>interface</kind>
+      <signature>interface UIState { currentPage: PageType; selectedStrategyId: string | null; isLoading: boolean; setCurrentPage: (page: PageType) =&gt; void; setSelectedStrategy: (id: string | null) =&gt; void; setIsLoading: (loading: boolean) =&gt; void }</signature>
+      <path>src/store/uiStore.ts (new)</path>
+    </interface>
+    <interface>
+      <name>Result (to create)</name>
+      <kind>type</kind>
+      <signature>type Result&lt;T, E = Error&gt; = { success: true; data: T } | { success: false; error: E }</signature>
+      <path>src/lib/utils/result.ts (new)</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Use Vitest as the test runner with React Testing Library for component tests. Test files are colocated in tests/ directory mirroring src/ structure. Setup file at tests/setup.ts imports @testing-library/jest-dom and fake-indexeddb/auto. All tests use describe/it/expect from vitest. Component tests use render, screen, fireEvent from @testing-library/react.
+    </standards>
+    <locations>
+      <location>tests/store/uiStore.test.ts (new)</location>
+      <location>tests/lib/utils/result.test.ts (new)</location>
+      <location>tests/App.test.tsx (update)</location>
+      <location>tests/components/layout/Navigation.test.tsx (update)</location>
+      <location>tests/components/layout/MobileNav.test.tsx (update)</location>
+    </locations>
+    <ideas>
+      <idea acRef="1">Test uiStore initial state: currentPage='dashboard', selectedStrategyId=null, isLoading=false</idea>
+      <idea acRef="2">Test setCurrentPage action updates state correctly for all page types</idea>
+      <idea acRef="3">Test setSelectedStrategy action with valid ID and null</idea>
+      <idea acRef="4,5">Integration test: Navigation reads from store and updates via store action</idea>
+      <idea acRef="6">Test Toaster component renders in App</idea>
+      <idea acRef="7,8,9,10">Manual testing for toast behavior - difficult to unit test timing</idea>
+      <idea acRef="11">Test Result type ok() returns { success: true, data: value }</idea>
+      <idea acRef="12">Test Result type err() returns { success: false, error: error }</idea>
+      <idea>Test store reset between tests using useUIStore.setState()</idea>
+      <idea>Test that existing navigation tests still pass after migration</idea>
+    </ideas>
+  </tests>
+</story-context>
