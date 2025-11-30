@@ -8,25 +8,25 @@ import {
   SheetTrigger,
   SheetClose,
 } from '@/components/ui/sheet'
-import { type PageType, navItems } from './Navigation'
+import { useUIStore, type PageType } from '@/store'
+import { navItems } from './Navigation'
 
 interface MobileNavProps {
-  currentPage: PageType
-  onNavigate: (page: PageType) => void
   open: boolean
   onOpenChange: (open: boolean) => void
   className?: string
 }
 
 export function MobileNav({
-  currentPage,
-  onNavigate,
   open,
   onOpenChange,
   className,
 }: MobileNavProps) {
+  const currentPage = useUIStore((state) => state.currentPage)
+  const setCurrentPage = useUIStore((state) => state.setCurrentPage)
+
   const handleNavigate = (page: PageType) => {
-    onNavigate(page)
+    setCurrentPage(page)
     onOpenChange(false)
   }
 

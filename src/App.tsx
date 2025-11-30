@@ -1,9 +1,11 @@
 import { useState } from 'react'
-import { Header, Navigation, MobileNav, PageContainer, type PageType } from '@/components/layout'
+import { Header, Navigation, MobileNav, PageContainer } from '@/components/layout'
 import { DashboardPage, DataEntryPage, ComparePage, TrackPage } from '@/pages'
+import { useUIStore } from '@/store'
+import { Toaster } from '@/components/ui/sonner'
 
 function App() {
-  const [currentPage, setCurrentPage] = useState<PageType>('dashboard')
+  const currentPage = useUIStore((state) => state.currentPage)
   const [mobileNavOpen, setMobileNavOpen] = useState(false)
 
   const renderPage = () => {
@@ -25,18 +27,17 @@ function App() {
     <div className="min-h-screen bg-slate-50 flex flex-col">
       <div className="flex items-center bg-white border-b border-slate-200">
         <MobileNav
-          currentPage={currentPage}
-          onNavigate={setCurrentPage}
           open={mobileNavOpen}
           onOpenChange={setMobileNavOpen}
           className="pl-2"
         />
         <Header className="flex-1 border-b-0" />
       </div>
-      <Navigation currentPage={currentPage} onNavigate={setCurrentPage} />
+      <Navigation />
       <PageContainer>
         {renderPage()}
       </PageContainer>
+      <Toaster />
     </div>
   )
 }

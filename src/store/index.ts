@@ -1,4 +1,4 @@
 // Zustand stores
 // Re-export all stores from this file
 
-export {}
+export { useUIStore, type PageType } from './uiStore'
