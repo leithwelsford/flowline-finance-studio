@@ -41,7 +41,7 @@ development_status:
   1-1-initialize-vite-react-typescript-project: done
   1-2-implement-dexie-database-schema-and-core-types: done
   1-3-create-application-shell-with-navigation: done
-  1-4-implement-zustand-ui-store-and-toast-notifications: ready-for-dev
+  1-4-implement-zustand-ui-store-and-toast-notifications: done
   epic-1-retrospective: optional
 
   # Epic 2: Account & Data Management

@@ -1,21 +1,24 @@
-import { describe, it, expect, vi } from 'vitest'
+import { describe, it, expect, vi, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import { MobileNav } from '@/components/layout'
+import { useUIStore } from '@/store'
 
 describe('MobileNav', () => {
-  const mockNavigate = vi.fn()
   const mockOpenChange = vi.fn()
 
   beforeEach(() => {
-    mockNavigate.mockClear()
     mockOpenChange.mockClear()
+    // Reset store between tests
+    useUIStore.setState({
+      currentPage: 'dashboard',
+      selectedStrategyId: null,
+      isLoading: false,
+    })
   })
 
   it('renders hamburger menu button', () => {
     render(
       <MobileNav
-        currentPage="dashboard"
-        onNavigate={mockNavigate}
         open={false}
         onOpenChange={mockOpenChange}
       />
@@ -28,8 +31,6 @@ describe('MobileNav', () => {
   it('is only visible on mobile (sm:hidden class)', () => {
     render(
       <MobileNav
-        currentPage="dashboard"
-        onNavigate={mockNavigate}
         open={false}
         onOpenChange={mockOpenChange}
       />
@@ -42,8 +43,6 @@ describe('MobileNav', () => {
   it('opens sheet when hamburger is clicked', () => {
     render(
       <MobileNav
-        currentPage="dashboard"
-        onNavigate={mockNavigate}
         open={false}
         onOpenChange={mockOpenChange}
       />
@@ -58,8 +57,6 @@ describe('MobileNav', () => {
   it('renders all navigation options when open', () => {
     render(
       <MobileNav
-        currentPage="dashboard"
-        onNavigate={mockNavigate}
         open={true}
         onOpenChange={mockOpenChange}
       />
@@ -71,11 +68,9 @@ describe('MobileNav', () => {
     expect(screen.getByText('Track')).toBeInTheDocument()
   })
 
-  it('calls onNavigate and closes drawer when navigation item is clicked', () => {
+  it('updates store and closes drawer when navigation item is clicked', () => {
     render(
       <MobileNav
-        currentPage="dashboard"
-        onNavigate={mockNavigate}
         open={true}
         onOpenChange={mockOpenChange}
       />
@@ -89,16 +84,15 @@ describe('MobileNav', () => {
 
     if (navButton) {
       fireEvent.click(navButton)
-      expect(mockNavigate).toHaveBeenCalledWith('data-entry')
+      expect(useUIStore.getState().currentPage).toBe('data-entry')
       expect(mockOpenChange).toHaveBeenCalledWith(false)
     }
   })
 
   it('highlights current page with teal styling', () => {
+    useUIStore.setState({ currentPage: 'compare' })
     render(
       <MobileNav
-        currentPage="compare"
-        onNavigate={mockNavigate}
         open={true}
         onOpenChange={mockOpenChange}
       />
@@ -114,8 +108,6 @@ describe('MobileNav', () => {
   it('navigation items have minimum touch target size', () => {
     render(
       <MobileNav
-        currentPage="dashboard"
-        onNavigate={mockNavigate}
         open={true}
         onOpenChange={mockOpenChange}
       />
@@ -127,5 +119,20 @@ describe('MobileNav', () => {
     buttons.forEach(button => {
       expect(button).toHaveClass('min-h-[44px]')
     })
+  })
+
+  it('reads currentPage from Zustand store', () => {
+    useUIStore.setState({ currentPage: 'track' })
+    render(
+      <MobileNav
+        open={true}
+        onOpenChange={mockOpenChange}
+      />
+    )
+
+    const nav = screen.getByRole('navigation', { name: 'Mobile navigation' })
+    const trackButton = nav.querySelector('[aria-current="page"]')
+    expect(trackButton).toBeInTheDocument()
+    expect(trackButton).toHaveTextContent('Track')
   })
 })

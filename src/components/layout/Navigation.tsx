@@ -1,10 +1,10 @@
 import { cn } from '@/lib/utils'
+import { useUIStore, type PageType } from '@/store'
 
-export type PageType = 'dashboard' | 'data-entry' | 'compare' | 'track'
+// Re-export PageType for backwards compatibility
+export type { PageType }
 
 export interface NavigationProps {
-  currentPage: PageType
-  onNavigate: (page: PageType) => void
   className?: string
 }
 
@@ -15,7 +15,9 @@ const navItems: { id: PageType; label: string }[] = [
   { id: 'track', label: 'Track' },
 ]
 
-export function Navigation({ currentPage, onNavigate, className }: NavigationProps) {
+export function Navigation({ className }: NavigationProps) {
+  const currentPage = useUIStore((state) => state.currentPage)
+  const setCurrentPage = useUIStore((state) => state.setCurrentPage)
   return (
     <nav
       className={cn('hidden sm:flex items-center gap-1 px-4 bg-white border-b border-slate-200', className)}
@@ -25,7 +27,7 @@ export function Navigation({ currentPage, onNavigate, className }: NavigationPro
       {navItems.map((item) => (
         <button
           key={item.id}
-          onClick={() => onNavigate(item.id)}
+          onClick={() => setCurrentPage(item.id)}
           className={cn(
             'relative px-4 py-3 text-sm font-medium transition-colors',
             'hover:text-teal-700 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-teal-600 focus-visible:ring-offset-2 rounded-sm',

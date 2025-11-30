@@ -1,8 +1,18 @@
-import { describe, it, expect } from 'vitest'
+import { describe, it, expect, beforeEach } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import App from '@/App'
+import { useUIStore } from '@/store'
 
 describe('App', () => {
+  beforeEach(() => {
+    // Reset store between tests
+    useUIStore.setState({
+      currentPage: 'dashboard',
+      selectedStrategyId: null,
+      isLoading: false,
+    })
+  })
+
   it('renders the app with header and navigation', () => {
     render(<App />)
 
