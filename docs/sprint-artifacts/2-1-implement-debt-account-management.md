@@ -1,6 +1,6 @@
 # Story 2.1: Implement Debt Account Management
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -34,92 +34,92 @@ so that **the system knows about all debts I want to pay off**.
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Install required shadcn/ui components (AC: 1, 7)
-  - [ ] Install Select component: `npx shadcn@latest add select`
-  - [ ] Install AlertDialog component: `npx shadcn@latest add alert-dialog`
-  - [ ] Install Badge component: `npx shadcn@latest add badge`
-  - [ ] Verify components exist in `src/components/ui/`
+- [x] Task 1: Install required shadcn/ui components (AC: 1, 7)
+  - [x] Install Select component: `npx shadcn@latest add select`
+  - [x] Install AlertDialog component: `npx shadcn@latest add alert-dialog`
+  - [x] Install Badge component: `npx shadcn@latest add badge`
+  - [x] Verify components exist in `src/components/ui/`
 
-- [ ] Task 2: Create Zod validation schema (AC: 1, 2)
-  - [ ] Create `src/lib/validation/account.ts`
-  - [ ] Define accountSchema with all fields:
+- [x] Task 2: Create Zod validation schema (AC: 1, 2)
+  - [x] Create `src/lib/validation/account.ts`
+  - [x] Define accountSchema with all fields:
     - name: required string, min 1 char
     - type: required enum ('home_loan', 'vehicle_finance', 'personal_loan', 'credit_card')
     - balance: required string, numeric >= 0
     - interestRate: required string, numeric 0-1 (store as decimal)
     - minimumPayment: required string, numeric >= 0
     - lender: optional string
-  - [ ] Export schema and inferred type
-  - [ ] Create `src/lib/validation/index.ts` barrel export
-  - [ ] Write tests for validation schema
+  - [x] Export schema and inferred type
+  - [x] Create `src/lib/validation/index.ts` barrel export
+  - [x] Write tests for validation schema
 
-- [ ] Task 3: Create useAccounts hook (AC: 2, 4, 6, 7)
-  - [ ] Create `src/hooks/useAccounts.ts`
-  - [ ] Implement `useLiveQuery` for reactive account list from Dexie
-  - [ ] Implement `addAccount(data)` function returning `Result<number>`
-  - [ ] Implement `updateAccount(id, data)` function returning `Result<void>`
-  - [ ] Implement `deleteAccount(id)` function returning `Result<void>`
-  - [ ] Calculate `totalDebt` using big.js (sum of all balances)
-  - [ ] Calculate `totalMinPayments` using big.js (sum of all minimumPayments)
-  - [ ] Add isLoading state
-  - [ ] Create `src/hooks/index.ts` barrel export
-  - [ ] Write tests for useAccounts hook
+- [x] Task 3: Create useAccounts hook (AC: 2, 4, 6, 7)
+  - [x] Create `src/hooks/useAccounts.ts`
+  - [x] Implement `useLiveQuery` for reactive account list from Dexie
+  - [x] Implement `addAccount(data)` function returning `Result<number>`
+  - [x] Implement `updateAccount(id, data)` function returning `Result<void>`
+  - [x] Implement `deleteAccount(id)` function returning `Result<void>`
+  - [x] Calculate `totalDebt` using big.js (sum of all balances)
+  - [x] Calculate `totalMinPayments` using big.js (sum of all minimumPayments)
+  - [x] Add isLoading state
+  - [x] Create `src/hooks/index.ts` barrel export
+  - [x] Write tests for useAccounts hook
 
-- [ ] Task 4: Create currency formatting utility (AC: 4)
-  - [ ] Create `src/lib/format/currency.ts`
-  - [ ] Implement `formatCurrency(amount: string): string` using Intl.NumberFormat for ZAR
-  - [ ] Implement `parseCurrencyInput(value: string): string` for form input handling
-  - [ ] Create `src/lib/format/index.ts` barrel export
-  - [ ] Write tests for currency formatting
+- [x] Task 4: Create currency formatting utility (AC: 4)
+  - [x] Create `src/lib/format/currency.ts`
+  - [x] Implement `formatCurrency(amount: string): string` using Intl.NumberFormat for ZAR
+  - [x] Implement `parseCurrencyInput(value: string): string` for form input handling
+  - [x] Create `src/lib/format/index.ts` barrel export
+  - [x] Write tests for currency formatting
 
-- [ ] Task 5: Create AccountForm component (AC: 1, 2, 3, 5, 6)
-  - [ ] Create `src/components/accounts/AccountForm.tsx`
-  - [ ] Use React Hook Form with Zod resolver
-  - [ ] Implement controlled form with all fields from AC1
-  - [ ] Add shadcn/ui Select for account type dropdown
-  - [ ] Add percentage input handling for interest rate (display %, store decimal)
-  - [ ] Support both create and edit modes via optional `account` prop
-  - [ ] Call `toast.success()` on successful save/update
-  - [ ] Add proper form validation error display
-  - [ ] Write component tests
+- [x] Task 5: Create AccountForm component (AC: 1, 2, 3, 5, 6)
+  - [x] Create `src/components/accounts/AccountForm.tsx`
+  - [x] Use React Hook Form with Zod resolver
+  - [x] Implement controlled form with all fields from AC1
+  - [x] Add shadcn/ui Select for account type dropdown
+  - [x] Add percentage input handling for interest rate (display %, store decimal)
+  - [x] Support both create and edit modes via optional `account` prop
+  - [x] Call `toast.success()` on successful save/update
+  - [x] Add proper form validation error display
+  - [x] Write component tests
 
-- [ ] Task 6: Create AccountCard component (AC: 4)
-  - [ ] Create `src/components/accounts/AccountCard.tsx`
-  - [ ] Display account name, type with icon, balance (ZAR), rate (%), minimum payment
-  - [ ] Add lucide-react icons for account types (Home, Car, CreditCard, Wallet)
-  - [ ] Include Edit and Delete action buttons
-  - [ ] Use shadcn/ui Card, Badge components
-  - [ ] Write component tests
+- [x] Task 6: Create AccountCard component (AC: 4)
+  - [x] Create `src/components/accounts/AccountCard.tsx`
+  - [x] Display account name, type with icon, balance (ZAR), rate (%), minimum payment
+  - [x] Add lucide-react icons for account types (Home, Car, CreditCard, Wallet)
+  - [x] Include Edit and Delete action buttons
+  - [x] Use shadcn/ui Card, Badge components
+  - [x] Write component tests
 
-- [ ] Task 7: Create AccountList component (AC: 4, 5, 7, 8)
-  - [ ] Create `src/components/accounts/AccountList.tsx`
-  - [ ] Display list of AccountCard components
-  - [ ] Implement "Add Debt Account" button that opens AccountForm
-  - [ ] Implement edit mode: clicking Edit opens AccountForm with account data
-  - [ ] Implement delete: clicking Delete opens AlertDialog confirmation
-  - [ ] Handle empty state: show message when no accounts
-  - [ ] Use useAccounts hook for data
-  - [ ] Write component tests
+- [x] Task 7: Create AccountList component (AC: 4, 5, 7, 8)
+  - [x] Create `src/components/accounts/AccountList.tsx`
+  - [x] Display list of AccountCard components
+  - [x] Implement "Add Debt Account" button that opens AccountForm
+  - [x] Implement edit mode: clicking Edit opens AccountForm with account data
+  - [x] Implement delete: clicking Delete opens AlertDialog confirmation
+  - [x] Handle empty state: show message when no accounts
+  - [x] Use useAccounts hook for data
+  - [x] Write component tests
 
-- [ ] Task 8: Create DeleteConfirmDialog component (AC: 7, 8)
-  - [ ] Create `src/components/accounts/DeleteConfirmDialog.tsx`
-  - [ ] Use shadcn/ui AlertDialog
-  - [ ] Display account name in confirmation message
-  - [ ] Confirm triggers deleteAccount and shows toast
-  - [ ] Cancel closes dialog
-  - [ ] Write component tests
+- [x] Task 8: Create DeleteConfirmDialog component (AC: 7, 8)
+  - [x] Create `src/components/accounts/DeleteConfirmDialog.tsx`
+  - [x] Use shadcn/ui AlertDialog
+  - [x] Display account name in confirmation message
+  - [x] Confirm triggers deleteAccount and shows toast
+  - [x] Cancel closes dialog
+  - [x] Write component tests
 
-- [ ] Task 9: Integrate into DataEntryPage (AC: All)
-  - [ ] Update `src/pages/DataEntryPage.tsx` to include AccountList
-  - [ ] Add section header "Debt Accounts"
-  - [ ] Style with appropriate spacing and layout
-  - [ ] Test full CRUD flow manually
+- [x] Task 9: Integrate into DataEntryPage (AC: All)
+  - [x] Update `src/pages/DataEntryPage.tsx` to include AccountList
+  - [x] Add section header "Debt Accounts"
+  - [x] Style with appropriate spacing and layout
+  - [x] Test full CRUD flow manually
 
-- [ ] Task 10: Create barrel export and run all tests (AC: All)
-  - [ ] Create `src/components/accounts/index.ts` barrel export
-  - [ ] Run `npm run test` and ensure all tests pass
-  - [ ] Run `npm run build` and ensure no type errors
-  - [ ] Verify all 8 acceptance criteria are implemented
+- [x] Task 10: Create barrel export and run all tests (AC: All)
+  - [x] Create `src/components/accounts/index.ts` barrel export
+  - [x] Run `npm run test` and ensure all tests pass
+  - [x] Run `npm run build` and ensure no type errors
+  - [x] Verify all 8 acceptance criteria are implemented
 
 ## Dev Notes
 
@@ -311,16 +311,65 @@ beforeEach(async () => {
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+- Installed shadcn/ui components (Select, AlertDialog, Badge)
+- Created Zod validation schema with form value conversion helpers
+- Built useAccounts hook with Dexie useLiveQuery, CRUD operations, and big.js calculations
+- Created ZAR currency formatting utilities
+- Built AccountForm with React Hook Form + Zod, supporting create/edit modes
+- Built AccountCard with lucide-react icons, formatted currency display
+- Built AccountList with add/edit/delete flows and empty state
+- Built DeleteConfirmDialog with AlertDialog and toast notifications
+- Integrated into DataEntryPage
+- All 206 tests passing, build succeeds
+
 ### Completion Notes List
 
+- Story 2.1 implements full CRUD for debt accounts
+- All 8 acceptance criteria met
+- Test count increased from 100 to 206 (106 new tests)
+- Added @testing-library/user-event as dev dependency
+- ZAR currency formatting uses Intl.NumberFormat('en-ZA')
+- Interest rate stored as decimal (0.115), displayed as percentage (11.5%)
+- All monetary calculations use big.js for precision
+- useLiveQuery provides reactive data from Dexie
+
 ### File List
+
+**Created:**
+- src/lib/validation/account.ts
+- src/lib/validation/index.ts
+- src/lib/format/currency.ts
+- src/lib/format/index.ts
+- src/hooks/useAccounts.ts
+- src/hooks/index.ts
+- src/components/accounts/AccountForm.tsx
+- src/components/accounts/AccountCard.tsx
+- src/components/accounts/AccountList.tsx
+- src/components/accounts/DeleteConfirmDialog.tsx
+- src/components/accounts/index.ts
+- src/components/ui/select.tsx
+- src/components/ui/alert-dialog.tsx
+- src/components/ui/badge.tsx
+- tests/lib/validation/account.test.ts
+- tests/lib/format/currency.test.ts
+- tests/hooks/useAccounts.test.ts
+- tests/components/accounts/AccountForm.test.tsx
+- tests/components/accounts/AccountCard.test.tsx
+- tests/components/accounts/AccountList.test.tsx
+- tests/components/accounts/DeleteConfirmDialog.test.tsx
+
+**Modified:**
+- src/pages/DataEntryPage.tsx
+- package.json (added @testing-library/user-event)
+- package-lock.json
 
 ## Change Log
 
 | Date | Change | Author |
 |------|--------|--------|
 | 2025-11-30 | Story drafted from tech-spec-epic-2.md with full context | SM Agent (Bob) |
+| 2025-12-01 | Story implementation complete - all ACs met, 206 tests passing | Dev Agent (Amelia) |
