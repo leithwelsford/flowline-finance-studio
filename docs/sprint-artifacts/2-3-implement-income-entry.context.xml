@@ -1,0 +1,361 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>3</storyId>
+    <title>Implement Income Entry</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-02</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-3-implement-income-entry.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to record my monthly income sources</iWant>
+    <soThat>the system knows how much surplus I have for debt payments</soThat>
+    <tasks>
+      <task id="1" name="Create Zod validation schema">
+        <subtask>Create src/lib/validation/income.ts</subtask>
+        <subtask>Define incomeSchema with source (required), amount (numeric >= 0), paymentDate (optional 1-31)</subtask>
+        <subtask>Create formValuesToIncome() and incomeToFormValues() converters</subtask>
+        <subtask>Export schema and inferred type</subtask>
+        <subtask>Update src/lib/validation/index.ts barrel export</subtask>
+        <subtask>Write tests for validation schema</subtask>
+      </task>
+      <task id="2" name="Create useIncome hook">
+        <subtask>Create src/hooks/useIncome.ts</subtask>
+        <subtask>Implement useLiveQuery for reactive income entries</subtask>
+        <subtask>Implement addIncome(data) returning Result&lt;number&gt;</subtask>
+        <subtask>Implement updateIncome(id, updates) returning Result&lt;void&gt;</subtask>
+        <subtask>Implement deleteIncome(id) returning Result&lt;void&gt;</subtask>
+        <subtask>Calculate totalMonthlyIncome using big.js sum</subtask>
+        <subtask>Add isLoading state</subtask>
+        <subtask>Update src/hooks/index.ts barrel export</subtask>
+        <subtask>Write tests for useIncome hook</subtask>
+      </task>
+      <task id="3" name="Create IncomeForm component">
+        <subtask>Create src/components/accounts/IncomeForm.tsx</subtask>
+        <subtask>Use React Hook Form with Zod resolver</subtask>
+        <subtask>Implement form fields: source text, amount currency, paymentDate optional number</subtask>
+        <subtask>Support create and edit modes via optional income prop</subtask>
+        <subtask>Call toast.success() on successful save/update</subtask>
+        <subtask>Add form validation error display</subtask>
+        <subtask>Write component tests</subtask>
+      </task>
+      <task id="4" name="Create IncomeCard component">
+        <subtask>Create src/components/accounts/IncomeCard.tsx</subtask>
+        <subtask>Display source name, amount (ZAR formatted)</subtask>
+        <subtask>Show payment date if provided (e.g., "25th of month")</subtask>
+        <subtask>Include Edit and Delete action buttons</subtask>
+        <subtask>Use shadcn/ui Card components</subtask>
+        <subtask>Write component tests</subtask>
+      </task>
+      <task id="5" name="Create IncomeList component">
+        <subtask>Create src/components/accounts/IncomeList.tsx</subtask>
+        <subtask>Display all income entries as IncomeCard components</subtask>
+        <subtask>Display total monthly income at bottom</subtask>
+        <subtask>Format total as ZAR currency</subtask>
+        <subtask>Handle empty state with message</subtask>
+        <subtask>Write component tests</subtask>
+      </task>
+      <task id="6" name="Create IncomeSection component">
+        <subtask>Create src/components/accounts/IncomeSection.tsx</subtask>
+        <subtask>Show "Add Income Source" button</subtask>
+        <subtask>Render IncomeList with all entries</subtask>
+        <subtask>Implement add mode (button opens empty IncomeForm)</subtask>
+        <subtask>Implement edit mode (Edit opens IncomeForm with data)</subtask>
+        <subtask>Implement delete with AlertDialog confirmation</subtask>
+        <subtask>Handle empty state messaging</subtask>
+        <subtask>Use useIncome hook for data</subtask>
+        <subtask>Write component tests</subtask>
+      </task>
+      <task id="7" name="Integrate into DataEntryPage">
+        <subtask>Update src/pages/DataEntryPage.tsx to include IncomeSection</subtask>
+        <subtask>Add section header "Income Sources" below Flexi Facility</subtask>
+        <subtask>Add informational text explaining income tracking</subtask>
+        <subtask>Style with appropriate spacing</subtask>
+      </task>
+      <task id="8" name="Run all tests and verify">
+        <subtask>Update src/components/accounts/index.ts barrel exports</subtask>
+        <subtask>Run npm run test and ensure all tests pass</subtask>
+        <subtask>Run npm run build and ensure no type errors</subtask>
+        <subtask>Verify all 9 acceptance criteria implemented</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC1">Given I navigate to the Data Entry page When I click "Add Income Source" Then I see a form with fields: Income source (required, text), Monthly amount (required, ZAR currency input, min R0), Payment date (optional, day 1-31)</criterion>
+    <criterion id="AC2">Given I fill out the form with valid data When I click "Save Income" Then the income entry is saved to Dexie database with createdAt timestamp</criterion>
+    <criterion id="AC3">Given a successful save When the operation completes Then I see a success toast "Income source saved"</criterion>
+    <criterion id="AC4">Given I add multiple income sources When I view the income section Then I see a list of all income sources with amounts (ZAR formatted)</criterion>
+    <criterion id="AC5">Given I have multiple income entries When I view the income section Then I see total monthly income displayed at the bottom of the list</criterion>
+    <criterion id="AC6">Given I click "Edit" on an income entry When the edit form opens Then the form is populated with existing data</criterion>
+    <criterion id="AC7">Given I modify fields in edit mode and click "Save" When the save completes Then the income entry is updated in database and I see success toast "Income source updated"</criterion>
+    <criterion id="AC8">Given I click "Delete" on an income entry When I see the confirmation dialog and confirm Then the entry is removed from database and I see success toast "Income source deleted"</criterion>
+    <criterion id="AC9">Given I add, edit, or delete income entries When I view total income Then the total recalculates automatically (reactive via useLiveQuery)</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>ADR-002, ADR-003, ADR-006</section>
+        <snippet>Dexie.js for IndexedDB persistence, big.js for monetary precision, React Hook Form + Zod for validation</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR3 - Income Recording</section>
+        <snippet>Users can record monthly income sources with amount and optional payment date for surplus calculation</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification</title>
+        <section>Story 2.3 Acceptance Criteria</section>
+        <snippet>UseIncomeReturn interface with incomeEntries, addIncome, updateIncome, deleteIncome, totalMonthlyIncome</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Component Strategy</section>
+        <snippet>shadcn/ui Card, Form, Input, Button components; toast notifications via sonner; data-focused design</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/types/income.ts</path>
+        <kind>type</kind>
+        <symbol>IncomeEntry</symbol>
+        <lines>8-19</lines>
+        <reason>Existing type definition for income entries - id, source, amount, paymentDate, createdAt</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/db/schema.ts</path>
+        <kind>database</kind>
+        <symbol>FlowlineDB.income</symbol>
+        <lines>29-30, 52-53</lines>
+        <reason>Dexie table for income with schema '++id, source, date'</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/validation/account.ts</path>
+        <kind>validation</kind>
+        <symbol>accountFormSchema</symbol>
+        <lines>25-57</lines>
+        <reason>Pattern for Zod schema with form validation and conversion helpers</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/useAccounts.ts</path>
+        <kind>hook</kind>
+        <symbol>useAccounts</symbol>
+        <lines>43-118</lines>
+        <reason>Pattern for Dexie hook with useLiveQuery, CRUD ops, big.js totals, Result types</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/accounts/AccountForm.tsx</path>
+        <kind>component</kind>
+        <symbol>AccountForm</symbol>
+        <lines>43-214</lines>
+        <reason>Pattern for React Hook Form with Zod, create/edit modes, toast feedback</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/accounts/AccountCard.tsx</path>
+        <kind>component</kind>
+        <symbol>AccountCard</symbol>
+        <reason>Pattern for display card with Edit/Delete actions</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/accounts/AccountList.tsx</path>
+        <kind>component</kind>
+        <symbol>AccountList</symbol>
+        <reason>Pattern for list component with empty state and totals display</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/accounts/FlexiFacilitySection.tsx</path>
+        <kind>component</kind>
+        <symbol>FlexiFacilitySection</symbol>
+        <reason>Pattern for section container with add/edit mode switching and AlertDialog delete</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/accounts/DeleteConfirmDialog.tsx</path>
+        <kind>component</kind>
+        <symbol>DeleteConfirmDialog</symbol>
+        <reason>Reusable delete confirmation dialog with AlertDialog</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/format/currency.ts</path>
+        <kind>utility</kind>
+        <symbol>formatCurrency, parseCurrencyInput</symbol>
+        <lines>16-25, 41-71</lines>
+        <reason>ZAR currency formatting utilities to reuse</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/utils/result.ts</path>
+        <kind>utility</kind>
+        <symbol>Result, ok, err</symbol>
+        <lines>1-19</lines>
+        <reason>Result type for hook return values</reason>
+      </artifact>
+      <artifact>
+        <path>src/pages/DataEntryPage.tsx</path>
+        <kind>page</kind>
+        <symbol>DataEntryPage</symbol>
+        <lines>1-15</lines>
+        <reason>Target page for IncomeSection integration - add below FlexiFacilitySection</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/accounts/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>accounts exports</symbol>
+        <reason>Barrel export file to update with Income* component exports</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>hooks exports</symbol>
+        <reason>Barrel export file to update with useIncome export</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/validation/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>validation exports</symbol>
+        <reason>Barrel export file to update with income validation exports</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package>react</package>
+        <version>^19.2.0</version>
+      </node>
+      <node>
+        <package>react-hook-form</package>
+        <version>^7.66.1</version>
+      </node>
+      <node>
+        <package>@hookform/resolvers</package>
+        <version>^5.2.2</version>
+      </node>
+      <node>
+        <package>zod</package>
+        <version>^4.1.13</version>
+      </node>
+      <node>
+        <package>dexie</package>
+        <version>^4.2.1</version>
+      </node>
+      <node>
+        <package>dexie-react-hooks</package>
+        <version>^4.2.0</version>
+      </node>
+      <node>
+        <package>big.js</package>
+        <version>^7.0.1</version>
+      </node>
+      <node>
+        <package>sonner</package>
+        <version>^2.0.7</version>
+      </node>
+      <node>
+        <package>lucide-react</package>
+        <version>^0.555.0</version>
+      </node>
+      <devNode>
+        <package>vitest</package>
+        <version>^4.0.14</version>
+      </devNode>
+      <devNode>
+        <package>@testing-library/react</package>
+        <version>^16.3.0</version>
+      </devNode>
+      <devNode>
+        <package>@testing-library/user-event</package>
+        <version>^14.6.1</version>
+      </devNode>
+      <devNode>
+        <package>fake-indexeddb</package>
+        <version>^6.2.5</version>
+      </devNode>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architecture">All data persisted via Dexie.js to IndexedDB (ADR-002)</constraint>
+    <constraint type="architecture">All monetary calculations use big.js for precision (ADR-003)</constraint>
+    <constraint type="architecture">All forms use React Hook Form with Zod validation (ADR-006)</constraint>
+    <constraint type="pattern">Follow existing hook pattern: useLiveQuery, CRUD ops returning Result type</constraint>
+    <constraint type="pattern">Follow existing component pattern: Form, Card, List, Section hierarchy</constraint>
+    <constraint type="pattern">Use toast.success() for success feedback, toast.error() for errors</constraint>
+    <constraint type="pattern">Currency values stored as strings for big.js compatibility</constraint>
+    <constraint type="pattern">Use DeleteConfirmDialog pattern for delete confirmation</constraint>
+    <constraint type="testing">All new code requires tests - validation, hooks, components</constraint>
+    <constraint type="testing">Use fake-indexeddb/auto for Dexie tests</constraint>
+    <constraint type="naming">Files: kebab-case, Components: PascalCase, hooks: camelCase with use prefix</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>IncomeEntry</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface IncomeEntry { id?: number; source: string; amount: string; paymentDate: number; createdAt: string; }</signature>
+      <path>src/types/income.ts</path>
+    </interface>
+    <interface>
+      <name>UseIncomeReturn</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface UseIncomeReturn { incomeEntries: IncomeEntry[]; isLoading: boolean; addIncome: (income: Omit&lt;IncomeEntry, 'id' | 'createdAt'&gt;) => Promise&lt;Result&lt;number&gt;&gt;; updateIncome: (id: number, updates: Partial&lt;IncomeEntry&gt;) => Promise&lt;Result&lt;void&gt;&gt;; deleteIncome: (id: number) => Promise&lt;Result&lt;void&gt;&gt;; totalMonthlyIncome: string; }</signature>
+      <path>src/hooks/useIncome.ts (to create)</path>
+    </interface>
+    <interface>
+      <name>db.income</name>
+      <kind>Dexie table</kind>
+      <signature>Table&lt;IncomeEntry, number&gt; with schema '++id, source, date'</signature>
+      <path>src/lib/db/schema.ts</path>
+    </interface>
+    <interface>
+      <name>Result&lt;T, E&gt;</name>
+      <kind>TypeScript type</kind>
+      <signature>type Result&lt;T, E = Error&gt; = { success: true; data: T } | { success: false; error: E }</signature>
+      <path>src/lib/utils/result.ts</path>
+    </interface>
+    <interface>
+      <name>formatCurrency</name>
+      <kind>function</kind>
+      <signature>function formatCurrency(amount: string): string</signature>
+      <path>src/lib/format/currency.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Vitest for unit and integration tests. React Testing Library for component tests.
+      Tests co-located in tests/ directory mirroring src/ structure.
+      Use fake-indexeddb/auto for Dexie tests.
+      Follow existing test patterns from account and flexi-facility tests.
+      Current test count: 317 passing tests.
+    </standards>
+    <locations>
+      <location>tests/lib/validation/income.test.ts</location>
+      <location>tests/hooks/useIncome.test.ts</location>
+      <location>tests/components/accounts/IncomeForm.test.tsx</location>
+      <location>tests/components/accounts/IncomeCard.test.tsx</location>
+      <location>tests/components/accounts/IncomeList.test.tsx</location>
+      <location>tests/components/accounts/IncomeSection.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea ac="AC1">Test IncomeForm renders all required fields with correct labels and validation</idea>
+      <idea ac="AC2">Test addIncome() saves to Dexie with createdAt timestamp</idea>
+      <idea ac="AC3">Test toast.success called with "Income source saved" after successful save</idea>
+      <idea ac="AC4">Test IncomeList renders multiple entries with ZAR formatted amounts</idea>
+      <idea ac="AC5">Test totalMonthlyIncome calculated correctly with big.js sum</idea>
+      <idea ac="AC6">Test IncomeForm pre-populated when income prop provided (edit mode)</idea>
+      <idea ac="AC7">Test updateIncome() updates database, toast shows "Income source updated"</idea>
+      <idea ac="AC8">Test delete flow: AlertDialog shows, confirm deletes, toast shows "Income source deleted"</idea>
+      <idea ac="AC9">Test totalMonthlyIncome updates reactively when entries added/edited/deleted</idea>
+      <idea ac="validation">Test Zod schema rejects empty source, negative amount, paymentDate outside 1-31</idea>
+      <idea ac="validation">Test Zod schema accepts valid inputs including optional paymentDate</idea>
+      <idea ac="empty-state">Test IncomeList empty state message when no entries</idea>
+      <idea ac="payment-date">Test payment date formatted correctly (e.g., "25th of month")</idea>
+    </ideas>
+  </tests>
+</story-context>

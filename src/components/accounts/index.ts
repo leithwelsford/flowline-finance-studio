@@ -5,3 +5,7 @@ export { DeleteConfirmDialog } from './DeleteConfirmDialog';
 export { FlexiFacilityCard } from './FlexiFacilityCard';
 export { FlexiFacilityForm } from './FlexiFacilityForm';
 export { FlexiFacilitySection } from './FlexiFacilitySection';
+export { IncomeCard } from './IncomeCard';
+export { IncomeForm } from './IncomeForm';
+export { IncomeList } from './IncomeList';
+export { IncomeSection } from './IncomeSection';

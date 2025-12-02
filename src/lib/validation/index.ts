@@ -14,3 +14,10 @@ export {
   flexiFacilityToFormValues,
   type FlexiFacilityFormValues,
 } from './flexi-facility';
+
+export {
+  incomeFormSchema,
+  formValuesToIncome,
+  incomeToFormValues,
+  type IncomeFormValues,
+} from './income';
