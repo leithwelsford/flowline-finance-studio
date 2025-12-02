@@ -4,3 +4,4 @@ export {
   type UseFlexiFacilityReturn,
   type NewFlexiFacilityData,
 } from './useFlexiFacility';
+export { useIncome, type UseIncomeReturn, type NewIncomeData } from './useIncome';
