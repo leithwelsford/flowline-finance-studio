@@ -1,6 +1,6 @@
 # Story 2.3: Implement Income Entry
 
-Status: ready-for-review
+Status: done
 
 ## Story
 
@@ -323,3 +323,141 @@ beforeEach(async () => {
 |------|--------|--------|
 | 2025-12-02 | Story drafted from tech-spec-epic-2.md with full context from Story 2.2 learnings | SM Agent (Bob) |
 | 2025-12-02 | Story implementation complete - all 8 tasks done, 423 tests passing | Dev Agent (Amelia) |
+| 2025-12-02 | Senior Developer Review completed - APPROVED | Dev Agent (Amelia) |
+
+---
+
+## Senior Developer Review (AI)
+
+### Reviewer
+Leith
+
+### Date
+2025-12-02
+
+### Outcome
+**✅ APPROVED**
+
+All 9 acceptance criteria are fully implemented with evidence. All 8 tasks and their subtasks are verified complete. Code quality is excellent, following established patterns. No security concerns. Tests are comprehensive and passing.
+
+### Summary
+
+Story 2.3 delivers a complete income entry system following established patterns from Stories 2.1 and 2.2. Implementation is clean, well-tested, and aligns with architecture requirements.
+
+**Highlights:**
+- All CRUD operations implemented with proper Result type handling
+- Reactive total calculation using big.js + useLiveQuery + useMemo
+- Comprehensive test coverage (106 new tests added)
+- Proper ZAR currency formatting
+- Payment date ordinal suffix display implemented correctly
+
+### Key Findings
+
+**No HIGH or MEDIUM severity issues found.**
+
+**LOW severity observations (advisory only):**
+- Note: Bundle size warning from Vite (588KB) - acceptable for MVP, consider code-splitting post-MVP
+- Note: Payment date field could benefit from a Select/Dropdown for 1-31 instead of freeform number input (UX enhancement, not required)
+
+### Acceptance Criteria Coverage
+
+| AC# | Description | Status | Evidence |
+|-----|-------------|--------|----------|
+| AC1 | Form with source, amount, payment date fields | ✅ IMPLEMENTED | `src/components/accounts/IncomeForm.tsx:69-128` - All three fields rendered with proper labels and validation |
+| AC2 | Save to Dexie with createdAt timestamp | ✅ IMPLEMENTED | `src/hooks/useIncome.ts:56-67` - `addIncome()` adds `createdAt: new Date().toISOString()` |
+| AC3 | Success toast "Income source saved" | ✅ IMPLEMENTED | `src/components/accounts/IncomeForm.tsx:58` - `toast.success('Income source saved')` |
+| AC4 | List of income sources with ZAR amounts | ✅ IMPLEMENTED | `src/components/accounts/IncomeList.tsx:26-47`, `IncomeCard.tsx:46` - `formatCurrency(income.amount)` |
+| AC5 | Total monthly income at bottom of list | ✅ IMPLEMENTED | `src/components/accounts/IncomeList.tsx:39-44` - Total displayed with `formatCurrency(totalMonthlyIncome)` |
+| AC6 | Edit form populated with existing data | ✅ IMPLEMENTED | `src/components/accounts/IncomeForm.tsx:35-41` - `incomeToFormValues(income)` used as defaultValues |
+| AC7 | Update saves and shows "Income source updated" | ✅ IMPLEMENTED | `src/components/accounts/IncomeForm.tsx:48-54` - `updateIncome()` called, `toast.success('Income source updated')` |
+| AC8 | Delete with confirmation dialog and toast | ✅ IMPLEMENTED | `src/components/accounts/IncomeSection.tsx:131-151` - AlertDialog confirmation, line 57 - `toast.success('Income source deleted')` |
+| AC9 | Total recalculates reactively | ✅ IMPLEMENTED | `src/hooks/useIncome.ts:99-104` - useMemo with incomeEntries dependency, big.js sum calculation |
+
+**Summary: 9 of 9 acceptance criteria fully implemented**
+
+### Task Completion Validation
+
+| Task | Marked As | Verified As | Evidence |
+|------|-----------|-------------|----------|
+| Task 1: Create Zod validation schema | [x] | ✅ VERIFIED | `src/lib/validation/income.ts:11-29` - Schema defined with source, amount, paymentDate |
+| Task 1.1: Create income.ts | [x] | ✅ VERIFIED | File exists at `src/lib/validation/income.ts` |
+| Task 1.2: Define incomeSchema fields | [x] | ✅ VERIFIED | `src/lib/validation/income.ts:12-28` - All fields defined |
+| Task 1.3: Create conversion helpers | [x] | ✅ VERIFIED | `src/lib/validation/income.ts:39-60` - `formValuesToIncome()`, `incomeToFormValues()` |
+| Task 1.4: Export schema and type | [x] | ✅ VERIFIED | `src/lib/validation/income.ts:34` - `export type IncomeFormValues` |
+| Task 1.5: Update barrel export | [x] | ✅ VERIFIED | `src/lib/validation/index.ts:18-23` - Income exports added |
+| Task 1.6: Write tests | [x] | ✅ VERIFIED | `tests/lib/validation/income.test.ts` - 23 tests covering validation |
+| Task 2: Create useIncome hook | [x] | ✅ VERIFIED | `src/hooks/useIncome.ts:49-114` - Complete hook implementation |
+| Task 2.1: Create useIncome.ts | [x] | ✅ VERIFIED | File exists at `src/hooks/useIncome.ts` |
+| Task 2.2: Implement useLiveQuery | [x] | ✅ VERIFIED | `src/hooks/useIncome.ts:50` - `useLiveQuery(() => db.income.toArray())` |
+| Task 2.3: Implement addIncome | [x] | ✅ VERIFIED | `src/hooks/useIncome.ts:56-67` - Returns `Result<number>` |
+| Task 2.4: Implement updateIncome | [x] | ✅ VERIFIED | `src/hooks/useIncome.ts:72-82` - Returns `Result<void>` |
+| Task 2.5: Implement deleteIncome | [x] | ✅ VERIFIED | `src/hooks/useIncome.ts:87-94` - Returns `Result<void>` |
+| Task 2.6: Calculate totalMonthlyIncome | [x] | ✅ VERIFIED | `src/hooks/useIncome.ts:99-104` - big.js sum in useMemo |
+| Task 2.7: Add isLoading state | [x] | ✅ VERIFIED | `src/hooks/useIncome.ts:51` - `const isLoading = incomeEntries === undefined` |
+| Task 2.8: Update hooks barrel export | [x] | ✅ VERIFIED | `src/hooks/index.ts:7` - useIncome export added |
+| Task 2.9: Write tests | [x] | ✅ VERIFIED | `tests/hooks/useIncome.test.ts` - 20 tests covering CRUD and totals |
+| Task 3: Create IncomeForm component | [x] | ✅ VERIFIED | `src/components/accounts/IncomeForm.tsx` - 143 lines, complete implementation |
+| Task 3.1-3.8: All subtasks | [x] | ✅ VERIFIED | Form uses RHF+Zod, all fields implemented, edit mode, toasts, validation display |
+| Task 4: Create IncomeCard component | [x] | ✅ VERIFIED | `src/components/accounts/IncomeCard.tsx` - 77 lines, Card with all fields |
+| Task 4.1-4.6: All subtasks | [x] | ✅ VERIFIED | Source, amount (ZAR), payment date ordinal, Edit/Delete buttons |
+| Task 5: Create IncomeList component | [x] | ✅ VERIFIED | `src/components/accounts/IncomeList.tsx` - 47 lines |
+| Task 5.1-5.5: All subtasks | [x] | ✅ VERIFIED | Maps IncomeCards, shows total, empty state handled |
+| Task 6: Create IncomeSection component | [x] | ✅ VERIFIED | `src/components/accounts/IncomeSection.tsx` - 155 lines |
+| Task 6.1-6.9: All subtasks | [x] | ✅ VERIFIED | Add/Edit/Delete flows, AlertDialog, useIncome integration |
+| Task 7: Integrate into DataEntryPage | [x] | ✅ VERIFIED | `src/pages/DataEntryPage.tsx:1,14` - IncomeSection imported and rendered |
+| Task 8: Run all tests and verify | [x] | ✅ VERIFIED | 423 tests passing, TypeScript build clean |
+| Task 8.1: Update barrel export | [x] | ✅ VERIFIED | `src/components/accounts/index.ts:8-11` - All Income components exported |
+| Task 8.2: npm run test | [x] | ✅ VERIFIED | 423 tests passing |
+| Task 8.3: npm run build | [x] | ✅ VERIFIED | Build successful, no type errors |
+| Task 8.4: Verify 9 ACs | [x] | ✅ VERIFIED | All 9 ACs implemented (see table above) |
+
+**Summary: 32 of 32 tasks/subtasks verified complete. 0 questionable. 0 falsely marked complete.**
+
+### Test Coverage and Gaps
+
+| Test Area | Tests | Coverage |
+|-----------|-------|----------|
+| Validation schema (income.test.ts) | 23 | ✅ Complete - source, amount, paymentDate validation |
+| useIncome hook (useIncome.test.ts) | 20 | ✅ Complete - CRUD, totals, reactive updates |
+| IncomeForm (IncomeForm.test.tsx) | 16 | ✅ Complete - render, validation, submit, edit mode |
+| IncomeCard (IncomeCard.test.tsx) | 24 | ✅ Complete - display, formatting, interactions |
+| IncomeList (IncomeList.test.tsx) | 8 | ✅ Complete - empty state, list render, total |
+| IncomeSection (IncomeSection.test.tsx) | 16 | ✅ Complete - add/edit/delete flows, AC coverage |
+
+**Total: 106 new tests for income functionality**
+
+All critical paths tested. No gaps identified.
+
+### Architectural Alignment
+
+| ADR | Requirement | Status |
+|-----|-------------|--------|
+| ADR-002 (Dexie.js) | Data persisted to IndexedDB | ✅ Compliant - `db.income` table used |
+| ADR-003 (big.js) | Monetary calculations | ✅ Compliant - totalMonthlyIncome uses big.js |
+| ADR-006 (RHF + Zod) | Form handling | ✅ Compliant - zodResolver, useForm pattern |
+
+Component structure matches architecture.md specification exactly.
+
+### Security Notes
+
+- ✅ Input validation via Zod prevents invalid data
+- ✅ Amount validated as non-negative number
+- ✅ PaymentDate validated as integer 1-31
+- ✅ No injection risks (data stored locally via Dexie)
+- ✅ No external API calls
+- ✅ No sensitive data exposure
+
+### Best-Practices and References
+
+- [React Hook Form + Zod](https://react-hook-form.com/docs/useform#resolver) - Used correctly with zodResolver
+- [Dexie useLiveQuery](https://dexie.org/docs/dexie-react-hooks/useLiveQuery) - Reactive queries implemented properly
+- [big.js](https://mikemcl.github.io/big.js/) - Financial precision maintained
+
+### Action Items
+
+**Code Changes Required:**
+- None required
+
+**Advisory Notes:**
+- Note: Consider code-splitting for production bundle optimization (post-MVP)
+- Note: Payment date input could be enhanced with a dropdown selector (UX polish, Epic 7 scope)
