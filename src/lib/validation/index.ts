@@ -6,3 +6,11 @@ export {
   accountToFormValues,
   type AccountFormValues,
 } from './account';
+
+export {
+  flexiFacilityFormSchema,
+  flexiFacilityTypeSchema,
+  formValuesToFlexiFacility,
+  flexiFacilityToFormValues,
+  type FlexiFacilityFormValues,
+} from './flexi-facility';

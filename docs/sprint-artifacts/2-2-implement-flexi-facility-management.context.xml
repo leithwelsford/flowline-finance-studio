@@ -1,0 +1,434 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>2</storyId>
+    <title>Implement Flexi Facility Management</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-01</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-2-implement-flexi-facility-management.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to add my flexi facility details</iWant>
+    <soThat>the system can model velocity banking and flexi strategies</soThat>
+    <tasks>
+      <task id="1" status="pending">
+        <title>Create Zod validation schema</title>
+        <subtasks>
+          <subtask>Create src/lib/validation/flexi-facility.ts</subtask>
+          <subtask>Define flexiFacilitySchema with fields: name, type, creditLimit, currentBalance, interestRate</subtask>
+          <subtask>Create conversion helpers: toFormValues(), toDbValues()</subtask>
+          <subtask>Export schema and inferred type</subtask>
+          <subtask>Update src/lib/validation/index.ts barrel export</subtask>
+          <subtask>Write tests for validation schema</subtask>
+        </subtasks>
+      </task>
+      <task id="2" status="pending">
+        <title>Create useFlexiFacility hook</title>
+        <subtasks>
+          <subtask>Create src/hooks/useFlexiFacility.ts</subtask>
+          <subtask>Implement useLiveQuery for reactive facility from Dexie (first record only)</subtask>
+          <subtask>Implement saveFacility(data) with single facility constraint</subtask>
+          <subtask>Implement updateFacility(updates) function</subtask>
+          <subtask>Implement deleteFacility() function</subtask>
+          <subtask>Calculate availableCredit using big.js: creditLimit - currentBalance</subtask>
+          <subtask>Add hasExistingFacility boolean flag</subtask>
+          <subtask>Add isLoading state</subtask>
+          <subtask>Update src/hooks/index.ts barrel export</subtask>
+          <subtask>Write tests for useFlexiFacility hook</subtask>
+        </subtasks>
+      </task>
+      <task id="3" status="pending">
+        <title>Create FlexiFacilityForm component</title>
+        <subtasks>
+          <subtask>Create src/components/accounts/FlexiFacilityForm.tsx</subtask>
+          <subtask>Use React Hook Form with Zod resolver</subtask>
+          <subtask>Add shadcn/ui Select for facility type dropdown</subtask>
+          <subtask>Add percentage input handling for interest rate</subtask>
+          <subtask>Support create and edit modes via optional facility prop</subtask>
+          <subtask>Call toast.success() on successful save/update</subtask>
+          <subtask>Write component tests</subtask>
+        </subtasks>
+      </task>
+      <task id="4" status="pending">
+        <title>Create FlexiFacilityCard component</title>
+        <subtasks>
+          <subtask>Create src/components/accounts/FlexiFacilityCard.tsx</subtask>
+          <subtask>Display facility name, type with icon, credit limit, current balance, available credit, rate</subtask>
+          <subtask>Show negative available credit in red</subtask>
+          <subtask>Include Edit and Delete action buttons</subtask>
+          <subtask>Write component tests</subtask>
+        </subtasks>
+      </task>
+      <task id="5" status="pending">
+        <title>Create FlexiFacilitySection component</title>
+        <subtasks>
+          <subtask>Create src/components/accounts/FlexiFacilitySection.tsx</subtask>
+          <subtask>If no facility exists: Show "Add Flexi Facility" button</subtask>
+          <subtask>If facility exists: Show FlexiFacilityCard</subtask>
+          <subtask>Disable add button when facility exists</subtask>
+          <subtask>Implement edit mode and delete confirmation</subtask>
+          <subtask>Write component tests</subtask>
+        </subtasks>
+      </task>
+      <task id="6" status="pending">
+        <title>Integrate into DataEntryPage</title>
+        <subtasks>
+          <subtask>Update src/pages/DataEntryPage.tsx to include FlexiFacilitySection</subtask>
+          <subtask>Add section header "Flexi Facility" below Debt Accounts section</subtask>
+          <subtask>Add informational text explaining flexi facility purpose</subtask>
+          <subtask>Test full CRUD flow manually</subtask>
+        </subtasks>
+      </task>
+      <task id="7" status="pending">
+        <title>Run all tests and verify</title>
+        <subtasks>
+          <subtask>Update barrel exports</subtask>
+          <subtask>Run npm run test and ensure all tests pass</subtask>
+          <subtask>Run npm run build and ensure no type errors</subtask>
+          <subtask>Verify all 8 acceptance criteria are implemented</subtask>
+        </subtasks>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">
+      <given>I navigate to the Data Entry page</given>
+      <when>I click "Add Flexi Facility"</when>
+      <then>I see a form with fields: Facility name (required), Facility type (required, dropdown: FNB Flexi Option, Standard Bank Access Bond), Credit limit (required, ZAR currency input, minimum R0), Current balance/utilization (required, ZAR currency input, can be negative), Interest rate (required, percentage input 0-100%)</then>
+    </criterion>
+    <criterion id="2">
+      <given>I fill out the form with valid data</given>
+      <when>I click "Save Facility"</when>
+      <then>the facility is saved to Dexie database with createdAt and updatedAt timestamps</then>
+    </criterion>
+    <criterion id="3">
+      <given>a successful save</given>
+      <when>the operation completes</when>
+      <then>I see a success toast "Flexi facility saved"</then>
+    </criterion>
+    <criterion id="4">
+      <given>I already have ONE flexi facility</given>
+      <when>I try to add another</when>
+      <then>the "Add Flexi Facility" button is disabled and shows "Edit" instead</then>
+    </criterion>
+    <criterion id="5">
+      <given>I have an existing facility</given>
+      <when>I view the flexi facility section</when>
+      <then>I see a card displaying: name, type, credit limit (ZAR formatted), current balance (ZAR formatted), available credit (calculated: limit - balance), interest rate</then>
+    </criterion>
+    <criterion id="6">
+      <given>I click "Edit" on the facility</given>
+      <when>the edit form opens</when>
+      <then>the form is populated with existing data</then>
+    </criterion>
+    <criterion id="7">
+      <given>I modify fields in edit mode and click "Save"</given>
+      <when>the save completes</when>
+      <then>the facility is updated in database and I see success toast "Flexi facility updated"</then>
+    </criterion>
+    <criterion id="8">
+      <given>I click "Delete" on the facility</given>
+      <when>I see the confirmation dialog and confirm</when>
+      <then>the facility is removed from database and I see success toast "Flexi facility deleted"</then>
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR2: Flexi Facility Management</section>
+        <snippet>Support for SA-specific flexi facilities (FNB Flexi Option, Standard Bank Access Bond). Single facility limit per user. Used for velocity banking and flexi chunking strategies.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>ADR-002: Dexie.js for Data Persistence</section>
+        <snippet>All data persisted to IndexedDB via Dexie with useLiveQuery for reactive queries. FlexiFacility table defined with auto-increment id, indexed by name and createdAt.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>ADR-003: big.js for Financial Precision</section>
+        <snippet>All monetary calculations use big.js for decimal precision. Avoid floating point errors in financial calculations.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>ADR-006: React Hook Form + Zod</section>
+        <snippet>Forms use React Hook Form with Zod validation. Uncontrolled inputs for performance. Schema-based validation with type inference.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification</title>
+        <section>Story 2.2: Flexi Facility Management</section>
+        <snippet>AC 2.2.1-2.2.5 define flexi facility CRUD with single facility constraint. Only ONE flexi facility allowed per user. Form disabled if one exists.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Component Strategy</section>
+        <snippet>Card-based layouts, shadcn/ui components (Card, Form, Input, Button, Select, AlertDialog), teal color scheme for actions, ZAR currency formatting.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/types/flexi-facility.ts</path>
+        <kind>type-definition</kind>
+        <symbol>FlexiFacility, FlexiFacilityType</symbol>
+        <lines>1-31</lines>
+        <reason>Core type definition for flexi facility entity. Already defined with all required fields: id, name, type, creditLimit, currentBalance, interestRate, timestamps.</reason>
+      </file>
+      <file>
+        <path>src/lib/db/schema.ts</path>
+        <kind>database-schema</kind>
+        <symbol>FlowlineDB.flexiFacility</symbol>
+        <lines>26-27, 48-49</lines>
+        <reason>Dexie table definition for flexiFacility. Table already exists with auto-increment id, indexed by name and createdAt.</reason>
+      </file>
+      <file>
+        <path>src/hooks/useAccounts.ts</path>
+        <kind>hook</kind>
+        <symbol>useAccounts</symbol>
+        <lines>1-118</lines>
+        <reason>Reference pattern for hook implementation. Follow same structure: useLiveQuery, CRUD operations returning Result type, big.js calculations.</reason>
+      </file>
+      <file>
+        <path>src/lib/validation/account.ts</path>
+        <kind>validation-schema</kind>
+        <symbol>accountFormSchema, formValuesToAccount, accountToFormValues</symbol>
+        <lines>1-86</lines>
+        <reason>Reference pattern for Zod validation schema. Follow same structure with enum schemas, conversion helpers for interest rate (percentage to decimal).</reason>
+      </file>
+      <file>
+        <path>src/components/accounts/AccountForm.tsx</path>
+        <kind>component</kind>
+        <symbol>AccountForm</symbol>
+        <lines>1-214</lines>
+        <reason>Reference pattern for form component. Follow same structure: React Hook Form with Zod resolver, Select component for type dropdown, create/edit modes.</reason>
+      </file>
+      <file>
+        <path>src/components/accounts/AccountCard.tsx</path>
+        <kind>component</kind>
+        <symbol>AccountCard</symbol>
+        <lines>all</lines>
+        <reason>Reference pattern for card component. Follow same structure: shadcn/ui Card, formatted currency display, Edit/Delete buttons.</reason>
+      </file>
+      <file>
+        <path>src/components/accounts/DeleteConfirmDialog.tsx</path>
+        <kind>component</kind>
+        <symbol>DeleteConfirmDialog</symbol>
+        <lines>1-63</lines>
+        <reason>Reusable delete confirmation pattern. Consider making generic or creating FlexiFacilityDeleteDialog following same pattern.</reason>
+      </file>
+      <file>
+        <path>src/lib/format/currency.ts</path>
+        <kind>utility</kind>
+        <symbol>formatCurrency, parseCurrencyInput, formatPercentage</symbol>
+        <lines>1-87</lines>
+        <reason>Reuse for ZAR currency formatting and percentage display. Already implements SA number formatting with Intl.NumberFormat.</reason>
+      </file>
+      <file>
+        <path>src/lib/utils/result.ts</path>
+        <kind>utility</kind>
+        <symbol>Result, ok, err, isOk, isErr</symbol>
+        <lines>1-19</lines>
+        <reason>Result type pattern for async operations. Use ok() for success, err() for failures.</reason>
+      </file>
+      <file>
+        <path>src/pages/DataEntryPage.tsx</path>
+        <kind>page</kind>
+        <symbol>DataEntryPage</symbol>
+        <lines>all</lines>
+        <reason>Target page for integration. Add FlexiFacilitySection below AccountList section.</reason>
+      </file>
+      <file>
+        <path>src/components/accounts/index.ts</path>
+        <kind>barrel-export</kind>
+        <symbol>module exports</symbol>
+        <lines>all</lines>
+        <reason>Update with new component exports: FlexiFacilityForm, FlexiFacilityCard, FlexiFacilitySection.</reason>
+      </file>
+      <file>
+        <path>src/hooks/index.ts</path>
+        <kind>barrel-export</kind>
+        <symbol>module exports</symbol>
+        <lines>all</lines>
+        <reason>Update with useFlexiFacility export.</reason>
+      </file>
+      <file>
+        <path>src/lib/validation/index.ts</path>
+        <kind>barrel-export</kind>
+        <symbol>module exports</symbol>
+        <lines>all</lines>
+        <reason>Update with flexi-facility validation exports.</reason>
+      </file>
+    </code>
+    <dependencies>
+      <node>
+        <package>dexie</package>
+        <version>^4.2.1</version>
+        <purpose>IndexedDB database operations</purpose>
+      </node>
+      <node>
+        <package>dexie-react-hooks</package>
+        <version>^4.2.0</version>
+        <purpose>useLiveQuery for reactive queries</purpose>
+      </node>
+      <node>
+        <package>react-hook-form</package>
+        <version>^7.66.1</version>
+        <purpose>Form state management</purpose>
+      </node>
+      <node>
+        <package>@hookform/resolvers</package>
+        <version>^5.2.2</version>
+        <purpose>Zod resolver for RHF</purpose>
+      </node>
+      <node>
+        <package>zod</package>
+        <version>^4.1.13</version>
+        <purpose>Schema validation</purpose>
+      </node>
+      <node>
+        <package>big.js</package>
+        <version>^7.0.1</version>
+        <purpose>Precision decimal arithmetic for available credit calculation</purpose>
+      </node>
+      <node>
+        <package>lucide-react</package>
+        <version>^0.555.0</version>
+        <purpose>Icons for facility type (Landmark icon)</purpose>
+      </node>
+      <node>
+        <package>sonner</package>
+        <version>^2.0.7</version>
+        <purpose>Toast notifications</purpose>
+      </node>
+      <devDependencies>
+        <package>vitest</package>
+        <version>^4.0.14</version>
+        <purpose>Test framework</purpose>
+      </devDependencies>
+      <devDependencies>
+        <package>@testing-library/react</package>
+        <version>^16.3.0</version>
+        <purpose>Component testing</purpose>
+      </devDependencies>
+      <devDependencies>
+        <package>@testing-library/user-event</package>
+        <version>^14.6.1</version>
+        <purpose>User interaction simulation</purpose>
+      </devDependencies>
+      <devDependencies>
+        <package>fake-indexeddb</package>
+        <version>^6.2.5</version>
+        <purpose>IndexedDB mock for testing</purpose>
+      </devDependencies>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="single-facility">Only ONE flexi facility allowed per user. saveFacility must check existing count before insert and return error if facility exists.</constraint>
+    <constraint type="data-persistence">All data persisted via Dexie/IndexedDB. No server transmission (NFR-S1).</constraint>
+    <constraint type="monetary-precision">All monetary calculations use big.js for precision. availableCredit = creditLimit - currentBalance.</constraint>
+    <constraint type="validation">Zod schemas validate all fields before database operations. Input validation per NFR-S3.</constraint>
+    <constraint type="interest-rate">Store interest rate as decimal (0.115), input/display as percentage (11.5%). Use conversion helpers.</constraint>
+    <constraint type="negative-balance">currentBalance can be negative (representing available credit/overpaid).</constraint>
+    <constraint type="result-pattern">All async operations return Result type. Use ok() for success, err() for failures.</constraint>
+    <constraint type="toast-pattern">Success operations show toast.success(), failures show toast.error().</constraint>
+    <constraint type="barrel-exports">All new files must be added to barrel exports (index.ts files).</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>UseFlexiFacilityReturn</name>
+      <kind>hook-interface</kind>
+      <signature>
+interface UseFlexiFacilityReturn {
+  facility: FlexiFacility | null;
+  isLoading: boolean;
+  hasExistingFacility: boolean;
+  saveFacility: (facility: Omit&lt;FlexiFacility, 'id' | 'createdAt' | 'updatedAt'&gt;) =&gt; Promise&lt;Result&lt;number&gt;&gt;;
+  updateFacility: (updates: Partial&lt;FlexiFacility&gt;) =&gt; Promise&lt;Result&lt;void&gt;&gt;;
+  deleteFacility: () =&gt; Promise&lt;Result&lt;void&gt;&gt;;
+  availableCredit: string;
+}
+      </signature>
+      <path>src/hooks/useFlexiFacility.ts</path>
+    </interface>
+    <interface>
+      <name>FlexiFacilityFormProps</name>
+      <kind>component-props</kind>
+      <signature>
+interface FlexiFacilityFormProps {
+  facility?: FlexiFacility;
+  onSuccess?: () =&gt; void;
+  onCancel?: () =&gt; void;
+}
+      </signature>
+      <path>src/components/accounts/FlexiFacilityForm.tsx</path>
+    </interface>
+    <interface>
+      <name>FlexiFacilityCardProps</name>
+      <kind>component-props</kind>
+      <signature>
+interface FlexiFacilityCardProps {
+  facility: FlexiFacility;
+  availableCredit: string;
+  onEdit: () =&gt; void;
+  onDelete: () =&gt; void;
+}
+      </signature>
+      <path>src/components/accounts/FlexiFacilityCard.tsx</path>
+    </interface>
+    <interface>
+      <name>flexiFacilityFormSchema</name>
+      <kind>zod-schema</kind>
+      <signature>
+z.object({
+  name: z.string().min(1).max(100),
+  type: z.enum(['fnb_flexi', 'standard_bank_access']),
+  creditLimit: z.string().refine(val =&gt; parseFloat(val) &gt;= 0),
+  currentBalance: z.string().refine(val =&gt; !isNaN(parseFloat(val))), // can be negative
+  interestRate: z.string().refine(val =&gt; parseFloat(val) &gt;= 0 &amp;&amp; parseFloat(val) &lt;= 100),
+})
+      </signature>
+      <path>src/lib/validation/flexi-facility.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Vitest test framework with React Testing Library for component tests. Tests co-located in tests/ directory mirroring src/ structure. Use fake-indexeddb/auto for Dexie tests. Follow existing patterns from tests/hooks/useAccounts.test.ts and tests/components/accounts/*.test.tsx. All async operations should be wrapped in act() and use waitFor() for state updates. Current test count: 206 tests passing.
+    </standards>
+    <locations>
+      <location>tests/lib/validation/flexi-facility.test.ts</location>
+      <location>tests/hooks/useFlexiFacility.test.ts</location>
+      <location>tests/components/accounts/FlexiFacilityForm.test.tsx</location>
+      <location>tests/components/accounts/FlexiFacilityCard.test.tsx</location>
+      <location>tests/components/accounts/FlexiFacilitySection.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea ac="1">Test form renders all required fields with correct labels and input types</idea>
+      <idea ac="1">Test Select dropdown contains both facility type options</idea>
+      <idea ac="2">Test saveFacility adds record with timestamps to Dexie</idea>
+      <idea ac="2">Test form validation rejects invalid inputs (empty name, negative limit)</idea>
+      <idea ac="3">Test toast.success called with "Flexi facility saved" on successful save</idea>
+      <idea ac="4">Test saveFacility returns error when facility already exists</idea>
+      <idea ac="4">Test add button disabled when hasExistingFacility is true</idea>
+      <idea ac="5">Test FlexiFacilityCard displays all fields with correct formatting</idea>
+      <idea ac="5">Test availableCredit calculation: creditLimit - currentBalance</idea>
+      <idea ac="5">Test negative availableCredit displayed in red</idea>
+      <idea ac="6">Test form populated with existing data in edit mode</idea>
+      <idea ac="7">Test updateFacility updates record and shows toast</idea>
+      <idea ac="8">Test deleteFacility removes record and shows toast</idea>
+      <idea ac="8">Test delete confirmation dialog appears before delete</idea>
+    </ideas>
+  </tests>
+</story-context>
