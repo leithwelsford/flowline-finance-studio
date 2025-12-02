@@ -1,4 +1,4 @@
-import { AccountList } from '@/components/accounts';
+import { AccountList, FlexiFacilitySection } from '@/components/accounts';
 
 export function DataEntryPage() {
   return (
@@ -6,6 +6,9 @@ export function DataEntryPage() {
       <h1 className="text-2xl font-bold mb-6">Data Entry</h1>
       <section className="mb-8">
         <AccountList />
+      </section>
+      <section className="mb-8">
+        <FlexiFacilitySection />
       </section>
     </div>
   );

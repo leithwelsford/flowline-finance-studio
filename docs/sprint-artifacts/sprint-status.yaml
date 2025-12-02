@@ -47,7 +47,7 @@ development_status:
   # Epic 2: Account & Data Management
   epic-2: contexted
   2-1-implement-debt-account-management: done
-  2-2-implement-flexi-facility-management: ready-for-dev
+  2-2-implement-flexi-facility-management: done
   2-3-implement-income-entry: backlog
   2-4-implement-expense-tracking-by-category: backlog
   2-5-implement-financial-snapshot-view: backlog
