@@ -1,6 +1,6 @@
 # Story 2.5: Implement Financial Snapshot View
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -30,62 +30,62 @@ so that **I can verify all data is entered correctly before running calculations
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create FinancialSnapshot TypeScript type (AC: 1)
-  - [ ] Create `src/types/financial-snapshot.ts` with FinancialSnapshot interface
-  - [ ] Add fields: totalDebt, totalMonthlyIncome, totalMonthlyExpenses, minimumDebtPayments, availableSurplus, accountCount, hasFlexi, flexiAvailableCredit
-  - [ ] Update `src/types/index.ts` barrel export
-  - [ ] All monetary values as string for big.js compatibility
+- [x] Task 1: Create FinancialSnapshot TypeScript type (AC: 1)
+  - [x] Create `src/types/financial-snapshot.ts` with FinancialSnapshot interface
+  - [x] Add fields: totalDebt, totalMonthlyIncome, totalMonthlyExpenses, minimumDebtPayments, availableSurplus, accountCount, hasFlexi, flexiAvailableCredit
+  - [x] Update `src/types/index.ts` barrel export
+  - [x] All monetary values as string for big.js compatibility
 
-- [ ] Task 2: Create useFinancialSnapshot hook (AC: 1, 4, 5, 6)
-  - [ ] Create `src/hooks/useFinancialSnapshot.ts`
-  - [ ] Import and use existing hooks: useAccounts, useIncome, useExpenses, useFlexiFacility
-  - [ ] Calculate totalDebt: sum of all account balances using big.js
-  - [ ] Calculate totalMonthlyIncome: from useIncome hook
-  - [ ] Calculate totalMonthlyExpenses: from useExpenses hook
-  - [ ] Calculate minimumDebtPayments: sum of all account minimum payments using big.js
-  - [ ] Calculate availableSurplus: income - expenses - minimumPayments using big.js
-  - [ ] Calculate accountCount: accounts.length
-  - [ ] Check hasFlexi: facility !== null
-  - [ ] Calculate flexiAvailableCredit: creditLimit - currentBalance if flexi exists
-  - [ ] Return isLoading state (any hook loading)
-  - [ ] Return isHealthy: availableSurplus > 0
-  - [ ] Update `src/hooks/index.ts` barrel export
-  - [ ] Write tests for useFinancialSnapshot hook
+- [x] Task 2: Create useFinancialSnapshot hook (AC: 1, 4, 5, 6)
+  - [x] Create `src/hooks/useFinancialSnapshot.ts`
+  - [x] Import and use existing hooks: useAccounts, useIncome, useExpenses, useFlexiFacility
+  - [x] Calculate totalDebt: sum of all account balances using big.js
+  - [x] Calculate totalMonthlyIncome: from useIncome hook
+  - [x] Calculate totalMonthlyExpenses: from useExpenses hook
+  - [x] Calculate minimumDebtPayments: sum of all account minimum payments using big.js
+  - [x] Calculate availableSurplus: income - expenses - minimumPayments using big.js
+  - [x] Calculate accountCount: accounts.length
+  - [x] Check hasFlexi: facility !== null
+  - [x] Calculate flexiAvailableCredit: creditLimit - currentBalance if flexi exists
+  - [x] Return isLoading state (any hook loading)
+  - [x] Return isHealthy: availableSurplus > 0
+  - [x] Update `src/hooks/index.ts` barrel export
+  - [x] Write tests for useFinancialSnapshot hook
 
-- [ ] Task 3: Create FinancialSnapshot component (AC: 1, 2, 3, 5, 6)
-  - [ ] Create `src/components/accounts/FinancialSnapshot.tsx`
-  - [ ] Use shadcn/ui Card as container
-  - [ ] Display all 6 snapshot metrics with labels
-  - [ ] Format all monetary values using formatCurrency() from `@/lib/format/currency`
-  - [ ] Apply conditional styling for surplus:
+- [x] Task 3: Create FinancialSnapshot component (AC: 1, 2, 3, 5, 6)
+  - [x] Create `src/components/accounts/FinancialSnapshot.tsx`
+  - [x] Use shadcn/ui Card as container
+  - [x] Display all 6 snapshot metrics with labels
+  - [x] Format all monetary values using formatCurrency() from `@/lib/format/currency`
+  - [x] Apply conditional styling for surplus:
     - Red text (red-500) + warning icon (AlertTriangle from lucide-react) if negative
     - Green text (green-500) + check icon (CheckCircle from lucide-react) if positive
-  - [ ] Display account count
-  - [ ] Display flexi facility status if present (green badge with available credit)
-  - [ ] Handle empty state: show zeros with "Add accounts, income, and expenses to see your financial snapshot"
-  - [ ] Use semantic colors from UX spec (green-500, red-500, slate colors)
-  - [ ] Write component tests
+  - [x] Display account count
+  - [x] Display flexi facility status if present (green badge with available credit)
+  - [x] Handle empty state: show zeros with "Add accounts, income, and expenses to see your financial snapshot"
+  - [x] Use semantic colors from UX spec (green-500, red-500, slate colors)
+  - [x] Write component tests
 
-- [ ] Task 4: Create SnapshotMetricCard sub-component (AC: 1, 2, 3)
-  - [ ] Create `src/components/accounts/SnapshotMetricCard.tsx`
-  - [ ] Props: label, value, variant ('default' | 'positive' | 'negative' | 'neutral'), icon (optional)
-  - [ ] Display label and formatted value
-  - [ ] Apply variant-based styling (color, icon)
-  - [ ] Use consistent typography and spacing
-  - [ ] Write component tests
+- [x] Task 4: Create SnapshotMetricCard sub-component (AC: 1, 2, 3)
+  - [x] Create `src/components/accounts/SnapshotMetricCard.tsx`
+  - [x] Props: label, value, variant ('default' | 'positive' | 'negative' | 'neutral'), icon (optional)
+  - [x] Display label and formatted value
+  - [x] Apply variant-based styling (color, icon)
+  - [x] Use consistent typography and spacing
+  - [x] Write component tests
 
-- [ ] Task 5: Integrate into DataEntryPage (AC: All)
-  - [ ] Update `src/pages/DataEntryPage.tsx` to include FinancialSnapshot at the top
-  - [ ] Position snapshot panel prominently above data entry sections
-  - [ ] Add section header "Financial Snapshot"
-  - [ ] Ensure proper spacing between snapshot and data entry sections
-  - [ ] Verify reactive updates when data changes
+- [x] Task 5: Integrate into DataEntryPage (AC: All)
+  - [x] Update `src/pages/DataEntryPage.tsx` to include FinancialSnapshot at the top
+  - [x] Position snapshot panel prominently above data entry sections
+  - [x] Add section header "Financial Snapshot"
+  - [x] Ensure proper spacing between snapshot and data entry sections
+  - [x] Verify reactive updates when data changes
 
-- [ ] Task 6: Run all tests and verify (AC: All)
-  - [ ] Create barrel export updates in `src/components/accounts/index.ts`
-  - [ ] Run `npm run test` and ensure all tests pass
-  - [ ] Run `npm run build` and ensure no type errors
-  - [ ] Verify all 6 acceptance criteria are implemented
+- [x] Task 6: Run all tests and verify (AC: All)
+  - [x] Create barrel export updates in `src/components/accounts/index.ts`
+  - [x] Run `npm run test` and ensure all tests pass
+  - [x] Run `npm run build` and ensure no type errors
+  - [x] Verify all 6 acceptance criteria are implemented
 
 ## Dev Notes
 
@@ -274,16 +274,47 @@ beforeEach(async () => {
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+- Composed useFinancialSnapshot from existing hooks (useAccounts, useIncome, useExpenses, useFlexiFacility)
+- All calculations use big.js for precision per ADR-003
+- Leveraged existing totalDebt, totalMinPayments, totalMonthlyIncome, totalMonthlyExpenses from child hooks
+- SnapshotMetricCard created as reusable sub-component with variant-based styling
+
 ### Completion Notes List
 
+- ✅ All 6 acceptance criteria implemented and tested
+- ✅ 586 tests passing (50 new tests added)
+- ✅ Build passes with no type errors
+- ✅ Bundle size: ~601KB (slight increase from 598KB, within acceptable range)
+- ✅ FinancialSnapshot displays at top of DataEntryPage with teal header accent
+- ✅ Flexi facility badge shows when facility exists with available credit
+- ✅ Surplus color coding: green (positive), red (negative), neutral (zero) with icons
+- ✅ Empty state message displays when no data entered
+- ✅ Reactive updates via Dexie useLiveQuery propagation
+
 ### File List
+
+**Created:**
+- src/types/financial-snapshot.ts
+- src/hooks/useFinancialSnapshot.ts
+- src/components/accounts/FinancialSnapshot.tsx
+- src/components/accounts/SnapshotMetricCard.tsx
+- tests/hooks/useFinancialSnapshot.test.ts
+- tests/components/accounts/FinancialSnapshot.test.tsx
+- tests/components/accounts/SnapshotMetricCard.test.tsx
+
+**Modified:**
+- src/types/index.ts
+- src/hooks/index.ts
+- src/components/accounts/index.ts
+- src/pages/DataEntryPage.tsx
 
 ## Change Log
 
 | Date | Change | Author |
 |------|--------|--------|
 | 2025-12-03 | Story drafted from tech-spec-epic-2.md with full context from Story 2.4 learnings | SM Agent (Bob) |
+| 2025-12-03 | Story implementation complete - all 6 ACs satisfied, 586 tests passing, build clean | Dev Agent (Amelia) |

@@ -18,3 +18,6 @@ export type { BalanceSnapshot } from './balance-snapshot';
 
 // Settings types
 export type { AppSettings } from './settings';
+
+// Financial snapshot types
+export type { FinancialSnapshot } from './financial-snapshot';
