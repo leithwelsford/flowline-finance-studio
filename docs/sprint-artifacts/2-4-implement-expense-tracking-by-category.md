@@ -1,6 +1,6 @@
 # Story 2.4: Implement Expense Tracking by Category
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
