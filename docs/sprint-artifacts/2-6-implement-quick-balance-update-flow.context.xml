@@ -1,0 +1,304 @@
+<story-context id="2-6-implement-quick-balance-update-flow" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>6</storyId>
+    <title>Implement Quick Balance Update Flow</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-6-implement-quick-balance-update-flow.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to quickly update my account balances</iWant>
+    <soThat>I can complete weekly updates in under 10 minutes</soThat>
+    <tasks>
+      <task id="1">Create QuickBalanceUpdate component (AC: 1, 4)
+        <subtask>Create src/components/accounts/QuickBalanceUpdate.tsx</subtask>
+        <subtask>Import useAccounts and useFlexiFacility hooks for data</subtask>
+        <subtask>Display list of all debt accounts with name, type icon, and current balance</subtask>
+        <subtask>Display flexi facility (if exists) with name and current balance</subtask>
+        <subtask>Each balance displayed in an inline editable Input field</subtask>
+        <subtask>Current balance pre-filled in each field</subtask>
+        <subtask>Use shadcn/ui Card as container for the update view</subtask>
+        <subtask>Use shadcn/ui Input for balance fields with ZAR formatting</subtask>
+      </task>
+      <task id="2">Implement inline balance editing with auto-save (AC: 1, 2, 6)
+        <subtask>Create local state for each balance field value</subtask>
+        <subtask>Implement onBlur handler that triggers save if value changed</subtask>
+        <subtask>Implement onKeyDown handler for Enter key to trigger save</subtask>
+        <subtask>Use debounce (500ms) to prevent excessive database writes</subtask>
+        <subtask>Only trigger save if new value differs from original value</subtask>
+        <subtask>Track which field is currently being edited for focus management</subtask>
+      </task>
+      <task id="3">Create useDebouncedSave hook (AC: 2, 6)
+        <subtask>Create src/hooks/useDebouncedSave.ts</subtask>
+        <subtask>Accept callback function and delay (default 500ms)</subtask>
+        <subtask>Return debounced save function</subtask>
+        <subtask>Cancel pending saves on unmount</subtask>
+        <subtask>Export from src/hooks/index.ts</subtask>
+      </task>
+      <task id="4">Implement save indicator feedback (AC: 2)
+        <subtask>Create src/components/accounts/BalanceUpdateRow.tsx sub-component</subtask>
+        <subtask>Props: account (or flexi), onSave callback, showSavedIndicator</subtask>
+        <subtask>Display "Saving..." during save operation</subtask>
+        <subtask>Display "Saved" checkmark for 2 seconds after successful save</subtask>
+        <subtask>Handle error state with red indicator</subtask>
+        <subtask>Use lucide-react icons: Check (saved), Loader2 (saving), AlertCircle (error)</subtask>
+      </task>
+      <task id="5">Implement balance validation (AC: 5)
+        <subtask>Create validation function: balance must be >= 0 and numeric</subtask>
+        <subtask>Display inline validation error below field if invalid</subtask>
+        <subtask>Prevent save operation for invalid values</subtask>
+        <subtask>Clear error when user corrects the value</subtask>
+        <subtask>Use Zod schema consistent with existing account validation</subtask>
+      </task>
+      <task id="6">Implement last updated timestamp (AC: 3)
+        <subtask>Add lastUpdated?: string field to DebtAccount and FlexiFacility types if not present</subtask>
+        <subtask>Update account/flexi record with ISO timestamp on save</subtask>
+        <subtask>Display "Last updated: [date/time]" for each account row</subtask>
+        <subtask>Format timestamp using date-fns and SA date format (DD/MM/YYYY HH:mm)</subtask>
+        <subtask>Show "Never updated" if lastUpdated is null/undefined</subtask>
+      </task>
+      <task id="7">Update account save functions (AC: 2, 3)
+        <subtask>Modify useAccounts hook to expose updateAccountBalance(id, balance) function</subtask>
+        <subtask>Function updates only balance and lastUpdated fields (not full record)</subtask>
+        <subtask>Modify useFlexiFacility hook to expose updateFlexiBalance(id, balance) function</subtask>
+        <subtask>Ensure reactive updates via Dexie useLiveQuery</subtask>
+      </task>
+      <task id="8">Integrate into DataEntryPage (AC: All)
+        <subtask>Add "Update Balances" button to DataEntryPage header</subtask>
+        <subtask>Toggle between normal view and QuickBalanceUpdate view</subtask>
+        <subtask>Or: Create as collapsible section at top of DataEntryPage</subtask>
+        <subtask>Show FinancialSnapshot alongside for real-time total debt updates</subtask>
+        <subtask>Ensure total debt in snapshot updates reactively as balances are saved</subtask>
+      </task>
+      <task id="9">Write tests and verify (AC: All)
+        <subtask>Write unit tests for useDebouncedSave hook</subtask>
+        <subtask>Write component tests for QuickBalanceUpdate</subtask>
+        <subtask>Write component tests for BalanceUpdateRow</subtask>
+        <subtask>Test validation error display and prevention</subtask>
+        <subtask>Test save indicator state transitions</subtask>
+        <subtask>Test debounce behavior (no save if unchanged)</subtask>
+        <subtask>Run npm run test and ensure all tests pass</subtask>
+        <subtask>Run npm run build and ensure no type errors</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Given I have existing accounts When I click "Update Balances" Then I see a streamlined view with: List of all accounts with current balance displayed, Inline edit field for each balance (no modal/popup needed), Current balance pre-filled, Auto-save when I click away or press Enter</criterion>
+    <criterion id="2">Given I update a balance When I change the value and move to next field Then the new balance is saved immediately (auto-save) And I see a brief "Saved" indicator next to the field</criterion>
+    <criterion id="3">Given I update all balances When I'm done Then I can see timestamp of "Last updated: [date/time]" And total debt reflects new balances</criterion>
+    <criterion id="4">Given I have a flexi facility When I view the quick update view Then I can also update the flexi facility current balance inline</criterion>
+    <criterion id="5">Given I enter an invalid balance (negative number, non-numeric) When I try to save Then the field shows validation error and does not save</criterion>
+    <criterion id="6">Given I make no changes to a field When I click away Then no save operation is triggered (debounce prevents unnecessary writes)</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR5, FR51</section>
+        <snippet>FR5: User can update account balances manually on weekly or monthly basis. FR51: User can complete weekly data update in under 10 minutes.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>ADR-002, ADR-003, Project Structure</section>
+        <snippet>ADR-002 (Dexie.js): Partial updates via db.accounts.update(id, { balance, lastUpdated }). ADR-003 (big.js): Validate and store balance as string for precision. Component location: src/components/accounts/</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Data Entry Patterns, User Flows</section>
+        <snippet>Inline editing: Click to edit balance fields directly. Form validation: Real-time feedback, error messages below field. Quick update UI: Card-based container with teal header, each account row shows: Type icon | Account Name | Balance Input | Status | Last Updated</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Story 2.6</section>
+        <snippet>Story 2.6: Implement Quick Balance Update Flow. Fulfills FR5 and supports FR51 (10-minute updates). Implements inline editing with blur-to-save pattern.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification</title>
+        <section>Story 2.6 Acceptance Criteria</section>
+        <snippet>AC 2.6.1-2.6.6: Update Balances view, inline editable fields, auto-save on blur/Enter, "Saved" indicator, last updated timestamp, total debt reactive updates.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/hooks/useAccounts.ts</path>
+        <kind>hook</kind>
+        <symbol>useAccounts, updateAccount</symbol>
+        <lines>1-119</lines>
+        <reason>Core hook for account data. Need to add updateAccountBalance function for partial balance updates.</reason>
+      </file>
+      <file>
+        <path>src/hooks/useFlexiFacility.ts</path>
+        <kind>hook</kind>
+        <symbol>useFlexiFacility, updateFacility</symbol>
+        <lines>1-145</lines>
+        <reason>Core hook for flexi facility. Need to add updateFlexiBalance function for partial balance updates.</reason>
+      </file>
+      <file>
+        <path>src/types/account.ts</path>
+        <kind>type</kind>
+        <symbol>DebtAccount, AccountType</symbol>
+        <lines>1-43</lines>
+        <reason>Account type definition. May need to add lastUpdated field if not present (check if updatedAt serves this purpose).</reason>
+      </file>
+      <file>
+        <path>src/types/flexi-facility.ts</path>
+        <kind>type</kind>
+        <symbol>FlexiFacility, FlexiFacilityType</symbol>
+        <lines>1-32</lines>
+        <reason>Flexi facility type definition. May need to add lastUpdated field for balance-specific updates.</reason>
+      </file>
+      <file>
+        <path>src/components/accounts/FinancialSnapshot.tsx</path>
+        <kind>component</kind>
+        <symbol>FinancialSnapshot</symbol>
+        <lines>1-111</lines>
+        <reason>Shows total debt. Should update reactively when balances change - verify useLiveQuery integration.</reason>
+      </file>
+      <file>
+        <path>src/pages/DataEntryPage.tsx</path>
+        <kind>page</kind>
+        <symbol>DataEntryPage</symbol>
+        <lines>1-31</lines>
+        <reason>Main page where QuickBalanceUpdate will be integrated. Add toggle or section for quick update view.</reason>
+      </file>
+      <file>
+        <path>src/lib/format/currency.ts</path>
+        <kind>utility</kind>
+        <symbol>formatCurrency, parseCurrencyInput</symbol>
+        <lines>1-88</lines>
+        <reason>Currency formatting utilities. Use for displaying ZAR formatted balances.</reason>
+      </file>
+      <file>
+        <path>src/components/accounts/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <lines>1-18</lines>
+        <reason>Barrel exports for accounts components. Add QuickBalanceUpdate and BalanceUpdateRow exports.</reason>
+      </file>
+      <file>
+        <path>src/hooks/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <lines>1-10</lines>
+        <reason>Barrel exports for hooks. Add useDebouncedSave export.</reason>
+      </file>
+      <file>
+        <path>src/lib/db/index.ts</path>
+        <kind>database</kind>
+        <symbol>db</symbol>
+        <reason>Dexie database instance. Used for partial update operations.</reason>
+      </file>
+    </code>
+    <dependencies>
+      <node>
+        <package>dexie</package>
+        <version>^4.2.1</version>
+        <purpose>IndexedDB wrapper for data persistence</purpose>
+      </node>
+      <node>
+        <package>dexie-react-hooks</package>
+        <version>^4.2.0</version>
+        <purpose>useLiveQuery for reactive data queries</purpose>
+      </node>
+      <node>
+        <package>big.js</package>
+        <version>^7.0.1</version>
+        <purpose>Precision decimal arithmetic for financial calculations</purpose>
+      </node>
+      <node>
+        <package>date-fns</package>
+        <version>^4.1.0</version>
+        <purpose>Date formatting for SA format (DD/MM/YYYY HH:mm)</purpose>
+      </node>
+      <node>
+        <package>lucide-react</package>
+        <version>^0.555.0</version>
+        <purpose>Icons: Check, Loader2, AlertCircle for status indicators</purpose>
+      </node>
+      <node>
+        <package>zod</package>
+        <version>^4.1.13</version>
+        <purpose>Schema validation for balance input</purpose>
+      </node>
+      <node>
+        <package>react-hook-form</package>
+        <version>^7.66.1</version>
+        <purpose>Form state management (optional for inline editing)</purpose>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architecture">Follow ADR-002: Use Dexie db.accounts.update() for partial updates</constraint>
+    <constraint type="architecture">Follow ADR-003: Store balance as string, use big.js for validation</constraint>
+    <constraint type="pattern">Component location: src/components/accounts/QuickBalanceUpdate.tsx and BalanceUpdateRow.tsx</constraint>
+    <constraint type="pattern">Hook location: src/hooks/useDebouncedSave.ts</constraint>
+    <constraint type="pattern">Use shadcn/ui components: Card, Input, Button</constraint>
+    <constraint type="pattern">Use lucide-react icons for status indicators</constraint>
+    <constraint type="naming">Files: kebab-case, Components: PascalCase, Hooks: use prefix</constraint>
+    <constraint type="testing">Use Vitest + React Testing Library + fake-indexeddb</constraint>
+    <constraint type="ux">Balanced Teal theme: primary teal-600 (#0d9488), success green-500, error red-500</constraint>
+    <constraint type="ux">Auto-save on blur with 500ms debounce, "Saved" indicator visible for 2 seconds</constraint>
+    <constraint type="performance">NFR-P2: Form inputs respond immediately (&lt;100ms), auto-save non-blocking</constraint>
+    <constraint type="validation">Balance must be >= 0 and numeric, use Zod schema consistent with account.ts validation</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>useAccounts.updateAccountBalance</name>
+      <kind>function</kind>
+      <signature>updateAccountBalance(id: number, balance: string): Promise&lt;Result&lt;void&gt;&gt;</signature>
+      <path>src/hooks/useAccounts.ts</path>
+    </interface>
+    <interface>
+      <name>useFlexiFacility.updateFlexiBalance</name>
+      <kind>function</kind>
+      <signature>updateFlexiBalance(id: number, balance: string): Promise&lt;Result&lt;void&gt;&gt;</signature>
+      <path>src/hooks/useFlexiFacility.ts</path>
+    </interface>
+    <interface>
+      <name>BalanceUpdateRowProps</name>
+      <kind>interface</kind>
+      <signature>{ id: number; name: string; type: string; currentBalance: string; lastUpdated?: string; onSave: (id: number, newBalance: string) =&gt; Promise&lt;void&gt;; }</signature>
+      <path>src/components/accounts/BalanceUpdateRow.tsx</path>
+    </interface>
+    <interface>
+      <name>useDebouncedSave</name>
+      <kind>hook</kind>
+      <signature>&lt;T&gt;(saveFunction: (value: T) =&gt; Promise&lt;void&gt;, delay?: number) =&gt; (value: T) =&gt; void</signature>
+      <path>src/hooks/useDebouncedSave.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>Tests use Vitest with React Testing Library. Integration tests use fake-indexeddb/auto for IndexedDB mocking. Component tests follow existing patterns in tests/components/accounts/. Use renderHook for hook testing, render/screen/fireEvent/waitFor for component testing. Test async operations with act() and waitFor().</standards>
+    <locations>
+      <location>tests/hooks/useDebouncedSave.test.ts</location>
+      <location>tests/components/accounts/QuickBalanceUpdate.test.tsx</location>
+      <location>tests/components/accounts/BalanceUpdateRow.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea acId="1">Test QuickBalanceUpdate renders all accounts and flexi facility with pre-filled balances</idea>
+      <idea acId="2">Test onBlur triggers save and shows "Saved" indicator that disappears after 2s</idea>
+      <idea acId="2">Test Enter key triggers save same as blur</idea>
+      <idea acId="3">Test lastUpdated timestamp updates after save and displays in SA format</idea>
+      <idea acId="4">Test flexi facility row appears when facility exists and allows inline edit</idea>
+      <idea acId="5">Test validation error displays for negative/non-numeric input and prevents save</idea>
+      <idea acId="6">Test no save operation when value unchanged (debounce/no-change detection)</idea>
+      <idea>Test useDebouncedSave: debounce timing, cleanup on unmount, callback invocation</idea>
+      <idea>Test BalanceUpdateRow: status transitions (idle -> saving -> saved -> idle)</idea>
+      <idea>Test total debt in FinancialSnapshot updates reactively after balance save</idea>
+    </ideas>
+  </tests>
+</story-context>

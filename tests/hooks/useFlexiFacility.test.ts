@@ -443,4 +443,112 @@ describe('useFlexiFacility', () => {
       });
     });
   });
+
+  describe('updateFlexiBalance', () => {
+    it('updates only currentBalance and timestamps', async () => {
+      const { result } = renderHook(() => useFlexiFacility());
+
+      await act(async () => {
+        await result.current.saveFacility(testFacility);
+      });
+
+      await waitFor(() => {
+        expect(result.current.facility).not.toBeNull();
+      });
+
+      const originalName = result.current.facility!.name;
+      const originalUpdatedAt = result.current.facility!.updatedAt;
+
+      // Small delay to ensure different timestamp
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      await act(async () => {
+        await result.current.updateFlexiBalance('75000');
+      });
+
+      await waitFor(() => {
+        const facility = result.current.facility!;
+        expect(facility.currentBalance).toBe('75000');
+        expect(facility.name).toBe(originalName); // Name unchanged
+        expect(facility.updatedAt > originalUpdatedAt).toBe(true);
+        expect(facility.lastBalanceUpdated).toBeDefined();
+      });
+    });
+
+    it('sets lastBalanceUpdated timestamp', async () => {
+      const { result } = renderHook(() => useFlexiFacility());
+      const before = new Date().toISOString();
+
+      await act(async () => {
+        await result.current.saveFacility(testFacility);
+      });
+
+      await waitFor(() => {
+        expect(result.current.facility).not.toBeNull();
+      });
+
+      await act(async () => {
+        await result.current.updateFlexiBalance('75000');
+      });
+
+      await waitFor(() => {
+        const facility = result.current.facility!;
+        expect(facility.lastBalanceUpdated).toBeDefined();
+        expect(facility.lastBalanceUpdated! >= before).toBe(true);
+      });
+    });
+
+    it('returns success result', async () => {
+      const { result } = renderHook(() => useFlexiFacility());
+
+      await act(async () => {
+        await result.current.saveFacility(testFacility);
+      });
+
+      await waitFor(() => {
+        expect(result.current.facility).not.toBeNull();
+      });
+
+      let updateResult: Awaited<ReturnType<typeof result.current.updateFlexiBalance>>;
+      await act(async () => {
+        updateResult = await result.current.updateFlexiBalance('75000');
+      });
+
+      expect(updateResult!.success).toBe(true);
+    });
+
+    it('returns error when no facility to update', async () => {
+      const { result } = renderHook(() => useFlexiFacility());
+
+      let updateResult: Awaited<ReturnType<typeof result.current.updateFlexiBalance>>;
+      await act(async () => {
+        updateResult = await result.current.updateFlexiBalance('75000');
+      });
+
+      expect(updateResult!.success).toBe(false);
+      if (!updateResult!.success) {
+        expect(updateResult.error.message).toBe('No flexi facility to update');
+      }
+    });
+
+    it('updates availableCredit calculation', async () => {
+      const { result } = renderHook(() => useFlexiFacility());
+
+      await act(async () => {
+        await result.current.saveFacility(testFacility); // limit: 200000, balance: 50000
+      });
+
+      await waitFor(() => {
+        expect(result.current.availableCredit).toBe('150000');
+      });
+
+      await act(async () => {
+        await result.current.updateFlexiBalance('100000');
+      });
+
+      await waitFor(() => {
+        expect(result.current.availableCredit).toBe('100000');
+      });
+    });
+  });
 });

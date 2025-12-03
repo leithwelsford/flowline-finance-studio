@@ -17,6 +17,7 @@ export interface UseAccountsReturn {
   isLoading: boolean;
   addAccount: (account: NewAccountData) => Promise<Result<number>>;
   updateAccount: (id: number, updates: Partial<DebtAccount>) => Promise<Result<void>>;
+  updateAccountBalance: (id: number, balance: string) => Promise<Result<void>>;
   deleteAccount: (id: number) => Promise<Result<void>>;
   totalDebt: string;
   totalMinPayments: string;
@@ -81,6 +82,27 @@ export function useAccounts(): UseAccountsReturn {
   };
 
   /**
+   * Update only the balance of an account (for quick balance updates)
+   * Updates balance, updatedAt, and lastBalanceUpdated fields
+   */
+  const updateAccountBalance = async (
+    id: number,
+    balance: string
+  ): Promise<Result<void>> => {
+    try {
+      const now = new Date().toISOString();
+      await db.accounts.update(id, {
+        balance,
+        updatedAt: now,
+        lastBalanceUpdated: now,
+      });
+      return ok(undefined);
+    } catch (error) {
+      return err(error instanceof Error ? error : new Error('Failed to update account balance'));
+    }
+  };
+
+  /**
    * Delete an account from the database
    */
   const deleteAccount = async (id: number): Promise<Result<void>> => {
@@ -111,6 +133,7 @@ export function useAccounts(): UseAccountsReturn {
     isLoading,
     addAccount,
     updateAccount,
+    updateAccountBalance,
     deleteAccount,
     totalDebt,
     totalMinPayments,

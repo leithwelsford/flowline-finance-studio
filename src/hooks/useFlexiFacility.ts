@@ -24,6 +24,8 @@ export interface UseFlexiFacilityReturn {
   saveFacility: (facility: NewFlexiFacilityData) => Promise<Result<number>>;
   /** Update the existing facility */
   updateFacility: (updates: Partial<FlexiFacility>) => Promise<Result<void>>;
+  /** Update only the balance (for quick balance updates) */
+  updateFlexiBalance: (balance: string) => Promise<Result<void>>;
   /** Delete the existing facility */
   deleteFacility: () => Promise<Result<void>>;
   /** Available credit: creditLimit - currentBalance */
@@ -102,6 +104,28 @@ export function useFlexiFacility(): UseFlexiFacilityReturn {
   };
 
   /**
+   * Update only the balance of the flexi facility (for quick balance updates)
+   * Updates currentBalance, updatedAt, and lastBalanceUpdated fields
+   */
+  const updateFlexiBalance = async (balance: string): Promise<Result<void>> => {
+    try {
+      if (!facility?.id) {
+        return err(new Error('No flexi facility to update'));
+      }
+
+      const now = new Date().toISOString();
+      await db.flexiFacility.update(facility.id, {
+        currentBalance: balance,
+        updatedAt: now,
+        lastBalanceUpdated: now,
+      });
+      return ok(undefined);
+    } catch (error) {
+      return err(error instanceof Error ? error : new Error('Failed to update flexi balance'));
+    }
+  };
+
+  /**
    * Delete the existing flexi facility
    */
   const deleteFacility = async (): Promise<Result<void>> => {
@@ -138,6 +162,7 @@ export function useFlexiFacility(): UseFlexiFacilityReturn {
     hasExistingFacility,
     saveFacility,
     updateFacility,
+    updateFlexiBalance,
     deleteFacility,
     availableCredit,
   };

@@ -15,3 +15,5 @@ export { ExpenseList } from './ExpenseList';
 export { ExpenseSection } from './ExpenseSection';
 export { FinancialSnapshot } from './FinancialSnapshot';
 export { SnapshotMetricCard, type SnapshotMetricCardProps, type SnapshotMetricVariant } from './SnapshotMetricCard';
+export { QuickBalanceUpdate } from './QuickBalanceUpdate';
+export { BalanceUpdateRow, type BalanceUpdateRowProps, type SaveStatus } from './BalanceUpdateRow';
