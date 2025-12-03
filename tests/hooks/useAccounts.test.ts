@@ -276,4 +276,106 @@ describe('useAccounts', () => {
       });
     });
   });
+
+  describe('updateAccountBalance', () => {
+    it('updates only balance and timestamps', async () => {
+      const { result } = renderHook(() => useAccounts());
+
+      let accountId: number;
+      await act(async () => {
+        const addResult = await result.current.addAccount(testAccount);
+        if (addResult.success) {
+          accountId = addResult.data;
+        }
+      });
+
+      await waitFor(() => {
+        expect(result.current.accounts.length).toBe(1);
+      });
+
+      const originalName = result.current.accounts[0].name;
+      const originalUpdatedAt = result.current.accounts[0].updatedAt;
+
+      // Small delay to ensure different timestamp
+      await new Promise((resolve) => setTimeout(resolve, 10));
+
+      await act(async () => {
+        await result.current.updateAccountBalance(accountId!, '450000');
+      });
+
+      await waitFor(() => {
+        const account = result.current.accounts[0];
+        expect(account.balance).toBe('450000');
+        expect(account.name).toBe(originalName); // Name unchanged
+        expect(account.updatedAt > originalUpdatedAt).toBe(true);
+        expect(account.lastBalanceUpdated).toBeDefined();
+      });
+    });
+
+    it('sets lastBalanceUpdated timestamp', async () => {
+      const { result } = renderHook(() => useAccounts());
+      const before = new Date().toISOString();
+
+      let accountId: number;
+      await act(async () => {
+        const addResult = await result.current.addAccount(testAccount);
+        if (addResult.success) {
+          accountId = addResult.data;
+        }
+      });
+
+      await act(async () => {
+        await result.current.updateAccountBalance(accountId!, '450000');
+      });
+
+      await waitFor(() => {
+        const account = result.current.accounts[0];
+        expect(account.lastBalanceUpdated).toBeDefined();
+        expect(account.lastBalanceUpdated! >= before).toBe(true);
+      });
+    });
+
+    it('returns success result', async () => {
+      const { result } = renderHook(() => useAccounts());
+
+      let accountId: number;
+      await act(async () => {
+        const addResult = await result.current.addAccount(testAccount);
+        if (addResult.success) {
+          accountId = addResult.data;
+        }
+      });
+
+      let updateResult: Awaited<ReturnType<typeof result.current.updateAccountBalance>>;
+      await act(async () => {
+        updateResult = await result.current.updateAccountBalance(accountId!, '450000');
+      });
+
+      expect(updateResult!.success).toBe(true);
+    });
+
+    it('updates totalDebt calculation', async () => {
+      const { result } = renderHook(() => useAccounts());
+
+      let accountId: number;
+      await act(async () => {
+        const addResult = await result.current.addAccount(testAccount);
+        if (addResult.success) {
+          accountId = addResult.data;
+        }
+      });
+
+      await waitFor(() => {
+        expect(result.current.totalDebt).toBe('500000');
+      });
+
+      await act(async () => {
+        await result.current.updateAccountBalance(accountId!, '450000');
+      });
+
+      await waitFor(() => {
+        expect(result.current.totalDebt).toBe('450000');
+      });
+    });
+  });
 });

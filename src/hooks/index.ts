@@ -7,3 +7,4 @@ export {
 export { useIncome, type UseIncomeReturn, type NewIncomeData } from './useIncome';
 export { useExpenses, type UseExpensesReturn, type NewExpenseData } from './useExpenses';
 export { useFinancialSnapshot, type UseFinancialSnapshotReturn } from './useFinancialSnapshot';
+export { useDebouncedSave } from './useDebouncedSave';

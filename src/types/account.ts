@@ -39,4 +39,6 @@ export interface DebtAccount {
   createdAt: string;
   /** ISO date string when record was last updated */
   updatedAt: string;
+  /** ISO date string when balance was last updated (for quick update tracking) */
+  lastBalanceUpdated?: string;
 }
