@@ -51,7 +51,7 @@ development_status:
   2-3-implement-income-entry: done
   2-4-implement-expense-tracking-by-category: done
   2-5-implement-financial-snapshot-view: done
-  2-6-implement-quick-balance-update-flow: backlog
+  2-6-implement-quick-balance-update-flow: ready-for-dev
   epic-2-retrospective: optional
 
   # Epic 3: Financial Health Dashboard
