@@ -1,6 +1,6 @@
 # Story 2.5: Implement Financial Snapshot View
 
-Status: review
+Status: done
 
 ## Story
 
