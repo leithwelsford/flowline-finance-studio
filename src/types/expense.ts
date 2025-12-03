@@ -25,6 +25,8 @@ export interface ExpenseEntry {
   category: ExpenseCategory;
   /** Monthly amount as string (e.g., "5000.00") */
   amount: string;
+  /** Optional description for the expense */
+  description?: string;
   /** ISO date string for the expense date */
   date: string;
   /** ISO date string when record was created */

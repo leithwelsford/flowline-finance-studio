@@ -9,3 +9,7 @@ export { IncomeCard } from './IncomeCard';
 export { IncomeForm } from './IncomeForm';
 export { IncomeList } from './IncomeList';
 export { IncomeSection } from './IncomeSection';
+export { ExpenseCard } from './ExpenseCard';
+export { ExpenseForm } from './ExpenseForm';
+export { ExpenseList } from './ExpenseList';
+export { ExpenseSection } from './ExpenseSection';

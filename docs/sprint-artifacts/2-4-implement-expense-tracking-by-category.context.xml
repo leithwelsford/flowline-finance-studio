@@ -1,0 +1,334 @@
+<story-context id="bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>2</epicId>
+    <storyId>4</storyId>
+    <title>Implement Expense Tracking by Category</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/2-4-implement-expense-tracking-by-category.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to track my monthly expenses by category</iWant>
+    <soThat>the system can calculate my available surplus for debt payments</soThat>
+    <tasks>
+      <task id="1" title="Create Zod validation schema">
+        <subtask>Create src/lib/validation/expense.ts</subtask>
+        <subtask>Define expenseSchema with category enum, amount (numeric >= 0), description (optional)</subtask>
+        <subtask>Create conversion helpers: formValuesToExpense(), expenseToFormValues()</subtask>
+        <subtask>Update src/lib/validation/index.ts barrel export</subtask>
+        <subtask>Write tests for validation schema</subtask>
+      </task>
+      <task id="2" title="Create useExpenses hook">
+        <subtask>Create src/hooks/useExpenses.ts</subtask>
+        <subtask>Implement useLiveQuery for reactive expense entries</subtask>
+        <subtask>Implement addExpense, updateExpense, deleteExpense with Result types</subtask>
+        <subtask>Calculate totalMonthlyExpenses using big.js</subtask>
+        <subtask>Calculate expensesByCategory: Map for grouped totals</subtask>
+        <subtask>Update src/hooks/index.ts barrel export</subtask>
+        <subtask>Write tests for hook</subtask>
+      </task>
+      <task id="3" title="Create ExpenseForm component">
+        <subtask>Create src/components/accounts/ExpenseForm.tsx</subtask>
+        <subtask>Use React Hook Form with Zod resolver</subtask>
+        <subtask>Category Select dropdown with shadcn/ui Select</subtask>
+        <subtask>Amount currency input, Description text input</subtask>
+        <subtask>Support create and edit modes</subtask>
+        <subtask>Toast notifications on save/update</subtask>
+        <subtask>Write component tests</subtask>
+      </task>
+      <task id="4" title="Create ExpenseCard component">
+        <subtask>Create src/components/accounts/ExpenseCard.tsx</subtask>
+        <subtask>Display category label, amount (ZAR), description</subtask>
+        <subtask>Category-specific icons from lucide-react</subtask>
+        <subtask>Edit and Delete action buttons</subtask>
+        <subtask>Write component tests</subtask>
+      </task>
+      <task id="5" title="Create ExpenseList component">
+        <subtask>Create src/components/accounts/ExpenseList.tsx</subtask>
+        <subtask>Group expenses by category with headers</subtask>
+        <subtask>Display per-category subtotals</subtask>
+        <subtask>Display total monthly expenses at bottom</subtask>
+        <subtask>Handle empty state</subtask>
+        <subtask>Write component tests</subtask>
+      </task>
+      <task id="6" title="Create ExpenseSection component">
+        <subtask>Create src/components/accounts/ExpenseSection.tsx</subtask>
+        <subtask>Add Expense button, ExpenseList rendering</subtask>
+        <subtask>Add/Edit/Delete flows with AlertDialog confirmation</subtask>
+        <subtask>Use useExpenses hook</subtask>
+        <subtask>Write component tests</subtask>
+      </task>
+      <task id="7" title="Integrate into DataEntryPage">
+        <subtask>Update src/pages/DataEntryPage.tsx to include ExpenseSection</subtask>
+        <subtask>Add section header "Monthly Expenses"</subtask>
+      </task>
+      <task id="8" title="Run all tests and verify">
+        <subtask>Update barrel exports</subtask>
+        <subtask>Run npm run test - all tests pass</subtask>
+        <subtask>Run npm run build - no type errors</subtask>
+        <subtask>Verify all 9 acceptance criteria</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="1">Form displays with Category dropdown (Housing, Transport, Food, Utilities, Insurance, Entertainment, Other), Amount input (ZAR, min R0), Description input (optional)</criterion>
+    <criterion id="2">Save creates expense entry in Dexie with createdAt timestamp</criterion>
+    <criterion id="3">Success toast "Expense saved" appears after save</criterion>
+    <criterion id="4">Expenses are grouped by category in list view</criterion>
+    <criterion id="5">Total monthly expenses displayed at bottom of list</criterion>
+    <criterion id="6">Edit form populated with existing data</criterion>
+    <criterion id="7">Update shows "Expense updated" toast</criterion>
+    <criterion id="8">Delete with confirmation dialog shows "Expense deleted" toast</criterion>
+    <criterion id="9">Total recalculates reactively via useLiveQuery</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Structure, ADR-002 (Dexie), ADR-003 (big.js), ADR-006 (RHF+Zod)</section>
+        <snippet>Client-side SPA with Dexie.js for IndexedDB, big.js for financial precision, React Hook Form + Zod for validation. Component structure: src/components/accounts/, src/hooks/, src/lib/validation/</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-2.md</path>
+        <title>Epic 2 Technical Specification</title>
+        <section>Story 2.4: Expense Tracking, Data Models, Hook Interfaces</section>
+        <snippet>Defines ExpenseCategory enum, ExpenseEntry interface, useExpenses hook interface with expensesByCategory Map. AC 2.4.1-2.4.6 with testable criteria.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Epic 2: Account &amp; Data Management, Story 2.4</section>
+        <snippet>Story 2.4 implements FR4 (expense tracking by category) with predefined categories and category grouping in list view.</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR4</section>
+        <snippet>FR4: User can categorize and track monthly expenses by category with amounts in ZAR</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Design System, Data Entry</section>
+        <snippet>shadcn/ui + Tailwind CSS + Recharts. Forms use shadcn/ui Form, Input, Select, Button, Card components. Toast via sonner.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/types/expense.ts</path>
+        <kind>type</kind>
+        <symbol>ExpenseCategory, ExpenseEntry</symbol>
+        <reason>Existing type definitions for expense category enum and entry interface - REUSE</reason>
+      </file>
+      <file>
+        <path>src/lib/db/schema.ts</path>
+        <kind>database</kind>
+        <symbol>FlowlineDB.expenses</symbol>
+        <lines>33, 55-56</lines>
+        <reason>Dexie expenses table already defined with ++id, category, date indexes - REUSE</reason>
+      </file>
+      <file>
+        <path>src/hooks/useIncome.ts</path>
+        <kind>hook</kind>
+        <symbol>useIncome</symbol>
+        <reason>Reference pattern for useExpenses - same structure with useLiveQuery, CRUD, big.js totals</reason>
+      </file>
+      <file>
+        <path>src/lib/validation/income.ts</path>
+        <kind>validation</kind>
+        <symbol>incomeFormSchema, formValuesToIncome, incomeToFormValues</symbol>
+        <reason>Reference pattern for expense validation - same Zod schema structure with conversion helpers</reason>
+      </file>
+      <file>
+        <path>src/components/accounts/IncomeSection.tsx</path>
+        <kind>component</kind>
+        <symbol>IncomeSection</symbol>
+        <reason>Reference pattern for ExpenseSection - same add/edit/delete flow, AlertDialog, view modes</reason>
+      </file>
+      <file>
+        <path>src/components/accounts/IncomeForm.tsx</path>
+        <kind>component</kind>
+        <symbol>IncomeForm</symbol>
+        <reason>Reference pattern for ExpenseForm - RHF + Zod, create/edit modes, toast notifications</reason>
+      </file>
+      <file>
+        <path>src/components/accounts/IncomeCard.tsx</path>
+        <kind>component</kind>
+        <symbol>IncomeCard</symbol>
+        <reason>Reference pattern for ExpenseCard - Card layout, edit/delete buttons, formatted display</reason>
+      </file>
+      <file>
+        <path>src/components/accounts/IncomeList.tsx</path>
+        <kind>component</kind>
+        <symbol>IncomeList</symbol>
+        <reason>Reference pattern for ExpenseList - but ExpenseList needs category grouping</reason>
+      </file>
+      <file>
+        <path>src/lib/format/currency.ts</path>
+        <kind>utility</kind>
+        <symbol>formatCurrency, parseCurrencyInput</symbol>
+        <reason>ZAR currency formatting utilities - REUSE for expense amounts</reason>
+      </file>
+      <file>
+        <path>src/lib/utils/result.ts</path>
+        <kind>utility</kind>
+        <symbol>Result, ok, err, isOk, isErr</symbol>
+        <reason>Result type for error handling in hook operations - REUSE</reason>
+      </file>
+      <file>
+        <path>src/pages/DataEntryPage.tsx</path>
+        <kind>page</kind>
+        <symbol>DataEntryPage</symbol>
+        <reason>Target page for ExpenseSection integration - add below IncomeSection</reason>
+      </file>
+      <file>
+        <path>src/components/accounts/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <reason>Update with new Expense component exports</reason>
+      </file>
+      <file>
+        <path>src/hooks/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <reason>Update with useExpenses export</reason>
+      </file>
+      <file>
+        <path>src/lib/validation/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <reason>Update with expense validation exports</reason>
+      </file>
+    </code>
+    <dependencies>
+      <node>
+        <runtime>
+          <package name="dexie" version="^4.2.1">IndexedDB wrapper for data persistence</package>
+          <package name="dexie-react-hooks" version="^4.2.0">useLiveQuery for reactive queries</package>
+          <package name="react-hook-form" version="^7.66.1">Form state management</package>
+          <package name="@hookform/resolvers" version="^5.2.2">Zod resolver for RHF</package>
+          <package name="zod" version="^4.1.13">Schema validation</package>
+          <package name="big.js" version="^7.0.1">Precision decimal arithmetic</package>
+          <package name="lucide-react" version="^0.555.0">Icons for category display</package>
+          <package name="sonner" version="^2.0.7">Toast notifications</package>
+          <package name="@radix-ui/react-select" version="^2.2.6">Select dropdown primitive</package>
+          <package name="@radix-ui/react-alert-dialog" version="^1.1.15">Delete confirmation dialog</package>
+        </runtime>
+        <dev>
+          <package name="vitest" version="^4.0.14">Test runner</package>
+          <package name="@testing-library/react" version="^16.3.0">Component testing</package>
+          <package name="@testing-library/user-event" version="^14.6.1">User interaction simulation</package>
+          <package name="fake-indexeddb" version="^6.2.5">IndexedDB mock for tests</package>
+        </dev>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="ADR-002">All expense data persisted to IndexedDB via Dexie db.expenses table</constraint>
+    <constraint source="ADR-003">All monetary calculations (totals, subtotals) use big.js for cent-level precision</constraint>
+    <constraint source="ADR-006">Forms use React Hook Form with Zod resolver for validation</constraint>
+    <constraint source="architecture">Components in src/components/accounts/, hooks in src/hooks/, validation in src/lib/validation/</constraint>
+    <constraint source="tech-spec">ExpenseCategory must be one of: housing, transport, food, utilities, insurance, entertainment, other</constraint>
+    <constraint source="tech-spec">ExpenseEntry stores amount as string for big.js compatibility</constraint>
+    <constraint source="pattern">Follow established Form/Card/List/Section component pattern from Income story</constraint>
+    <constraint source="pattern">Use Result type for all async operations in hooks</constraint>
+    <constraint source="pattern">Toast notifications: success for save/update/delete, error for failures</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>useExpenses</name>
+      <kind>React hook</kind>
+      <signature>function useExpenses(): UseExpensesReturn</signature>
+      <path>src/hooks/useExpenses.ts</path>
+      <definition>
+interface UseExpensesReturn {
+  expenses: ExpenseEntry[];
+  isLoading: boolean;
+  addExpense: (expense: Omit&lt;ExpenseEntry, 'id' | 'createdAt'&gt;) =&gt; Promise&lt;Result&lt;number&gt;&gt;;
+  updateExpense: (id: number, updates: Partial&lt;ExpenseEntry&gt;) =&gt; Promise&lt;Result&lt;void&gt;&gt;;
+  deleteExpense: (id: number) =&gt; Promise&lt;Result&lt;void&gt;&gt;;
+  totalMonthlyExpenses: string;
+  expensesByCategory: Map&lt;ExpenseCategory, string&gt;;
+}
+      </definition>
+    </interface>
+    <interface>
+      <name>expenseFormSchema</name>
+      <kind>Zod schema</kind>
+      <signature>z.object({ category, amount, description })</signature>
+      <path>src/lib/validation/expense.ts</path>
+      <definition>
+z.object({
+  category: z.enum(['housing', 'transport', 'food', 'utilities', 'insurance', 'entertainment', 'other']),
+  amount: z.string().min(1).refine(val =&gt; !isNaN(parseFloat(val)) &amp;&amp; parseFloat(val) &gt;= 0),
+  description: z.string().optional()
+})
+      </definition>
+    </interface>
+    <interface>
+      <name>ExpenseForm</name>
+      <kind>React component</kind>
+      <signature>function ExpenseForm(props: { expense?: ExpenseEntry; onSuccess: () =&gt; void; onCancel: () =&gt; void }): JSX.Element</signature>
+      <path>src/components/accounts/ExpenseForm.tsx</path>
+    </interface>
+    <interface>
+      <name>ExpenseCard</name>
+      <kind>React component</kind>
+      <signature>function ExpenseCard(props: { expense: ExpenseEntry; onEdit: (e: ExpenseEntry) =&gt; void; onDelete: (e: ExpenseEntry) =&gt; void }): JSX.Element</signature>
+      <path>src/components/accounts/ExpenseCard.tsx</path>
+    </interface>
+    <interface>
+      <name>ExpenseList</name>
+      <kind>React component</kind>
+      <signature>function ExpenseList(props: { expenses: ExpenseEntry[]; expensesByCategory: Map; totalMonthlyExpenses: string; onEdit; onDelete }): JSX.Element</signature>
+      <path>src/components/accounts/ExpenseList.tsx</path>
+    </interface>
+    <interface>
+      <name>ExpenseSection</name>
+      <kind>React component</kind>
+      <signature>function ExpenseSection(): JSX.Element</signature>
+      <path>src/components/accounts/ExpenseSection.tsx</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Vitest is the test runner with React Testing Library for component tests. Use fake-indexeddb/auto for Dexie tests. Tests are located in tests/ directory mirroring src/ structure. Each component/hook/validation module has corresponding test file. Follow AAA pattern (Arrange, Act, Assert). Use waitFor for async operations. Clear database state in beforeEach for isolation.
+    </standards>
+    <locations>
+      <location>tests/lib/validation/expense.test.ts</location>
+      <location>tests/hooks/useExpenses.test.ts</location>
+      <location>tests/components/accounts/ExpenseForm.test.tsx</location>
+      <location>tests/components/accounts/ExpenseCard.test.tsx</location>
+      <location>tests/components/accounts/ExpenseList.test.tsx</location>
+      <location>tests/components/accounts/ExpenseSection.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea ac="1">Test form renders all fields: category select with 7 options, amount input, description input</idea>
+      <idea ac="1">Test category dropdown contains exactly: Housing, Transport, Food, Utilities, Insurance, Entertainment, Other</idea>
+      <idea ac="2">Test addExpense saves to Dexie with createdAt timestamp</idea>
+      <idea ac="3">Test success toast "Expense saved" appears on form submit</idea>
+      <idea ac="4">Test ExpenseList groups expenses by category with category headers</idea>
+      <idea ac="4">Test multiple expenses in same category appear under same header</idea>
+      <idea ac="5">Test total monthly expenses displays sum of all expenses</idea>
+      <idea ac="5">Test per-category subtotals are calculated correctly with big.js</idea>
+      <idea ac="6">Test edit form pre-populates with existing expense data</idea>
+      <idea ac="7">Test "Expense updated" toast on edit save</idea>
+      <idea ac="8">Test delete confirmation dialog appears, "Expense deleted" toast on confirm</idea>
+      <idea ac="9">Test total recalculates after add/edit/delete (useLiveQuery reactivity)</idea>
+      <idea ac="validation">Test category enum validation rejects invalid categories</idea>
+      <idea ac="validation">Test amount validation rejects negative numbers</idea>
+      <idea ac="validation">Test empty category shows validation error</idea>
+      <idea ac="grouping">Test expensesByCategory Map groups and sums correctly</idea>
+      <idea ac="empty">Test empty state message when no expenses</idea>
+    </ideas>
+  </tests>
+</story-context>
