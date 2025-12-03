@@ -49,7 +49,7 @@ development_status:
   2-1-implement-debt-account-management: done
   2-2-implement-flexi-facility-management: done
   2-3-implement-income-entry: done
-  2-4-implement-expense-tracking-by-category: ready-for-dev
+  2-4-implement-expense-tracking-by-category: in-progress
   2-5-implement-financial-snapshot-view: backlog
   2-6-implement-quick-balance-update-flow: backlog
   epic-2-retrospective: optional

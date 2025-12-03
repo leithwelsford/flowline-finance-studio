@@ -21,3 +21,11 @@ export {
   incomeToFormValues,
   type IncomeFormValues,
 } from './income';
+
+export {
+  expenseFormSchema,
+  expenseCategorySchema,
+  formValuesToExpense,
+  expenseToFormValues,
+  type ExpenseFormValues,
+} from './expense';
