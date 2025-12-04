@@ -1,14 +1,42 @@
-import { CashFlowHealth, IncomeExpenseCard, TrueCostCard } from '@/components/dashboard';
+import {
+  DashboardHeader,
+  ThreeNumbersGrid,
+  QuickActions,
+  EmptyState,
+} from '@/components/dashboard';
+import { useAccounts } from '@/hooks/useAccounts';
 
+/**
+ * DashboardPage - Primary landing page with financial health overview
+ *
+ * Shows the Three Numbers Grid (CashFlowHealth, IncomeExpenseCard, TrueCostCard)
+ * when accounts exist, or an EmptyState when no accounts are present.
+ *
+ * This is the default page shown when the application loads.
+ *
+ * @example
+ * ```tsx
+ * <DashboardPage />
+ * ```
+ */
 export function DashboardPage() {
+  const { accounts, isLoading } = useAccounts();
+  const hasAccounts = accounts.length > 0;
+
   return (
-    <div className="space-y-6">
-      <h2 className="text-2xl font-semibold text-slate-900">Dashboard</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <CashFlowHealth />
-        <IncomeExpenseCard />
-        <TrueCostCard />
-      </div>
+    <div className="space-y-6" data-testid="dashboard-page">
+      <DashboardHeader />
+
+      {isLoading ? (
+        <ThreeNumbersGrid isLoading />
+      ) : hasAccounts ? (
+        <>
+          <ThreeNumbersGrid />
+          <QuickActions />
+        </>
+      ) : (
+        <EmptyState />
+      )}
     </div>
   );
 }

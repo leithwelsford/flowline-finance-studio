@@ -22,7 +22,7 @@ describe('App', () => {
   it('shows Dashboard as the default page', () => {
     render(<App />)
 
-    expect(screen.getByRole('heading', { name: 'Dashboard' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Financial Health Dashboard' })).toBeInTheDocument()
   })
 
   it('navigates to Data Entry when clicking the tab', () => {

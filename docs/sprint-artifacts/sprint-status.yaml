@@ -59,7 +59,7 @@ development_status:
   3-1-implement-cash-flow-health-card: done
   3-2-implement-income-vs-expenditure-card: done
   3-3-implement-true-cost-of-debt-card: done
-  3-4-assemble-dashboard-page-with-three-numbers-grid: ready-for-dev
+  3-4-assemble-dashboard-page-with-three-numbers-grid: done
   epic-3-retrospective: optional
 
   # Epic 4: Calculation Engine & Strategy Modeling

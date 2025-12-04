@@ -1,18 +1,10 @@
 import { describe, it, expect } from 'vitest'
 import { render, screen } from '@testing-library/react'
-import { DashboardPage, DataEntryPage, ComparePage, TrackPage } from '@/pages'
+import { DataEntryPage, ComparePage, TrackPage } from '@/pages'
+
+// Note: DashboardPage tests moved to DashboardPage.test.tsx
 
 describe('Page Components', () => {
-  describe('DashboardPage', () => {
-    it('renders centered "Dashboard" heading', () => {
-      render(<DashboardPage />)
-
-      const heading = screen.getByRole('heading', { name: 'Dashboard' })
-      expect(heading).toBeInTheDocument()
-      expect(heading).toHaveClass('text-2xl')
-    })
-  })
-
   describe('DataEntryPage', () => {
     it('renders centered "Data Entry" heading', () => {
       render(<DataEntryPage />)
