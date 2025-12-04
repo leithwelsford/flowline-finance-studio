@@ -1,0 +1,317 @@
+<story-context id="3-2-implement-income-vs-expenditure-card" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>3.2</storyId>
+    <title>Implement Income vs Expenditure Card</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-12-04</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/3-2-implement-income-vs-expenditure-card.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to see how my income compares to my spending</iWant>
+    <soThat>I understand if I'm living within my means</soThat>
+    <tasks>
+      <task id="1" ac="All">Create IncomeExpenseCard types
+        <subtask>Create src/types/income-expense.ts</subtask>
+        <subtask>Define IncomeExpenseMetrics interface: totalIncome, totalExpenses, discretionaryAmount, savingsRate</subtask>
+        <subtask>Export from src/types/index.ts</subtask>
+      </task>
+      <task id="2" ac="2,3,4,5">Create useIncomeExpense hook
+        <subtask>Create src/hooks/useIncomeExpense.ts</subtask>
+        <subtask>Import useFinancialSnapshot from existing hooks</subtask>
+        <subtask>Calculate discretionaryAmount: totalMonthlyIncome - totalMonthlyExpenses</subtask>
+        <subtask>Calculate savingsRate: ((income - expenses) / income) × 100</subtask>
+        <subtask>Use big.js for all calculations per ADR-003</subtask>
+        <subtask>Handle edge cases: no income (division by zero), no data</subtask>
+        <subtask>Return { incomeExpense, isLoading, error }</subtask>
+      </task>
+      <task id="3" ac="6">Create ProportionBar component
+        <subtask>Create src/components/dashboard/ProportionBar.tsx</subtask>
+        <subtask>Props interface: income, expenses (both as Big or string)</subtask>
+        <subtask>Render horizontal stacked bar with two segments</subtask>
+        <subtask>Income segment: teal-500</subtask>
+        <subtask>Expense segment: slate-400</subtask>
+        <subtask>Calculate percentages for width styling</subtask>
+        <subtask>Add accessible labels for screen readers</subtask>
+      </task>
+      <task id="4" ac="All">Create IncomeExpenseCard component
+        <subtask>Create src/components/dashboard/IncomeExpenseCard.tsx</subtask>
+        <subtask>Use HealthCard component (reuse from Story 3.1)</subtask>
+        <subtask>Use useIncomeExpense hook for data</subtask>
+        <subtask>Format values with formatCurrency (ZAR)</subtask>
+        <subtask>Display income, expenses, discretionary amount</subtask>
+        <subtask>Display savings rate with conditional coloring: Green (text-green-500) if positive, Red (text-red-500) if negative</subtask>
+        <subtask>Include ProportionBar component</subtask>
+        <subtask>Handle loading state with skeleton</subtask>
+        <subtask>Handle empty data state</subtask>
+      </task>
+      <task id="5" ac="1">Update dashboard barrel exports
+        <subtask>Update src/components/dashboard/index.ts with new exports</subtask>
+        <subtask>Export ProportionBar</subtask>
+        <subtask>Export IncomeExpenseCard</subtask>
+      </task>
+      <task id="6" ac="1">Integrate into DashboardPage
+        <subtask>Import IncomeExpenseCard component</subtask>
+        <subtask>Add to DashboardPage after CashFlowHealth</subtask>
+        <subtask>Position in second slot of future ThreeNumbersGrid</subtask>
+        <subtask>Handle loading state with skeleton loader</subtask>
+        <subtask>Handle empty data state with prompt to add data</subtask>
+      </task>
+      <task id="7" ac="2,3,4,5">Write unit tests for useIncomeExpense hook
+        <subtask>Create tests/hooks/useIncomeExpense.test.ts</subtask>
+        <subtask>Test discretionary amount calculation accuracy</subtask>
+        <subtask>Test savings rate calculation accuracy</subtask>
+        <subtask>Test positive savings rate scenario</subtask>
+        <subtask>Test negative savings rate scenario (expenses > income)</subtask>
+        <subtask>Test edge cases: zero income, no income data, no expense data</subtask>
+        <subtask>Test big.js precision for calculations</subtask>
+      </task>
+      <task id="8" ac="All">Write component tests
+        <subtask>Create tests/components/dashboard/ProportionBar.test.tsx</subtask>
+        <subtask>Create tests/components/dashboard/IncomeExpenseCard.test.tsx</subtask>
+        <subtask>Test ProportionBar renders correct segment widths</subtask>
+        <subtask>Test IncomeExpenseCard renders all values</subtask>
+        <subtask>Test savings rate color logic (green/red)</subtask>
+        <subtask>Test ZAR formatting displayed correctly</subtask>
+        <subtask>Test teal header color class applied</subtask>
+        <subtask>Test loading state renders skeleton</subtask>
+        <subtask>Test empty state shows prompt</subtask>
+      </task>
+      <task id="9" ac="All">Verify build and all tests pass
+        <subtask>Run npm run test and ensure all tests pass</subtask>
+        <subtask>Run npm run build and ensure no type errors</subtask>
+        <subtask>Verify no console errors in browser</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-3.2.1">Given income and expenses are entered, when I view the Dashboard, then I see an "Income vs Expenditure" card</criterion>
+    <criterion id="AC-3.2.2">Card displays Total Monthly Income in ZAR format (R X,XXX.XX)</criterion>
+    <criterion id="AC-3.2.3">Card displays Total Monthly Expenses in ZAR format (R X,XXX.XX)</criterion>
+    <criterion id="AC-3.2.4">Card displays Discretionary Amount (Income - Expenses) in ZAR format</criterion>
+    <criterion id="AC-3.2.5">Card displays Savings Rate as percentage: ((Income - Expenses) / Income) × 100</criterion>
+    <criterion id="AC-3.2.6">Visual bar shows income vs expense proportions (stacked horizontal bar)</criterion>
+    <criterion id="AC-3.2.7">Savings rate shows green if positive, red if negative</criterion>
+    <criterion id="AC-3.2.8">Card uses teal header (#0d9488) per UX spec</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR40 - Income vs Expenditure</section>
+        <snippet>FR40: System displays income vs. expenditure breakdown showing: total monthly income, total monthly expenses, discretionary spending amount, current savings rate</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>ADR-003 - big.js for Financial Calculations</section>
+        <snippet>Use big.js for all monetary calculations. Financial calculations without floating-point errors. Cent-level accuracy guaranteed.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>ADR-005 - Zustand over React Context</section>
+        <snippet>Use Zustand for UI state, Dexie for persistent data. Clean separation: Zustand = UI, Dexie = data.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Structure - components/dashboard/</section>
+        <snippet>Dashboard components location: src/components/dashboard/ including HealthCard.tsx, ThreeNumbersGrid.tsx, DashboardSummary.tsx</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Section 3.1 - Color System</section>
+        <snippet>Primary: teal-600 (#0d9488). Success/Health: green-500 (#10b981). Error/Debt: red-500 (#ef4444). Status indicators use semantic colors consistently.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Section 6.1 - Component Strategy</section>
+        <snippet>Card-based dashboard layout. HealthCard component for financial metrics with teal header, status indicators, semantic coloring.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Story 3.2 - Implement Income vs Expenditure Card</section>
+        <snippet>Income vs Expenditure Card showing total monthly income, expenses, discretionary amount, and savings rate with visual bar.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/components/dashboard/HealthCard.tsx</path>
+        <kind>component</kind>
+        <symbol>HealthCard</symbol>
+        <lines>1-83</lines>
+        <reason>REUSE: Base card component with teal header, status indicators. Story 3.1 established pattern.</reason>
+      </file>
+      <file>
+        <path>src/components/dashboard/CashFlowHealth.tsx</path>
+        <kind>component</kind>
+        <symbol>CashFlowHealth</symbol>
+        <lines>1-90</lines>
+        <reason>PATTERN: Reference for specific metric card implementation - loading skeleton, empty state, icon mapping.</reason>
+      </file>
+      <file>
+        <path>src/hooks/useFinancialSnapshot.ts</path>
+        <kind>hook</kind>
+        <symbol>useFinancialSnapshot</symbol>
+        <lines>1-97</lines>
+        <reason>DEPENDENCY: Provides totalMonthlyIncome, totalMonthlyExpenses for income expense calculations.</reason>
+      </file>
+      <file>
+        <path>src/hooks/useFinancialHealth.ts</path>
+        <kind>hook</kind>
+        <symbol>useFinancialHealth</symbol>
+        <lines>1-130</lines>
+        <reason>PATTERN: Reference for derived metrics hook - composes from useFinancialSnapshot, big.js calculations.</reason>
+      </file>
+      <file>
+        <path>src/lib/format/currency.ts</path>
+        <kind>utility</kind>
+        <symbol>formatCurrency</symbol>
+        <lines>1-88</lines>
+        <reason>REUSE: ZAR currency formatting function for displaying monetary values.</reason>
+      </file>
+      <file>
+        <path>src/types/financial-health.ts</path>
+        <kind>types</kind>
+        <symbol>HealthStatus, CashFlowHealth</symbol>
+        <lines>1-25</lines>
+        <reason>PATTERN: Type definitions for health metrics - reference for IncomeExpenseMetrics interface.</reason>
+      </file>
+      <file>
+        <path>src/components/dashboard/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>dashboard exports</symbol>
+        <lines>1-3</lines>
+        <reason>MODIFY: Add exports for ProportionBar and IncomeExpenseCard.</reason>
+      </file>
+      <file>
+        <path>src/types/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>type exports</symbol>
+        <lines>1-27</lines>
+        <reason>MODIFY: Add export for IncomeExpenseMetrics type.</reason>
+      </file>
+      <file>
+        <path>src/hooks/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>hook exports</symbol>
+        <lines>1-12</lines>
+        <reason>MODIFY: Add export for useIncomeExpense hook.</reason>
+      </file>
+      <file>
+        <path>src/pages/DashboardPage.tsx</path>
+        <kind>page</kind>
+        <symbol>DashboardPage</symbol>
+        <lines>1-14</lines>
+        <reason>MODIFY: Add IncomeExpenseCard to ThreeNumbersGrid (second slot).</reason>
+      </file>
+      <file>
+        <path>src/components/ui/skeleton.tsx</path>
+        <kind>component</kind>
+        <symbol>Skeleton</symbol>
+        <reason>REUSE: Loading skeleton component for loading states.</reason>
+      </file>
+      <file>
+        <path>src/components/ui/card.tsx</path>
+        <kind>component</kind>
+        <symbol>Card, CardHeader, CardTitle, CardContent</symbol>
+        <reason>REUSE: shadcn/ui card components for card structure.</reason>
+      </file>
+    </code>
+    <dependencies>
+      <ecosystem name="node">
+        <package name="react" version="^19.2.0" />
+        <package name="big.js" version="^7.0.1" />
+        <package name="dexie" version="^4.2.1" />
+        <package name="dexie-react-hooks" version="^4.2.0" />
+        <package name="lucide-react" version="^0.555.0" />
+        <package name="tailwind-merge" version="^3.4.0" />
+        <package name="clsx" version="^2.1.1" />
+        <package name="vitest" version="^4.0.14" dev="true" />
+        <package name="@testing-library/react" version="^16.3.0" dev="true" />
+        <package name="@testing-library/jest-dom" version="^6.9.1" dev="true" />
+      </ecosystem>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="ADR-003">All financial calculations MUST use big.js for precision. Store monetary values as strings.</constraint>
+    <constraint source="ADR-005">No Zustand needed for this story - data flows from Dexie via useFinancialSnapshot.</constraint>
+    <constraint source="Architecture">Component location: src/components/dashboard/. Hook location: src/hooks/. Types location: src/types/.</constraint>
+    <constraint source="UX Spec">Card header MUST use bg-teal-600 (#0d9488). Status colors: green-500 for positive, red-500 for negative.</constraint>
+    <constraint source="Story 3.1 Learnings">Hook composition pattern: new hook calls existing hook (useIncomeExpense calls useFinancialSnapshot).</constraint>
+    <constraint source="Story 3.1 Learnings">Loading state: use Skeleton component for loading states.</constraint>
+    <constraint source="Story 3.1 Learnings">Bundle size at 631KB - monitor but not blocking.</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>IncomeExpenseMetrics</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface IncomeExpenseMetrics { totalIncome: string; totalExpenses: string; discretionaryAmount: string; savingsRate: string; }</signature>
+      <path>src/types/income-expense.ts</path>
+    </interface>
+    <interface>
+      <name>useIncomeExpense</name>
+      <kind>React hook</kind>
+      <signature>function useIncomeExpense(): { incomeExpense: IncomeExpenseMetrics | null; isLoading: boolean; error: string | null; }</signature>
+      <path>src/hooks/useIncomeExpense.ts</path>
+    </interface>
+    <interface>
+      <name>ProportionBarProps</name>
+      <kind>Component props</kind>
+      <signature>interface ProportionBarProps { income: string; expenses: string; }</signature>
+      <path>src/components/dashboard/ProportionBar.tsx</path>
+    </interface>
+    <interface>
+      <name>useFinancialSnapshot (existing)</name>
+      <kind>React hook dependency</kind>
+      <signature>function useFinancialSnapshot(): { snapshot: FinancialSnapshot; isLoading: boolean; isHealthy: boolean; }</signature>
+      <path>src/hooks/useFinancialSnapshot.ts</path>
+    </interface>
+    <interface>
+      <name>formatCurrency (existing)</name>
+      <kind>utility function</kind>
+      <signature>function formatCurrency(amount: string): string</signature>
+      <path>src/lib/format/currency.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Vitest with React Testing Library. Tests co-located in tests/ folder mirroring src/ structure.
+      Use fake-indexeddb for Dexie mocking. Follow patterns from Story 3.1 tests.
+      Hook tests should mock useFinancialSnapshot return values.
+      Component tests should verify rendering, conditional coloring, and accessibility.
+      All tests must pass before marking story complete. Current test count: 696 tests passing.
+    </standards>
+    <locations>
+      <location>tests/hooks/useIncomeExpense.test.ts</location>
+      <location>tests/components/dashboard/ProportionBar.test.tsx</location>
+      <location>tests/components/dashboard/IncomeExpenseCard.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-3.2.2,AC-3.2.3">Test formatCurrency displays ZAR format correctly for income and expenses</idea>
+      <idea ac="AC-3.2.4">Test discretionary amount calculation: income - expenses using big.js</idea>
+      <idea ac="AC-3.2.5">Test savings rate calculation: ((income - expenses) / income) * 100</idea>
+      <idea ac="AC-3.2.5">Test savings rate edge case: zero income returns 0% (no division by zero)</idea>
+      <idea ac="AC-3.2.6">Test ProportionBar calculates correct width percentages for segments</idea>
+      <idea ac="AC-3.2.6">Test ProportionBar has accessible aria-labels</idea>
+      <idea ac="AC-3.2.7">Test positive savings rate shows text-green-500 class</idea>
+      <idea ac="AC-3.2.7">Test negative savings rate shows text-red-500 class</idea>
+      <idea ac="AC-3.2.8">Test card header has bg-teal-600 class</idea>
+      <idea ac="All">Test loading state shows Skeleton component</idea>
+      <idea ac="All">Test empty state shows prompt message</idea>
+    </ideas>
+  </tests>
+</story-context>

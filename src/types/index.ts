@@ -24,3 +24,6 @@ export type { FinancialSnapshot } from './financial-snapshot';
 
 // Financial health types
 export type { HealthStatus, CashFlowHealth } from './financial-health';
+
+// Income expense types
+export type { IncomeExpenseMetrics } from './income-expense';

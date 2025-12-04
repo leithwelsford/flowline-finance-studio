@@ -8,4 +8,5 @@ export { useIncome, type UseIncomeReturn, type NewIncomeData } from './useIncome
 export { useExpenses, type UseExpensesReturn, type NewExpenseData } from './useExpenses';
 export { useFinancialSnapshot, type UseFinancialSnapshotReturn } from './useFinancialSnapshot';
 export { useFinancialHealth, type UseFinancialHealthReturn } from './useFinancialHealth';
+export { useIncomeExpense, type UseIncomeExpenseReturn } from './useIncomeExpense';
 export { useDebouncedSave } from './useDebouncedSave';
