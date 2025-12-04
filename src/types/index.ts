@@ -21,3 +21,6 @@ export type { AppSettings } from './settings';
 
 // Financial snapshot types
 export type { FinancialSnapshot } from './financial-snapshot';
+
+// Financial health types
+export type { HealthStatus, CashFlowHealth } from './financial-health';
