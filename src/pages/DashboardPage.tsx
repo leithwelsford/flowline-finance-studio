@@ -1,4 +1,4 @@
-import { CashFlowHealth, IncomeExpenseCard } from '@/components/dashboard';
+import { CashFlowHealth, IncomeExpenseCard, TrueCostCard } from '@/components/dashboard';
 
 export function DashboardPage() {
   return (
@@ -7,7 +7,7 @@ export function DashboardPage() {
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <CashFlowHealth />
         <IncomeExpenseCard />
-        {/* Placeholder slot for Story 3.3: True Cost of Debt */}
+        <TrueCostCard />
       </div>
     </div>
   );

@@ -27,3 +27,6 @@ export type { HealthStatus, CashFlowHealth } from './financial-health';
 
 // Income expense types
 export type { IncomeExpenseMetrics } from './income-expense';
+
+// True cost of debt types
+export type { TrueCostMetrics } from './true-cost';
