@@ -1,0 +1,263 @@
+<story-context id="bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>4</storyId>
+    <title>Assemble Dashboard Page with Three Numbers Grid</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-12-04</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/3-4-assemble-dashboard-page-with-three-numbers-grid.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>the dashboard to be my primary landing page with a three-column grid of financial health cards</iWant>
+    <soThat>I immediately see my financial health when I open the app</soThat>
+    <tasks>
+      <task id="1" ac="3,4">Create ThreeNumbersGrid component with responsive CSS Grid and entrance animations</task>
+      <task id="2" ac="2">Create date formatting utility (SA format DD/MM/YYYY) using date-fns</task>
+      <task id="3" ac="2">Create DashboardHeader component with title and formatted date</task>
+      <task id="4" ac="5">Create QuickActions component with Update Balances and View Comparison buttons</task>
+      <task id="5" ac="7">Create EmptyState component with friendly message and CTA</task>
+      <task id="6" ac="1,3,6,7,8">Update DashboardPage to assemble all components with conditional rendering</task>
+      <task id="7" ac="all">Update dashboard barrel exports</task>
+      <task id="8" ac="2">Write unit tests for formatDate</task>
+      <task id="9" ac="3,4">Write component tests for ThreeNumbersGrid</task>
+      <task id="10" ac="1,7,8">Write component tests for DashboardPage integration</task>
+      <task id="11" ac="all">Verify build and all tests pass</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-3.4.1">Given I open the application, when the app loads, then I land on the Dashboard page (not a login screen or blank page)</criterion>
+    <criterion id="AC-3.4.2">Page header shows "Financial Health Dashboard" with current date in SA format (DD/MM/YYYY)</criterion>
+    <criterion id="AC-3.4.3">Three Numbers Grid displays: 3-column on desktop (≥1024px), 2-column on tablet (768px-1023px), 1-column on mobile (&lt;768px)</criterion>
+    <criterion id="AC-3.4.4">Cards animate in with subtle fade (Tailwind animate-in, fade-in, slide-in-from-bottom)</criterion>
+    <criterion id="AC-3.4.5">Quick Actions section includes Update Balances button (to Data Entry) and View Full Comparison button (to Compare, disabled if no accounts)</criterion>
+    <criterion id="AC-3.4.6">All monetary values formatted as ZAR (R X,XXX.XX) using formatCurrency utility</criterion>
+    <criterion id="AC-3.4.7">Empty state shown if no financial data: friendly message, prompt to add account, CTA button to Data Entry</criterion>
+    <criterion id="AC-3.4.8">Loading state with skeleton placeholders for all three cards while data loads</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-3.md</path>
+        <title>Epic 3 Technical Specification</title>
+        <section>Story 3.4: Dashboard Page Assembly</section>
+        <snippet>AC-3.4.1 through AC-3.4.7 define authoritative acceptance criteria. Dashboard is default landing page, three-column grid responsive layout, ZAR/SA date formatting, quick action buttons.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Story 3.4: Assemble Dashboard Page with Three Numbers Grid</section>
+        <snippet>Dashboard as primary landing page with Three Numbers Grid (3-col desktop, 1-col mobile), "Update Balances" and "View Full Comparison" buttons, ZAR format, SA date format.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Structure - components/dashboard/</section>
+        <snippet>Dashboard components at src/components/dashboard/, page at src/pages/DashboardPage.tsx, format utilities at src/lib/format/. FR39-42 coverage.</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR42, FR47, FR48</section>
+        <snippet>FR42: Dashboard as primary landing page. FR47: ZAR formatting (R X,XXX.XX). FR48: SA date format (DD/MM/YYYY).</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Section 8 - Responsive Strategy</section>
+        <snippet>Breakpoints: mobile &lt;768px (1-col), tablet 768-1023px (2-col), desktop ≥1024px (3-col). Empty states show path forward (Hope emotional goal).</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file>
+        <path>src/pages/DashboardPage.tsx</path>
+        <kind>page</kind>
+        <symbol>DashboardPage</symbol>
+        <lines>1-15</lines>
+        <reason>Current page to be modified - already imports cards, needs header, empty state, quick actions</reason>
+      </file>
+      <file>
+        <path>src/components/dashboard/CashFlowHealth.tsx</path>
+        <kind>component</kind>
+        <symbol>CashFlowHealth</symbol>
+        <reason>Existing card from Story 3.1 - to be placed in ThreeNumbersGrid</reason>
+      </file>
+      <file>
+        <path>src/components/dashboard/IncomeExpenseCard.tsx</path>
+        <kind>component</kind>
+        <symbol>IncomeExpenseCard</symbol>
+        <reason>Existing card from Story 3.2 - to be placed in ThreeNumbersGrid</reason>
+      </file>
+      <file>
+        <path>src/components/dashboard/TrueCostCard.tsx</path>
+        <kind>component</kind>
+        <symbol>TrueCostCard</symbol>
+        <reason>Existing card from Story 3.3 - to be placed in ThreeNumbersGrid</reason>
+      </file>
+      <file>
+        <path>src/components/dashboard/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <lines>1-6</lines>
+        <reason>Dashboard barrel exports - needs new components added</reason>
+      </file>
+      <file>
+        <path>src/store/uiStore.ts</path>
+        <kind>store</kind>
+        <symbol>useUIStore, setCurrentPage</symbol>
+        <lines>1-22</lines>
+        <reason>UI store for page navigation - QuickActions will use setCurrentPage</reason>
+      </file>
+      <file>
+        <path>src/hooks/useAccounts.ts</path>
+        <kind>hook</kind>
+        <symbol>useAccounts</symbol>
+        <lines>44-141</lines>
+        <reason>Accounts hook - used to detect if accounts exist for empty state logic</reason>
+      </file>
+      <file>
+        <path>src/lib/format/currency.ts</path>
+        <kind>utility</kind>
+        <symbol>formatCurrency</symbol>
+        <lines>1-88</lines>
+        <reason>Existing currency formatting - pattern for date.ts implementation</reason>
+      </file>
+      <file>
+        <path>src/lib/format/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <lines>1-2</lines>
+        <reason>Format barrel - needs formatDate export added</reason>
+      </file>
+      <file>
+        <path>src/App.tsx</path>
+        <kind>root</kind>
+        <symbol>App</symbol>
+        <lines>1-46</lines>
+        <reason>Root component - dashboard already set as default page, verify correct</reason>
+      </file>
+      <file>
+        <path>src/components/ui/skeleton.tsx</path>
+        <kind>ui</kind>
+        <symbol>Skeleton</symbol>
+        <lines>1-16</lines>
+        <reason>Skeleton component for loading state</reason>
+      </file>
+      <file>
+        <path>src/components/ui/button.tsx</path>
+        <kind>ui</kind>
+        <symbol>Button, buttonVariants</symbol>
+        <lines>1-57</lines>
+        <reason>Button component with variants for QuickActions</reason>
+      </file>
+    </code>
+
+    <dependencies>
+      <node>
+        <package>date-fns</package>
+        <version>^4.1.0</version>
+        <usage>formatDate utility - use format() for DD/MM/YYYY</usage>
+      </node>
+      <node>
+        <package>lucide-react</package>
+        <version>^0.555.0</version>
+        <usage>Wallet icon for EmptyState component</usage>
+      </node>
+      <node>
+        <package>zustand</package>
+        <version>^5.0.8</version>
+        <usage>useUIStore for setCurrentPage in QuickActions</usage>
+      </node>
+      <node>
+        <package>tailwindcss-animate</package>
+        <version>^1.0.7</version>
+        <usage>animate-in, fade-in, slide-in-from-bottom classes for card animations</usage>
+      </node>
+      <node>
+        <package>vitest</package>
+        <version>^4.0.14</version>
+        <usage>Unit and component testing</usage>
+      </node>
+      <node>
+        <package>@testing-library/react</package>
+        <version>^16.3.0</version>
+        <usage>Component testing for ThreeNumbersGrid and DashboardPage</usage>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="pattern">Use Tailwind responsive classes: grid-cols-1 md:grid-cols-2 lg:grid-cols-3 for responsive grid</constraint>
+    <constraint type="pattern">Use tailwindcss-animate classes: animate-in fade-in slide-in-from-bottom-4 duration-500 for entrance animations</constraint>
+    <constraint type="pattern">Stagger animation delays: delay-0, delay-100, delay-200 for visual sequence</constraint>
+    <constraint type="pattern">Use uiStore.setCurrentPage() for navigation, NOT react-router</constraint>
+    <constraint type="pattern">Use date-fns format() with 'dd/MM/yyyy' pattern for SA dates</constraint>
+    <constraint type="pattern">Use useAccounts().accounts.length for empty state detection</constraint>
+    <constraint type="accessibility">Use semantic HTML: h1 for page title, time element for date display</constraint>
+    <constraint type="accessibility">Button disabled state must be visually indicated</constraint>
+    <constraint type="testing">All new components must have unit tests</constraint>
+    <constraint type="testing">Test responsive classes present, animation classes present</constraint>
+    <constraint type="bundle">Bundle size currently at 638KB - monitor additions, avoid unnecessary imports</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>useUIStore.setCurrentPage</name>
+      <kind>store-action</kind>
+      <signature>setCurrentPage: (page: 'dashboard' | 'data-entry' | 'compare' | 'track') => void</signature>
+      <path>src/store/uiStore.ts</path>
+    </interface>
+    <interface>
+      <name>useAccounts</name>
+      <kind>hook</kind>
+      <signature>useAccounts(): { accounts: DebtAccount[], isLoading: boolean, ... }</signature>
+      <path>src/hooks/useAccounts.ts</path>
+    </interface>
+    <interface>
+      <name>formatCurrency</name>
+      <kind>utility</kind>
+      <signature>formatCurrency(amount: string): string</signature>
+      <path>src/lib/format/currency.ts</path>
+    </interface>
+    <interface>
+      <name>Skeleton</name>
+      <kind>component</kind>
+      <signature>Skeleton({ className, ...props }: React.HTMLAttributes&lt;HTMLDivElement&gt;)</signature>
+      <path>src/components/ui/skeleton.tsx</path>
+    </interface>
+    <interface>
+      <name>Button</name>
+      <kind>component</kind>
+      <signature>Button({ variant, size, asChild, className, ...props }: ButtonProps)</signature>
+      <path>src/components/ui/button.tsx</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Use Vitest for unit tests and @testing-library/react for component tests. Follow existing test patterns in tests/ directory. Use fake-indexeddb for Dexie mocking. Tests should verify rendering, responsive classes presence, and user interactions. 801 tests currently passing - maintain test hygiene.
+    </standards>
+    <locations>
+      <location>tests/lib/format/</location>
+      <location>tests/components/dashboard/</location>
+      <location>tests/pages/</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-3.4.2">Test formatDate returns DD/MM/YYYY format for various dates</idea>
+      <idea ac="AC-3.4.2">Test DashboardHeader renders title and formatted date</idea>
+      <idea ac="AC-3.4.3">Test ThreeNumbersGrid has grid-cols-1 md:grid-cols-2 lg:grid-cols-3 classes</idea>
+      <idea ac="AC-3.4.4">Test ThreeNumbersGrid has animate-in fade-in slide-in-from-bottom classes</idea>
+      <idea ac="AC-3.4.5">Test QuickActions renders both buttons</idea>
+      <idea ac="AC-3.4.5">Test View Comparison button disabled when no accounts</idea>
+      <idea ac="AC-3.4.7">Test EmptyState renders when accounts array is empty</idea>
+      <idea ac="AC-3.4.7">Test EmptyState has CTA button that calls setCurrentPage</idea>
+      <idea ac="AC-3.4.8">Test loading state renders skeleton placeholders</idea>
+      <idea ac="AC-3.4.1">Test DashboardPage renders ThreeNumbersGrid when accounts exist</idea>
+    </ideas>
+  </tests>
+</story-context>
