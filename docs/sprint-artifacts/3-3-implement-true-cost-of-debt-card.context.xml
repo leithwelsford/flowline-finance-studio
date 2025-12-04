@@ -1,0 +1,387 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>3.3</storyId>
+    <title>Implement True Cost of Debt Card</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-04</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/3-3-implement-true-cost-of-debt-card.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to see the true cost of my debt</iWant>
+    <soThat>I understand how much money is going to interest alone</soThat>
+    <tasks>
+      <task id="1" title="Create TrueCostCard types">
+        <subtask>Create src/types/true-cost.ts</subtask>
+        <subtask>Define TrueCostMetrics interface: monthlyInterest, annualInterest, interestToIncomeRatio, isHighBurden</subtask>
+        <subtask>Export from src/types/index.ts</subtask>
+      </task>
+      <task id="2" title="Create interest calculation utilities">
+        <subtask>Create src/lib/calculations/interest.ts (or extend if exists)</subtask>
+        <subtask>Implement calculateMonthlyInterest(account: DebtAccount): Big - Standard loans: (balance × rate) / 12</subtask>
+        <subtask>Implement calculateFlexiMonthlyInterest for daily compounding: (balance × rate) / 365 × 30</subtask>
+        <subtask>Implement calculateTotalMonthlyInterest(accounts: DebtAccount[], flexi: FlexiFacility | null): Big</subtask>
+        <subtask>Use big.js for all calculations per ADR-003</subtask>
+        <subtask>Handle edge cases: zero balance, zero rate</subtask>
+      </task>
+      <task id="3" title="Create useTrueCost hook">
+        <subtask>Create src/hooks/useTrueCost.ts</subtask>
+        <subtask>Import useAccounts, useFlexiFacility, useFinancialSnapshot from existing hooks</subtask>
+        <subtask>Calculate monthlyInterest: sum of all account interest charges</subtask>
+        <subtask>Calculate annualInterest: monthlyInterest × 12</subtask>
+        <subtask>Calculate interestToIncomeRatio: (monthlyInterest / monthlyIncome) × 100</subtask>
+        <subtask>Calculate isHighBurden: ratio > 20</subtask>
+        <subtask>Handle edge cases: no accounts (return zero), no income (ratio = 0)</subtask>
+        <subtask>Return { trueCost: TrueCostMetrics, isLoading, error }</subtask>
+      </task>
+      <task id="4" title="Create TrueCostCard component">
+        <subtask>Create src/components/dashboard/TrueCostCard.tsx</subtask>
+        <subtask>Use Card component with teal header (bg-teal-600)</subtask>
+        <subtask>Use useTrueCost hook for data</subtask>
+        <subtask>Format values with formatCurrency (ZAR)</subtask>
+        <subtask>Display monthly interest charges in red (text-red-500)</subtask>
+        <subtask>Display annual interest projection in red (text-red-500)</subtask>
+        <subtask>Display interest-to-income ratio with percentage formatting</subtask>
+        <subtask>Conditionally show "High debt burden" warning if ratio > 20%</subtask>
+        <subtask>Add warning icon (lucide-react AlertTriangle) next to warning message</subtask>
+        <subtask>Handle loading state with skeleton</subtask>
+        <subtask>Handle empty data state (no accounts)</subtask>
+      </task>
+      <task id="5" title="Update dashboard barrel exports">
+        <subtask>Update src/components/dashboard/index.ts with TrueCostCard export</subtask>
+      </task>
+      <task id="6" title="Integrate into DashboardPage">
+        <subtask>Import TrueCostCard component</subtask>
+        <subtask>Add to DashboardPage after IncomeExpenseCard</subtask>
+        <subtask>Position in third slot of ThreeNumbersGrid</subtask>
+      </task>
+      <task id="7" title="Write unit tests for interest calculations">
+        <subtask>Create tests/lib/calculations/interest.test.ts</subtask>
+        <subtask>Test standard loan interest: R100,000 at 11.5% = R958.33/month</subtask>
+        <subtask>Test flexi facility interest: daily compounding approximation</subtask>
+        <subtask>Test multiple accounts summed correctly</subtask>
+        <subtask>Test edge cases: zero balance, zero rate</subtask>
+      </task>
+      <task id="8" title="Write unit tests for useTrueCost hook">
+        <subtask>Create tests/hooks/useTrueCost.test.ts</subtask>
+        <subtask>Test monthlyInterest calculation accuracy</subtask>
+        <subtask>Test annualInterest = monthlyInterest × 12</subtask>
+        <subtask>Test interestToIncomeRatio calculation accuracy</subtask>
+        <subtask>Test isHighBurden threshold (> 20%)</subtask>
+        <subtask>Test edge cases: no accounts, no income, mixed account types</subtask>
+      </task>
+      <task id="9" title="Write component tests">
+        <subtask>Create tests/components/dashboard/TrueCostCard.test.tsx</subtask>
+        <subtask>Test card renders with teal header</subtask>
+        <subtask>Test monthly interest displays in ZAR format</subtask>
+        <subtask>Test annual interest displays correctly</subtask>
+        <subtask>Test interest-to-income ratio displays as percentage</subtask>
+        <subtask>Test red color applied to interest values</subtask>
+        <subtask>Test warning message appears when ratio > 20%</subtask>
+        <subtask>Test loading state renders skeleton</subtask>
+        <subtask>Test empty state (no accounts)</subtask>
+      </task>
+      <task id="10" title="Verify build and all tests pass">
+        <subtask>Run npm run test and ensure all tests pass</subtask>
+        <subtask>Run npm run build and ensure no type errors</subtask>
+        <subtask>Verify no console errors in browser</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-3.3.1">Given I have debt accounts entered, when I view the Dashboard, then I see a "True Cost of Debt" card</criterion>
+    <criterion id="AC-3.3.2">Card displays Monthly Interest Charges: total interest across all accounts in ZAR format (R X,XXX.XX)</criterion>
+    <criterion id="AC-3.3.3">Card displays Annual Interest Projection: Monthly Interest × 12 in ZAR format</criterion>
+    <criterion id="AC-3.3.4">Card displays Interest-to-Income Ratio: (Monthly Interest / Monthly Income) × 100 as percentage</criterion>
+    <criterion id="AC-3.3.5">Interest values display in red (honest truth-telling per UX spec)</criterion>
+    <criterion id="AC-3.3.6">If Interest-to-Income Ratio > 20%, card shows warning message "High debt burden"</criterion>
+    <criterion id="AC-3.3.7">Card uses teal header (#0d9488) per UX spec</criterion>
+    <criterion id="AC-3.3.8">Card handles edge cases: no accounts, no income (division by zero), flexi vs standard interest calculation</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR41 - True Cost of Debt</section>
+        <snippet>FR41: System calculates and displays true cost of debt: total monthly interest charges across all accounts (ZAR), annual interest cost projection, percentage of income going to interest only (not principal)</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR9-10 - Interest Calculations</section>
+        <snippet>FR9: System calculates daily interest for flexi facility accounts using accurate daily compounding formula. FR10: System calculates monthly interest for standard loan accounts using standard amortization formulas.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>ADR-003 - big.js for Financial Calculations</section>
+        <snippet>Decision: Use big.js for all monetary calculations. Consequences: Cent-level accuracy guaranteed, slightly more verbose code, string storage for precision preservation, 6KB bundle size impact.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>ADR-005 - Zustand vs Dexie</section>
+        <snippet>Decision: Use Zustand for UI state, Dexie for persistent data. No Zustand needed for this story - data flows from Dexie via existing hooks → useTrueCost (new) → React components.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Project Structure - Calculations</section>
+        <snippet>lib/calculations/ folder contains FR9-23 Calculation Engine: types.ts, engine.ts, interest.ts (FR9-11: Interest formulas), projections.ts, and strategies/ subfolder.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Section 3.1 - Color System</section>
+        <snippet>Semantic Colors: Error/Debt: red-500 (#ef4444) - High debt cost, off-track, critical issues. Primary: teal-600 (#0d9488) - Main brand color, buttons, headers, primary actions.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Section 6.1 - Component Strategy</section>
+        <snippet>HealthCard - Displays one of "Three Critical Numbers" with color-coded status. Card structure uses shadcn/ui Card component with teal header.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Story 3.3 Definition</section>
+        <snippet>Story 3.3: Implement True Cost of Debt Card - As a user, I want to see the true cost of my debt, so that I understand how much money is going to interest alone. Prerequisites: Story 2.1 (accounts), Story 2.3 (income).</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/types/account.ts</path>
+        <kind>type</kind>
+        <symbol>DebtAccount</symbol>
+        <lines>21-44</lines>
+        <reason>Core type for debt accounts with balance, interestRate, interestType fields needed for interest calculation</reason>
+      </artifact>
+      <artifact>
+        <path>src/types/flexi-facility.ts</path>
+        <kind>type</kind>
+        <symbol>FlexiFacility</symbol>
+        <lines>14-33</lines>
+        <reason>Type for flexi facility with currentBalance and interestRate - uses daily compounding</reason>
+      </artifact>
+      <artifact>
+        <path>src/types/income-expense.ts</path>
+        <kind>type</kind>
+        <symbol>IncomeExpenseMetrics</symbol>
+        <lines>1-15</lines>
+        <reason>Pattern to follow for TrueCostMetrics interface - uses string for big.js compatibility</reason>
+      </artifact>
+      <artifact>
+        <path>src/types/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <lines>1-30</lines>
+        <reason>Barrel export file - add TrueCostMetrics export here</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/useIncomeExpense.ts</path>
+        <kind>hook</kind>
+        <symbol>useIncomeExpense</symbol>
+        <lines>1-103</lines>
+        <reason>Pattern to follow: composes from useFinancialSnapshot, returns metrics with isLoading/error, uses big.js</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/useFinancialSnapshot.ts</path>
+        <kind>hook</kind>
+        <symbol>useFinancialSnapshot</symbol>
+        <lines>1-96</lines>
+        <reason>Source of totalMonthlyIncome needed for interest-to-income ratio calculation</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/useAccounts.ts</path>
+        <kind>hook</kind>
+        <symbol>useAccounts</symbol>
+        <lines>1-141</lines>
+        <reason>Source of accounts array with balance and interestRate for interest calculation</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/useFlexiFacility.ts</path>
+        <kind>hook</kind>
+        <symbol>useFlexiFacility</symbol>
+        <lines>1-169</lines>
+        <reason>Source of flexi facility data - uses daily compounding interest rate</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <lines>1-13</lines>
+        <reason>Barrel export file - add useTrueCost export here</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/dashboard/IncomeExpenseCard.tsx</path>
+        <kind>component</kind>
+        <symbol>IncomeExpenseCard</symbol>
+        <lines>1-123</lines>
+        <reason>Pattern to follow: Card with teal header, skeleton loading state, empty state, uses hook for data</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/dashboard/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <lines>1-5</lines>
+        <reason>Barrel export file - add TrueCostCard export here</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/format/currency.ts</path>
+        <kind>utility</kind>
+        <symbol>formatCurrency</symbol>
+        <lines>1-88</lines>
+        <reason>formatCurrency function for ZAR display (R X,XXX.XX format)</reason>
+      </artifact>
+      <artifact>
+        <path>src/pages/DashboardPage.tsx</path>
+        <kind>page</kind>
+        <symbol>DashboardPage</symbol>
+        <lines>1-14</lines>
+        <reason>Page to integrate TrueCostCard into - has placeholder comment for Story 3.3</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/ui/skeleton.tsx</path>
+        <kind>component</kind>
+        <symbol>Skeleton</symbol>
+        <reason>Loading state skeleton component from shadcn/ui</reason>
+      </artifact>
+      <artifact>
+        <path>src/components/ui/card.tsx</path>
+        <kind>component</kind>
+        <symbol>Card, CardHeader, CardTitle, CardContent</symbol>
+        <reason>Card component from shadcn/ui for dashboard card structure</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package>big.js</package>
+        <version>^7.0.1</version>
+        <purpose>Arbitrary precision decimal arithmetic for financial calculations</purpose>
+      </node>
+      <node>
+        <package>@types/big.js</package>
+        <version>^6.2.2</version>
+        <purpose>TypeScript types for big.js</purpose>
+      </node>
+      <node>
+        <package>lucide-react</package>
+        <version>^0.555.0</version>
+        <purpose>Icons including AlertTriangle for warning message</purpose>
+      </node>
+      <node>
+        <package>dexie</package>
+        <version>^4.2.1</version>
+        <purpose>IndexedDB wrapper for data persistence</purpose>
+      </node>
+      <node>
+        <package>dexie-react-hooks</package>
+        <version>^4.2.0</version>
+        <purpose>React hooks for Dexie (useLiveQuery)</purpose>
+      </node>
+      <node>
+        <package>vitest</package>
+        <version>^4.0.14</version>
+        <purpose>Test runner</purpose>
+      </node>
+      <node>
+        <package>@testing-library/react</package>
+        <version>^16.3.0</version>
+        <purpose>React testing utilities</purpose>
+      </node>
+      <node>
+        <package>fake-indexeddb</package>
+        <version>^6.2.5</version>
+        <purpose>In-memory IndexedDB for tests</purpose>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="ADR-003">All monetary calculations MUST use big.js for precision - no native JavaScript arithmetic for financial values</constraint>
+    <constraint source="ADR-003">Store monetary values as strings (e.g., "958.33") for big.js compatibility</constraint>
+    <constraint source="Dev Notes">Standard loan monthly interest: (balance × rate) / 12</constraint>
+    <constraint source="Dev Notes">Flexi facility monthly interest: (balance × rate) / 365 × 30 (daily compounding approximation)</constraint>
+    <constraint source="Architecture">Data flow: Dexie DB → useLiveQuery hooks → useTrueCost hook → TrueCostCard component</constraint>
+    <constraint source="UX Spec">Interest values MUST display in red (text-red-500) for honest truth-telling</constraint>
+    <constraint source="UX Spec">Card header MUST use teal (bg-teal-600)</constraint>
+    <constraint source="Story 3.2">Follow established patterns from IncomeExpenseCard and useIncomeExpense hook</constraint>
+    <constraint source="Story 3.2">Bundle size advisory: Currently at 635KB, approaching 500KB warning threshold</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>TrueCostMetrics</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface TrueCostMetrics { monthlyInterest: string; annualInterest: string; interestToIncomeRatio: string; isHighBurden: boolean; }</signature>
+      <path>src/types/true-cost.ts</path>
+    </interface>
+    <interface>
+      <name>useTrueCost</name>
+      <kind>React hook</kind>
+      <signature>function useTrueCost(): { trueCost: TrueCostMetrics | null; isLoading: boolean; error: string | null; }</signature>
+      <path>src/hooks/useTrueCost.ts</path>
+    </interface>
+    <interface>
+      <name>calculateMonthlyInterest</name>
+      <kind>function</kind>
+      <signature>function calculateMonthlyInterest(balance: string, annualRate: string, interestType: InterestType): Big</signature>
+      <path>src/lib/calculations/interest.ts</path>
+    </interface>
+    <interface>
+      <name>calculateTotalMonthlyInterest</name>
+      <kind>function</kind>
+      <signature>function calculateTotalMonthlyInterest(accounts: DebtAccount[], flexiFacility: FlexiFacility | null): Big</signature>
+      <path>src/lib/calculations/interest.ts</path>
+    </interface>
+    <interface>
+      <name>formatCurrency</name>
+      <kind>function (existing)</kind>
+      <signature>function formatCurrency(amount: string): string</signature>
+      <path>src/lib/format/currency.ts</path>
+    </interface>
+    <interface>
+      <name>useFinancialSnapshot</name>
+      <kind>React hook (existing)</kind>
+      <signature>function useFinancialSnapshot(): { snapshot: FinancialSnapshot; isLoading: boolean; isHealthy: boolean; }</signature>
+      <path>src/hooks/useFinancialSnapshot.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing follows Vitest + React Testing Library patterns. Tests are organized in tests/ directory mirroring src/ structure. Hook tests use renderHook from @testing-library/react with fake-indexeddb for database mocking. Component tests render with @testing-library/react and assert on DOM output. All database tables are cleared in beforeEach. Tests should verify big.js precision and edge cases.
+    </standards>
+    <locations>
+      <location>tests/lib/calculations/interest.test.ts</location>
+      <location>tests/hooks/useTrueCost.test.ts</location>
+      <location>tests/components/dashboard/TrueCostCard.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-3.3.2">Test calculateMonthlyInterest: R100,000 at 11.5% annual = R958.33/month for standard loan</idea>
+      <idea ac="AC-3.3.2">Test calculateMonthlyInterest: daily compounding for flexi facility approximation</idea>
+      <idea ac="AC-3.3.2">Test calculateTotalMonthlyInterest sums multiple accounts correctly</idea>
+      <idea ac="AC-3.3.3">Test annualInterest equals monthlyInterest × 12</idea>
+      <idea ac="AC-3.3.4">Test interestToIncomeRatio: R1,000 interest / R10,000 income = 10%</idea>
+      <idea ac="AC-3.3.6">Test isHighBurden true when ratio > 20%, false when <= 20%</idea>
+      <idea ac="AC-3.3.8">Test edge case: no accounts returns zero interest</idea>
+      <idea ac="AC-3.3.8">Test edge case: no income returns ratio of 0 (no division by zero error)</idea>
+      <idea ac="AC-3.3.8">Test edge case: zero balance account contributes zero interest</idea>
+      <idea ac="AC-3.3.8">Test edge case: zero interest rate account contributes zero interest</idea>
+      <idea ac="AC-3.3.1">Test TrueCostCard renders with teal header class</idea>
+      <idea ac="AC-3.3.5">Test interest values have text-red-500 class</idea>
+      <idea ac="AC-3.3.6">Test warning message appears when ratio > 20%</idea>
+      <idea ac="AC-3.3.6">Test warning message hidden when ratio <= 20%</idea>
+      <idea ac="AC-3.3.7">Test card header has bg-teal-600 class</idea>
+      <idea ac="AC-3.3.1">Test empty state renders when no accounts</idea>
+      <idea ac="AC-3.3.1">Test skeleton renders during loading</idea>
+      <idea ac="precision">Test big.js precision maintained in calculations (no floating point errors)</idea>
+    </ideas>
+  </tests>
+</story-context>
