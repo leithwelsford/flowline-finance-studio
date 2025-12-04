@@ -58,7 +58,7 @@ development_status:
   epic-3: contexted
   3-1-implement-cash-flow-health-card: done
   3-2-implement-income-vs-expenditure-card: done
-  3-3-implement-true-cost-of-debt-card: backlog
+  3-3-implement-true-cost-of-debt-card: ready-for-dev
   3-4-assemble-dashboard-page-with-three-numbers-grid: backlog
   epic-3-retrospective: optional
 
