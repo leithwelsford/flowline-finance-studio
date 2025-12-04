@@ -1,0 +1,280 @@
+<story-context id="3-1-implement-cash-flow-health-card" v="1.0">
+  <metadata>
+    <epicId>3</epicId>
+    <storyId>3.1</storyId>
+    <title>Implement Cash Flow Health Card</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-03</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/3-1-implement-cash-flow-health-card.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to see my cash flow health at a glance</iWant>
+    <soThat>I know if I'm breathing financially or drowning</soThat>
+    <tasks>
+      <task id="1">Create HealthCard reusable component (AC: 1, 5)
+        <subtask>Create src/components/dashboard/HealthCard.tsx</subtask>
+        <subtask>Props interface: title, value, status, statusLabel, icon, subtitle?, trend?</subtask>
+        <subtask>Teal header styling (#0d9488) per UX spec</subtask>
+        <subtask>Use shadcn/ui Card as base component</subtask>
+        <subtask>Status-based color styling (green-500, amber-500, red-500)</subtask>
+        <subtask>Icon slot for status indicator</subtask>
+      </task>
+      <task id="2">Create FinancialHealthMetrics types (AC: All)
+        <subtask>Create src/types/financial-health.ts</subtask>
+        <subtask>Define HealthStatus type: 'healthy' | 'warning' | 'critical'</subtask>
+        <subtask>Define CashFlowHealth interface: availableSurplus, status, statusLabel, debtConsumptionPercent</subtask>
+        <subtask>Export from src/types/index.ts</subtask>
+      </task>
+      <task id="3">Create useFinancialHealth hook (AC: 2, 3, 4)
+        <subtask>Create src/hooks/useFinancialHealth.ts</subtask>
+        <subtask>Import useFinancialSnapshot from existing hooks</subtask>
+        <subtask>Calculate availableSurplus: totalMonthlyIncome - totalMonthlyExpenses - totalMinimumPayments</subtask>
+        <subtask>Implement status determination logic</subtask>
+        <subtask>Calculate debtConsumptionPercent: (totalMinimumPayments / totalMonthlyIncome) × 100</subtask>
+        <subtask>Use big.js for all calculations per ADR-003</subtask>
+        <subtask>Handle edge cases: no income (division by zero), no data</subtask>
+        <subtask>Return { cashFlow, isLoading, error }</subtask>
+      </task>
+      <task id="4">Create CashFlowHealth component (AC: All)
+        <subtask>Create src/components/dashboard/CashFlowHealth.tsx</subtask>
+        <subtask>Use useFinancialHealth hook for data</subtask>
+        <subtask>Pass data to HealthCard component</subtask>
+        <subtask>Format surplus with formatCurrency (ZAR)</subtask>
+        <subtask>Add status icon using lucide-react</subtask>
+        <subtask>Display debt consumption percentage as subtitle</subtask>
+      </task>
+      <task id="5">Integrate into DashboardPage (AC: 1)
+        <subtask>Import CashFlowHealth component</subtask>
+        <subtask>Add to DashboardPage placeholder</subtask>
+        <subtask>Position in first slot of future ThreeNumbersGrid</subtask>
+        <subtask>Handle loading state with skeleton loader</subtask>
+        <subtask>Handle empty data state with prompt to add data</subtask>
+      </task>
+      <task id="6">Write unit tests for useFinancialHealth hook (AC: 2, 3, 4)
+        <subtask>Create tests/hooks/useFinancialHealth.test.ts</subtask>
+        <subtask>Test status transitions at boundary values</subtask>
+        <subtask>Test debt consumption calculation accuracy</subtask>
+        <subtask>Test edge cases: zero income, no accounts, no expenses</subtask>
+        <subtask>Test big.js precision for calculations</subtask>
+      </task>
+      <task id="7">Write component tests (AC: All)
+        <subtask>Create tests/components/dashboard/HealthCard.test.tsx</subtask>
+        <subtask>Create tests/components/dashboard/CashFlowHealth.test.tsx</subtask>
+        <subtask>Test renders with healthy/warning/critical status</subtask>
+        <subtask>Test correct icon displayed for each status</subtask>
+        <subtask>Test ZAR formatting displayed correctly</subtask>
+        <subtask>Test teal header color class applied</subtask>
+        <subtask>Test loading state renders skeleton</subtask>
+        <subtask>Test empty state shows prompt</subtask>
+      </task>
+      <task id="8">Verify build and all tests pass (AC: All)
+        <subtask>Run npm run test and ensure all tests pass</subtask>
+        <subtask>Run npm run build and ensure no type errors</subtask>
+        <subtask>Verify no console errors in browser</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-3.1.1">Given income, expenses, and debt accounts are entered, when I view the Dashboard, then I see a "Cash Flow Health" card</criterion>
+    <criterion id="AC-3.1.2">Card displays Available Monthly Surplus in ZAR format (R X,XXX.XX)</criterion>
+    <criterion id="AC-3.1.3">Card displays status indicator: Green + "Breathing" if surplus > 10% of income, Amber + "Tight" if surplus is 0-10% of income, Red + "Drowning" if surplus is negative</criterion>
+    <criterion id="AC-3.1.4">Card displays Debt Consumption percentage (minimum payments / income × 100)</criterion>
+    <criterion id="AC-3.1.5">Card uses teal header (#0d9488) per UX spec</criterion>
+    <criterion id="AC-3.1.6">Status icon accompanies label (checkmark for Breathing, warning for Tight, X for Drowning)</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR39 - Cash Flow Health</section>
+        <snippet>System calculates and displays cash flow health: available monthly surplus (income - expenses - minimum debt payments), visual indicator (green/yellow/red), percentage of income consumed by debt</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>ADR-003 big.js for Financial Calculations</section>
+        <snippet>Use big.js for all monetary calculations. Cent-level accuracy guaranteed. String storage for precision preservation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Structure - Dashboard Components</section>
+        <snippet>Dashboard components location: src/components/dashboard/ including HealthCard.tsx, ThreeNumbersGrid.tsx, DashboardSummary.tsx</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>3.1 Color System - Balanced Teal</section>
+        <snippet>Primary: teal-600 (#0d9488). Semantic Colors: Success green-500 (#10b981), Warning amber-500 (#f59e0b), Error red-500 (#ef4444). Status indicators must use icon + color.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>6.1 Component Strategy - HealthCard</section>
+        <snippet>HealthCard - Displays one of "Three Critical Numbers" with color-coded status. Props: title, value, status (green/yellow/red), trend.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Story 3.1</section>
+        <snippet>Cash Flow Health Card - displays available surplus, status indicator (Breathing/Tight/Drowning), debt consumption percentage. Uses big.js for percentage calculations.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-3.md</path>
+        <title>Epic 3 Technical Specification</title>
+        <section>Data Models - CashFlowHealth</section>
+        <snippet>CashFlowHealth interface: availableSurplus: Big, status: HealthStatus, statusLabel: string, debtConsumptionPercent: Big. Status determination: surplus > 10% = healthy, 0-10% = warning, negative = critical</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file>
+        <path>src/hooks/useFinancialSnapshot.ts</path>
+        <kind>hook</kind>
+        <symbol>useFinancialSnapshot</symbol>
+        <lines>1-97</lines>
+        <reason>Base hook providing totalDebt, totalMonthlyIncome, totalMonthlyExpenses, minimumDebtPayments, availableSurplus. New useFinancialHealth hook will compose from this.</reason>
+      </file>
+      <file>
+        <path>src/types/financial-snapshot.ts</path>
+        <kind>types</kind>
+        <symbol>FinancialSnapshot</symbol>
+        <lines>1-25</lines>
+        <reason>Existing interface providing base snapshot data structure that useFinancialHealth will consume.</reason>
+      </file>
+      <file>
+        <path>src/lib/format/currency.ts</path>
+        <kind>utility</kind>
+        <symbol>formatCurrency, formatPercentage</symbol>
+        <lines>1-88</lines>
+        <reason>ZAR formatting utilities for displaying surplus and percentage values. Already supports R X,XXX.XX format.</reason>
+      </file>
+      <file>
+        <path>src/pages/DashboardPage.tsx</path>
+        <kind>page</kind>
+        <symbol>DashboardPage</symbol>
+        <lines>1-8</lines>
+        <reason>Current placeholder page to be enhanced with CashFlowHealth component.</reason>
+      </file>
+      <file>
+        <path>src/types/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>type exports</symbol>
+        <lines>1-24</lines>
+        <reason>Barrel export file - new financial-health types must be added here.</reason>
+      </file>
+      <file>
+        <path>src/hooks/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>hook exports</symbol>
+        <lines>1-11</lines>
+        <reason>Barrel export file - new useFinancialHealth hook must be added here.</reason>
+      </file>
+      <file>
+        <path>src/lib/format/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>format exports</symbol>
+        <lines>1-2</lines>
+        <reason>Format utilities barrel - formatDate will need to be added (Story 3.4).</reason>
+      </file>
+    </code>
+
+    <dependencies>
+      <ecosystem name="node">
+        <package name="big.js" version="^7.0.1">Precision arithmetic for financial calculations</package>
+        <package name="lucide-react" version="^0.555.0">Icons: CheckCircle, AlertTriangle, XCircle for status indicators</package>
+        <package name="date-fns" version="^4.1.0">SA date formatting (not directly needed for 3.1, but for 3.4)</package>
+        <package name="@radix-ui/react-slot" version="^1.2.4">Base for shadcn/ui Card component</package>
+        <package name="class-variance-authority" version="^0.7.1">CVA for component variants</package>
+        <package name="clsx" version="^2.1.1">Class name utility</package>
+        <package name="tailwind-merge" version="^3.4.0">Tailwind class merging</package>
+      </ecosystem>
+      <devDependencies>
+        <package name="vitest" version="^4.0.14">Test runner</package>
+        <package name="@testing-library/react" version="^16.3.0">React component testing</package>
+        <package name="fake-indexeddb" version="^6.2.5">IndexedDB mock for testing Dexie hooks</package>
+      </devDependencies>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="ADR-003">All financial calculations must use big.js. Surplus and percentages calculated with Big type, then converted to string/number for display.</constraint>
+    <constraint source="ADR-005">No Zustand needed for this story - data flows from Dexie via useFinancialSnapshot → useFinancialHealth → React components.</constraint>
+    <constraint source="UX Spec">Color-coded status must include icon + color (never color alone for accessibility).</constraint>
+    <constraint source="UX Spec">Card header must use teal-600 (#0d9488) background with white text.</constraint>
+    <constraint source="Architecture">Component must be placed in src/components/dashboard/ directory.</constraint>
+    <constraint source="Story 2.6 Learnings">637/638 tests passing - maintain test hygiene. Bundle size ~601KB - monitor for Epic 3+.</constraint>
+    <constraint source="NFR-P1">Dashboard page loads and displays financial health within 2 seconds.</constraint>
+    <constraint source="NFR-R1">Interest calculations accurate to 2 decimal places (cent-level accuracy in ZAR).</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>useFinancialSnapshot</name>
+      <kind>React Hook</kind>
+      <signature>function useFinancialSnapshot(): { snapshot: FinancialSnapshot; isLoading: boolean; isHealthy: boolean }</signature>
+      <path>src/hooks/useFinancialSnapshot.ts</path>
+    </interface>
+    <interface>
+      <name>formatCurrency</name>
+      <kind>Function</kind>
+      <signature>function formatCurrency(amount: string): string</signature>
+      <path>src/lib/format/currency.ts</path>
+    </interface>
+    <interface>
+      <name>formatPercentage</name>
+      <kind>Function</kind>
+      <signature>function formatPercentage(value: string, isDecimal?: boolean): string</signature>
+      <path>src/lib/format/currency.ts</path>
+    </interface>
+    <interface>
+      <name>FinancialSnapshot</name>
+      <kind>TypeScript Interface</kind>
+      <signature>interface FinancialSnapshot { totalDebt: string; totalMonthlyIncome: string; totalMonthlyExpenses: string; minimumDebtPayments: string; availableSurplus: string; accountCount: number; hasFlexi: boolean; flexiAvailableCredit?: string }</signature>
+      <path>src/types/financial-snapshot.ts</path>
+    </interface>
+    <interface>
+      <name>shadcn/ui Card</name>
+      <kind>React Component</kind>
+      <signature>Card, CardHeader, CardTitle, CardContent, CardDescription, CardFooter</signature>
+      <path>src/components/ui/card.tsx</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Tests use Vitest with @testing-library/react. Hook tests use renderHook and waitFor for async assertions.
+      Component tests use render and screen queries. Dexie operations mocked with fake-indexeddb/auto.
+      Clear database tables in beforeEach. Follow existing test patterns in tests/hooks/useFinancialSnapshot.test.ts.
+      Test files located in tests/ directory mirroring src/ structure.
+    </standards>
+    <locations>
+      <location>tests/hooks/useFinancialHealth.test.ts</location>
+      <location>tests/components/dashboard/HealthCard.test.tsx</location>
+      <location>tests/components/dashboard/CashFlowHealth.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea acId="AC-3.1.2">Test formatCurrency output matches ZAR format (R X,XXX.XX) for various amounts</idea>
+      <idea acId="AC-3.1.3">Test status "healthy" when surplus > 10% of income (e.g., income 10000, surplus 1500 = 15%)</idea>
+      <idea acId="AC-3.1.3">Test status "warning" when surplus exactly 10% of income (boundary)</idea>
+      <idea acId="AC-3.1.3">Test status "warning" when surplus is 5% of income</idea>
+      <idea acId="AC-3.1.3">Test status "critical" when surplus is negative</idea>
+      <idea acId="AC-3.1.3">Test status "critical" when surplus is exactly 0</idea>
+      <idea acId="AC-3.1.4">Test debt consumption percent calculation: minPayments 2000, income 10000 = 20%</idea>
+      <idea acId="AC-3.1.4">Test edge case: zero income returns 0% debt consumption (avoid division by zero)</idea>
+      <idea acId="AC-3.1.6">Test CheckCircle icon renders for "healthy" status</idea>
+      <idea acId="AC-3.1.6">Test AlertTriangle icon renders for "warning" status</idea>
+      <idea acId="AC-3.1.6">Test XCircle icon renders for "critical" status</idea>
+      <idea acId="AC-3.1.5">Test HealthCard header has bg-teal-600 class</idea>
+      <idea acId="AC-3.1.1">Test CashFlowHealth renders within DashboardPage</idea>
+      <idea acId="AC-3.1.1">Test empty state when no financial data exists</idea>
+      <idea acId="AC-3.1.1">Test loading state shows skeleton</idea>
+    </ideas>
+  </tests>
+</story-context>
