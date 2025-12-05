@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<story-context story-id="5-2" title="Implement Strategy Comparison Table" generated="2025-12-05">
+  <overview>
+    <summary>
+      Build a sortable comparison table showing all 8 debt payoff strategies side-by-side.
+      The table displays key metrics (debt-free date, interest paid/saved, months saved, effort level)
+      with column sorting and visual highlighting for baseline and recommended strategies.
+    </summary>
+    <epic>Epic 5: Strategy Comparison and Recommendations</epic>
+    <preceding-story>5-1 Winners Podium Component (Done)</preceding-story>
+    <following-story>5-3 Debt Reduction Curve Chart</following-story>
+  </overview>
+
+  <acceptance-criteria source="docs/sprint-artifacts/tech-spec-epic-5.md">
+    <criterion id="AC-5.2.1">Table shows columns: Strategy Name, Debt-Free Date, Total Interest Paid, Interest Saved vs Baseline, Months Saved, Effort Rating</criterion>
+    <criterion id="AC-5.2.2">Default sort is by interest saved (best first)</criterion>
+    <criterion id="AC-5.2.3">Clicking column header toggles sort ascending/descending</criterion>
+    <criterion id="AC-5.2.4">Baseline row is visually distinct (gray/muted)</criterion>
+    <criterion id="AC-5.2.5">Recommended strategy row has teal highlight</criterion>
+    <criterion id="AC-5.2.6">Effort rating shows as badge (green=Low, amber=Medium, red=High)</criterion>
+    <criterion id="AC-5.2.7">On mobile, table converts to cards or horizontal scroll</criterion>
+  </acceptance-criteria>
+
+  <architecture-constraints source="docs/architecture.md">
+    <constraint id="ADR-003">All monetary calculations use big.js for precision</constraint>
+    <constraint id="ADR-004">Strategy Pattern for debt reduction algorithms</constraint>
+    <constraint id="client-only">All comparison logic runs in browser - no backend</constraint>
+    <constraint id="ui-library">Use shadcn/ui components (Table, Badge, Button)</constraint>
+    <constraint id="state">Zustand for UI state (sorting, selected strategy)</constraint>
+    <constraint id="theme">Balanced Teal color system - teal-600 primary</constraint>
+  </architecture-constraints>
+
+  <data-contracts>
+    <interface name="StrategyProjection" location="src/lib/calculations/types.ts">
+      <field name="strategyId" type="string">Unique strategy identifier</field>
+      <field name="strategyName" type="string">Human-readable strategy name</field>
+      <field name="effortLevel" type="'low' | 'medium' | 'high'">Effort level indicator</field>
+      <field name="debtFreeMonth" type="number">Month number when debt-free (1-based)</field>
+      <field name="debtFreeDate" type="string">ISO date string when debt-free</field>
+      <field name="totalInterestPaid" type="Big">Total interest paid over payoff period</field>
+      <field name="monthsSaved" type="number">Months saved compared to baseline</field>
+      <field name="interestSaved" type="Big">Interest saved compared to baseline</field>
+      <field name="monthlyProjections" type="MonthlyProjection[]">Month-by-month projection data</field>
+    </interface>
+
+    <hook name="useStrategies" location="src/hooks/useStrategies.ts">
+      <returns>
+        <field name="strategies" type="StrategyProjection[]">Sorted by interestSaved descending</field>
+        <field name="baseline" type="StrategyProjection | null">Baseline projection for comparison</field>
+        <field name="bestStrategy" type="StrategyProjection | null">Strategy with highest savings</field>
+        <field name="isCalculating" type="boolean">Whether calculation is in progress</field>
+      </returns>
+    </hook>
+
+    <store name="calculationStore" location="src/store/calculationStore.ts">
+      <field name="results" type="StrategyProjection[]">Calculated strategy projections</field>
+      <field name="baseline" type="StrategyProjection | null">Baseline projection</field>
+    </store>
+  </data-contracts>
+
+  <existing-components>
+    <component name="WinnersPodium" location="src/components/strategies/WinnersPodium.tsx">
+      <description>Displays top 3 strategies in podium layout - reference for styling patterns</description>
+      <exports>WinnersPodium, WinnersPodiumProps</exports>
+    </component>
+    <component name="ComparePage" location="src/pages/ComparePage.tsx">
+      <description>Page component with placeholder for ComparisonTable (line 81-89)</description>
+      <integration>Replace placeholder div with ComparisonTable component</integration>
+      <ref>comparisonTableRef - existing ref for scroll-to-table behavior</ref>
+    </component>
+    <component name="formatCurrency" location="src/lib/format/currency.ts">
+      <description>Formats numeric string as ZAR currency (R 1 234,56)</description>
+    </component>
+    <component name="formatDate" location="src/lib/format/date.ts">
+      <description>Formats date in SA format (DD/MM/YYYY)</description>
+    </component>
+  </existing-components>
+
+  <shadcn-components>
+    <component name="Table">Table, TableHeader, TableBody, TableRow, TableHead, TableCell</component>
+    <component name="Badge">For effort level display</component>
+    <component name="Card">For mobile card layout</component>
+    <component name="Skeleton">For loading state</component>
+  </shadcn-components>
+
+  <dependencies>
+    <package name="recharts" version="^3.5.1">Not needed for this story (charts in 5.3/5.4)</package>
+    <package name="big.js" version="^7.0.1">Precision calculations - interestSaved.toString()</package>
+    <package name="lucide-react" version="^0.555.0">Icons - ArrowUpDown, ArrowUp, ArrowDown for sorting</package>
+    <package name="date-fns" version="^4.1.0">Date formatting via formatDate utility</package>
+    <package name="zustand" version="^5.0.8">UI state management</package>
+    <package name="tailwind-merge" version="^3.4.0">Class merging via cn utility</package>
+  </dependencies>
+
+  <file-locations>
+    <create path="src/components/strategies/ComparisonTable.tsx">Main component</create>
+    <modify path="src/components/strategies/index.ts">Export ComparisonTable</modify>
+    <modify path="src/pages/ComparePage.tsx">Replace placeholder with ComparisonTable</modify>
+    <create path="tests/components/strategies/ComparisonTable.test.tsx">Component tests</create>
+  </file-locations>
+
+  <implementation-guidance>
+    <guidance id="sorting">
+      Use React.useState for sort column and direction.
+      useMemo to derive sorted strategies array.
+      Sort by comparing Big values using .cmp() for monetary fields.
+    </guidance>
+    <guidance id="effort-badge-colors">
+      low = bg-green-100 text-green-800
+      medium = bg-amber-100 text-amber-800
+      high = bg-red-100 text-red-800
+    </guidance>
+    <guidance id="row-highlighting">
+      Baseline: bg-slate-100 text-muted-foreground
+      Recommended: bg-teal-50 border-l-4 border-teal-600
+    </guidance>
+    <guidance id="mobile-responsive">
+      Use overflow-x-auto wrapper for horizontal scroll on mobile.
+      Alternative: @media (max-width: 640px) show card layout instead.
+    </guidance>
+    <guidance id="big-js-display">
+      Always call .toString() on Big values before passing to formatCurrency.
+      Example: formatCurrency(strategy.interestSaved.toString())
+    </guidance>
+  </implementation-guidance>
+
+  <testing-standards source="tests/components/strategies/WinnersPodium.test.tsx">
+    <pattern name="describe-blocks">Organize by acceptance criteria (AC-5.2.x)</pattern>
+    <pattern name="mock-factory">Create createMockStrategy() factory function</pattern>
+    <pattern name="imports">Use vitest (describe, it, expect, vi), @testing-library/react</pattern>
+    <pattern name="assertions">Use toBeInTheDocument(), toHaveClass(), fireEvent.click()</pattern>
+    <pattern name="accessibility">Test aria-labels, roles, keyboard navigation</pattern>
+  </testing-standards>
+
+  <test-ideas>
+    <test ac="AC-5.2.1">Verify all 6 columns are rendered with correct headers</test>
+    <test ac="AC-5.2.2">Default render shows strategies sorted by interestSaved descending</test>
+    <test ac="AC-5.2.3">Click header -> verify sort direction toggles, rows reorder</test>
+    <test ac="AC-5.2.4">Baseline row has muted/gray styling class</test>
+    <test ac="AC-5.2.5">Row matching recommendedId has teal highlight class</test>
+    <test ac="AC-5.2.6">Effort badges render with correct colors (green/amber/red)</test>
+    <test ac="AC-5.2.7">Container has overflow-x-auto class for mobile scroll</test>
+    <test>Renders all 8 strategies when provided</test>
+    <test>Handles empty strategies array gracefully</test>
+    <test>Formats currency values in ZAR format</test>
+    <test>Formats dates in DD/MM/YYYY format</test>
+    <test>Loading skeleton shows when isLoading=true</test>
+    <test>Sort by multiple columns (debtFreeDate, totalInterestPaid, etc.)</test>
+  </test-ideas>
+
+  <ux-requirements source="docs/ux-design-specification.md">
+    <requirement>Touch targets minimum 44x44px for mobile</requirement>
+    <requirement>Color contrast WCAG AA compliance</requirement>
+    <requirement>Responsive breakpoint at 640px (sm:) for mobile layout</requirement>
+    <requirement>Use Balanced Teal theme colors</requirement>
+  </ux-requirements>
+
+  <performance>
+    <target>Table sorting completes in &lt;200ms</target>
+    <strategy>Use useMemo for sorted array derivation</strategy>
+    <strategy>Avoid re-renders with React.memo if needed</strategy>
+  </performance>
+
+  <related-prd-requirements source="docs/prd.md">
+    <requirement id="FR16">Comparison table with side-by-side strategy metrics</requirement>
+    <requirement id="FR17">Sortable columns for debt-free date, interest, months saved</requirement>
+    <requirement id="FR18">Effort level indicator per strategy</requirement>
+  </related-prd-requirements>
+</story-context>
