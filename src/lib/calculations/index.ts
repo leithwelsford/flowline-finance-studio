@@ -18,6 +18,13 @@ export {
   calculateTotalPayment,
 } from './interest';
 
+// Projection functions (Story 4.2)
+export {
+  generateProjection,
+  createBaselineAllocator,
+  buildSnapshot,
+} from './projections';
+
 // Type definitions
 export type {
   InterestCalculationResult,
@@ -25,4 +32,13 @@ export type {
   PrimeRateLinkage,
   CompoundingFrequency,
   TotalPaymentResult,
+  // Projection types (Story 4.2)
+  AccountSnapshot,
+  MonthlyProjection,
+  PaymentAllocation,
+  PaymentAllocator,
+  ProjectionConfig,
+  FinancialSnapshot,
+  SimulatedAccount,
+  SimulatedFlexi,
 } from './types';
