@@ -71,7 +71,7 @@ development_status:
   4-5-implement-velocity-banking-strategy: done
   4-6-implement-hybrid-strategies: done
   4-7-implement-strategy-configuration-options: done
-  4-8-create-strategy-calculation-orchestrator: backlog
+  4-8-create-strategy-calculation-orchestrator: ready-for-dev
   epic-4-retrospective: optional
 
   # Epic 5: Strategy Comparison & Recommendations
