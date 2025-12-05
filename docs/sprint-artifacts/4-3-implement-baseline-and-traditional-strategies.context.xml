@@ -1,0 +1,219 @@
+<story-context id="4-3-implement-baseline-and-traditional-strategies" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>4.3</storyId>
+    <title>Implement Baseline and Traditional Strategies</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-05</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-3-implement-baseline-and-traditional-strategies.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>baseline, snowball, and avalanche strategies calculated</iWant>
+    <soThat>I can compare traditional debt payoff methods against each other and use them as comparison points for advanced strategies</soThat>
+    <tasks>
+      <task id="1" ac="4,6">Define StrategyProjection and DebtStrategy types in src/lib/calculations/types.ts</task>
+      <task id="2" ac="1,4,5,6,8">Implement BaselineStrategy in src/lib/calculations/strategies/baseline.ts</task>
+      <task id="3" ac="4">Create strategy-helpers.ts with buildStrategyProjection function</task>
+      <task id="4" ac="2,4,5,6,8">Implement SnowballStrategy in src/lib/calculations/strategies/snowball.ts</task>
+      <task id="5" ac="3,4,5,6,8">Implement AvalancheStrategy in src/lib/calculations/strategies/avalanche.ts</task>
+      <task id="6" ac="6">Create strategy registry in src/lib/calculations/strategies/index.ts</task>
+      <task id="7" ac="1,4,5">Write unit tests for Baseline Strategy</task>
+      <task id="8" ac="2,4,5,7">Write unit tests for Snowball Strategy</task>
+      <task id="9" ac="3,4,5,7">Write unit tests for Avalanche Strategy</task>
+      <task id="10" ac="7">Write comparison tests verifying Avalanche saves more interest than Snowball</task>
+      <task id="11" ac="all">Update barrel exports in src/lib/calculations/index.ts</task>
+      <task id="12" ac="all">Verify build and all tests pass</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-4.3.1">Baseline Strategy projects paying only minimum payments on all accounts with no extra payments applied</criterion>
+    <criterion id="AC-4.3.2">Snowball Strategy applies surplus to smallest balance first, rolls payment to next smallest on payoff</criterion>
+    <criterion id="AC-4.3.3">Avalanche Strategy applies surplus to highest interest rate first, rolls payment to next highest on payoff</criterion>
+    <criterion id="AC-4.3.4">Each strategy returns StrategyProjection with all required fields: strategyId, strategyName, effortLevel, debtFreeMonth, debtFreeDate, totalInterestPaid, totalPrincipalPaid, monthsSaved, interestSaved, monthlyProjections[]</criterion>
+    <criterion id="AC-4.3.5">Effort levels assigned: Baseline = 'low', Snowball = 'low', Avalanche = 'low'</criterion>
+    <criterion id="AC-4.3.6">All strategies implement DebtStrategy interface with calculate() and allocatePayment() methods</criterion>
+    <criterion id="AC-4.3.7">Unit tests verify Avalanche saves more interest than Snowball, and Snowball has faster early wins</criterion>
+    <criterion id="AC-4.3.8">All calculations use big.js for precision with cent-level accuracy (2 decimal places in ZAR)</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>Calculation Engine &amp; Strategy Modeling (FR13-FR15)</section>
+        <snippet>FR13: Baseline shows minimum payments only. FR14: Snowball prioritizes smallest balance. FR15: Avalanche prioritizes highest interest rate.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Novel Pattern: Multi-Strategy Comparison Engine</section>
+        <snippet>DebtStrategy interface with id, name, description, effortLevel, calculate(), allocatePayment(). Strategy Pattern (ADR-004) for extensibility.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>ADR-003: big.js for Financial Calculations</section>
+        <snippet>Use big.js for all monetary calculations. Cent-level accuracy guaranteed. String storage for precision preservation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>Story 4.3: Baseline and Traditional Strategies</section>
+        <snippet>AC1: Baseline applies minimum payments only. AC2: Snowball allocates surplus to smallest balance first. AC3: Avalanche allocates surplus to highest rate first.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>Data Models and Contracts</section>
+        <snippet>StrategyProjection interface with debtFreeMonth, debtFreeDate, totalInterestPaid, monthsSaved, interestSaved, monthlyProjections[].</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>types</kind>
+        <symbol>FinancialSnapshot, MonthlyProjection, AccountSnapshot, PaymentAllocation, PaymentAllocator, SimulatedAccount, SimulatedFlexi</symbol>
+        <lines>1-167</lines>
+        <reason>Contains all projection types from Story 4.2 that strategies will use. DebtStrategy and StrategyProjection types need to be added here.</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/calculations/projections.ts</path>
+        <kind>core-module</kind>
+        <symbol>generateProjection, createBaselineAllocator, buildSnapshot</symbol>
+        <lines>1-331</lines>
+        <reason>Core projection generator used by all strategies. Baseline can use createBaselineAllocator directly. Snowball/Avalanche need custom allocators.</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/calculations/interest.ts</path>
+        <kind>utility</kind>
+        <symbol>calculateMonthlyInterest, calculateFlexiMonthlyInterest</symbol>
+        <reason>Interest functions used by projection generator. Already integrated.</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/calculations/index.ts</path>
+        <kind>barrel-export</kind>
+        <symbol>exports</symbol>
+        <lines>1-45</lines>
+        <reason>Needs to be updated with new strategy exports.</reason>
+      </artifact>
+      <artifact>
+        <path>tests/lib/calculations/projections.test.ts</path>
+        <kind>test</kind>
+        <symbol>generateProjection tests</symbol>
+        <reason>Test patterns to follow: describe blocks referencing ACs, Big number assertions with toFixed(2).</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package>big.js</package>
+        <version>^7.0.1</version>
+        <purpose>Arbitrary precision decimals for financial calculations (ADR-003)</purpose>
+      </node>
+      <node>
+        <package>date-fns</package>
+        <version>^4.1.0</version>
+        <purpose>Date arithmetic for debtFreeDate calculation</purpose>
+      </node>
+      <node>
+        <package>vitest</package>
+        <version>^4.0.14</version>
+        <purpose>Unit testing framework</purpose>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <interfaces>
+    <interface>
+      <name>DebtStrategy (to be created)</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface DebtStrategy {
+  id: string;
+  name: string;
+  description: string;
+  effortLevel: 'low' | 'medium' | 'high';
+  requiresFlexi: boolean;
+  calculate(snapshot: FinancialSnapshot, config?: StrategyConfig): StrategyProjection;
+  allocatePayment(surplus: Big, accounts: SimulatedAccount[], flexi: SimulatedFlexi | null): PaymentAllocation[];
+}</signature>
+      <path>src/lib/calculations/types.ts</path>
+    </interface>
+    <interface>
+      <name>StrategyProjection (to be created)</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface StrategyProjection {
+  strategyId: string;
+  strategyName: string;
+  effortLevel: 'low' | 'medium' | 'high';
+  debtFreeMonth: number;
+  debtFreeDate: string;
+  totalInterestPaid: Big;
+  totalPrincipalPaid: Big;
+  monthsSaved: number;
+  interestSaved: Big;
+  monthlyProjections: MonthlyProjection[];
+}</signature>
+      <path>src/lib/calculations/types.ts</path>
+    </interface>
+    <interface>
+      <name>PaymentAllocator</name>
+      <kind>TypeScript function type</kind>
+      <signature>type PaymentAllocator = (surplus: Big, accounts: SimulatedAccount[], flexi: SimulatedFlexi | null) => PaymentAllocation[]</signature>
+      <path>src/lib/calculations/types.ts</path>
+    </interface>
+    <interface>
+      <name>generateProjection</name>
+      <kind>function</kind>
+      <signature>generateProjection(snapshot: FinancialSnapshot, allocator: PaymentAllocator, config?: ProjectionConfig): MonthlyProjection[]</signature>
+      <path>src/lib/calculations/projections.ts</path>
+    </interface>
+    <interface>
+      <name>createBaselineAllocator</name>
+      <kind>function</kind>
+      <signature>createBaselineAllocator(): PaymentAllocator</signature>
+      <path>src/lib/calculations/projections.ts</path>
+    </interface>
+  </interfaces>
+
+  <constraints>
+    <constraint source="architecture">All monetary calculations must use big.js (ADR-003)</constraint>
+    <constraint source="architecture">Round to 2 decimal places (cent-level accuracy in ZAR)</constraint>
+    <constraint source="architecture">Strategies implement common DebtStrategy interface (Strategy Pattern - ADR-004)</constraint>
+    <constraint source="architecture">Framework-agnostic design in src/lib/calculations/</constraint>
+    <constraint source="tech-spec">Maximum projection months: 360 (30 years)</constraint>
+    <constraint source="dev-notes">Use generateProjection() with custom allocators, not duplicate projection logic</constraint>
+    <constraint source="dev-notes">Snowball: sort by balance ascending, allocate all surplus to smallest non-zero</constraint>
+    <constraint source="dev-notes">Avalanche: sort by rate descending, allocate all surplus to highest rate non-zero</constraint>
+    <constraint source="dev-notes">Rolling: when target paid off, surplus goes to next in order</constraint>
+  </constraints>
+
+  <tests>
+    <standards>Vitest testing framework. Tests organized in tests/lib/calculations/ directory. Use describe blocks referencing ACs (e.g., "AC-4.3.1"). Big number assertions use .toFixed(2) for comparison. Spreadsheet-verified calculations for validation.</standards>
+    <locations>
+      <location>tests/lib/calculations/strategies/baseline.test.ts</location>
+      <location>tests/lib/calculations/strategies/snowball.test.ts</location>
+      <location>tests/lib/calculations/strategies/avalanche.test.ts</location>
+      <location>tests/lib/calculations/strategies/comparison.test.ts</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-4.3.1">Test baseline returns only minimum payments with no surplus allocation</idea>
+      <idea ac="AC-4.3.1">Test baseline strategyId='baseline', effortLevel='low'</idea>
+      <idea ac="AC-4.3.2">Test snowball targets smallest balance first (R50k credit card before R250k car)</idea>
+      <idea ac="AC-4.3.2">Test snowball rolling: when smallest paid off, surplus moves to next smallest</idea>
+      <idea ac="AC-4.3.3">Test avalanche targets highest rate first (20% credit card before 13% car)</idea>
+      <idea ac="AC-4.3.3">Test avalanche rolling: when highest rate paid off, surplus moves to next highest</idea>
+      <idea ac="AC-4.3.4">Test StrategyProjection has all required fields populated</idea>
+      <idea ac="AC-4.3.4">Test debtFreeMonth matches projection array length</idea>
+      <idea ac="AC-4.3.4">Test totalInterestPaid matches sum from monthlyProjections</idea>
+      <idea ac="AC-4.3.5">Test all three strategies return effortLevel='low'</idea>
+      <idea ac="AC-4.3.7">Test avalanche.totalInterestPaid &lt; snowball.totalInterestPaid for test snapshot</idea>
+      <idea ac="AC-4.3.7">Test snowball has more accounts paid off sooner than avalanche</idea>
+      <idea ac="AC-4.3.7">Test both strategies beat baseline in monthsSaved and interestSaved</idea>
+      <idea ac="AC-4.3.8">Verify calculations match spreadsheet model to 2 decimal places</idea>
+    </ideas>
+  </tests>
+</story-context>
