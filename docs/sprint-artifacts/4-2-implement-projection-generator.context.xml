@@ -1,0 +1,310 @@
+<story-context id="4-2-implement-projection-generator" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>2</storyId>
+    <title>Implement Projection Generator</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-05</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-2-implement-projection-generator.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>a projection generator that simulates debt payoff over time</iWant>
+    <soThat>each strategy can produce month-by-month forecasts for comparison</soThat>
+    <tasks>
+      <task id="1" goal="Define projection-related types" acs="5,7">
+        <subtask>Add to src/lib/calculations/types.ts</subtask>
+        <subtask>Define AccountSnapshot interface: accountId, startBalance, interestCharged, paymentApplied, principalPaid, endBalance (all Big)</subtask>
+        <subtask>Define MonthlyProjection interface: month, date, accounts[], flexiBalance?, totalDebt, totalInterestPaid, totalPrincipalPaid (all Big)</subtask>
+        <subtask>Define PaymentAllocation interface: accountId, amount (Big)</subtask>
+        <subtask>Define PaymentAllocator type: (surplus: Big, accounts: SimulatedAccount[], flexi: SimulatedFlexi | null) => PaymentAllocation[]</subtask>
+        <subtask>Define SimulatedAccount interface: id, balance, interestRate, minimumPayment, interestType (working copy for projection)</subtask>
+        <subtask>Define SimulatedFlexi interface: balance, interestRate (working copy for projection)</subtask>
+        <subtask>Define ProjectionConfig interface: maxMonths (default 360), startDate (ISO string)</subtask>
+        <subtask>Export all types via barrel export</subtask>
+      </task>
+      <task id="2" goal="Create projection generator core function" acs="1,2,6">
+        <subtask>Create src/lib/calculations/projections.ts</subtask>
+        <subtask>Implement generateProjection(snapshot: FinancialSnapshot, allocator: PaymentAllocator, config?: ProjectionConfig): MonthlyProjection[]</subtask>
+        <subtask>Initialize projection array and clone accounts for simulation</subtask>
+        <subtask>Main loop: iterate month by month until all debts = 0 OR maxMonths reached</subtask>
+        <subtask>For each month: calculate interest, apply min payments, allocate surplus, record snapshot</subtask>
+        <subtask>Use big.js for all arithmetic with .round(2, Big.roundHalfUp)</subtask>
+      </task>
+      <task id="3" goal="Implement per-month calculation logic" acs="1,6">
+        <subtask>Implement calculateMonthSnapshot(month, date, accounts, flexi, surplus, allocator): MonthlyProjection</subtask>
+        <subtask>For each account: calculate interest using calculateMonthlyInterest() from Story 4.1</subtask>
+        <subtask>Apply minimum payment first (capped at balance + interest)</subtask>
+        <subtask>Calculate remaining surplus after minimum payments</subtask>
+        <subtask>Call allocator to get extra payment distribution</subtask>
+        <subtask>Apply extra payments per allocation</subtask>
+        <subtask>Record AccountSnapshot for each account</subtask>
+        <subtask>Sum totals: totalDebt, totalInterestPaid, totalPrincipalPaid</subtask>
+      </task>
+      <task id="4" goal="Handle paid-off accounts" acs="3,4">
+        <subtask>Add logic to skip accounts with zero balance</subtask>
+        <subtask>When payment would exceed balance, cap payment at remaining balance</subtask>
+        <subtask>When account is paid off mid-month, stop interest accrual</subtask>
+        <subtask>Test: account with R500 balance receiving R1000 payment caps at R500</subtask>
+        <subtask>Freed minimum payment from paid-off accounts available for surplus</subtask>
+      </task>
+      <task id="5" goal="Implement early termination logic" acs="2">
+        <subtask>Check total remaining debt after each month</subtask>
+        <subtask>Exit loop when totalDebt equals zero (all accounts paid)</subtask>
+        <subtask>Exit loop when month >= maxMonths (default 360)</subtask>
+        <subtask>Record final month as debtFreeMonth in projection metadata</subtask>
+        <subtask>Test: simple scenario reaches zero in expected months</subtask>
+      </task>
+      <task id="6" goal="Create default payment allocator (baseline)" acs="7">
+        <subtask>Implement createBaselineAllocator(): PaymentAllocator</subtask>
+        <subtask>Baseline allocator returns empty array (no extra payments, min only)</subtask>
+        <subtask>This will be used by baseline strategy</subtask>
+        <subtask>Export for use by strategy implementations</subtask>
+      </task>
+      <task id="7" goal="Create helper to build FinancialSnapshot" acs="1">
+        <subtask>Implement buildSnapshot(accounts, flexi, income, expenses, minPayments): FinancialSnapshot</subtask>
+        <subtask>Calculate availableSurplus: income - expenses - minPayments</subtask>
+        <subtask>Handle case where surplus is negative (warning, continue with 0 surplus)</subtask>
+        <subtask>Set snapshotDate to current date</subtask>
+      </task>
+      <task id="8" goal="Add barrel export for projections module" acs="all">
+        <subtask>Update src/lib/calculations/index.ts</subtask>
+        <subtask>Export generateProjection, buildSnapshot, createBaselineAllocator</subtask>
+        <subtask>Export all projection-related types</subtask>
+      </task>
+      <task id="9" goal="Write unit tests for basic projection" acs="1,2,5">
+        <subtask>Create tests/lib/calculations/projections.test.ts</subtask>
+        <subtask>Test: Single account R10,000 at 12% with R500/month payment</subtask>
+        <subtask>Verify month-by-month interest and balance reduction</subtask>
+        <subtask>Test: Projection terminates when debt = 0</subtask>
+        <subtask>Test: Projection stops at 360 months if not paid off</subtask>
+      </task>
+      <task id="10" goal="Write unit tests for 2-account scenarios" acs="8">
+        <subtask>Test: Two accounts with baseline allocator (min payments only)</subtask>
+        <subtask>Verify each account calculated independently</subtask>
+        <subtask>Verify totals are sum of individual accounts</subtask>
+        <subtask>Compare results against manual spreadsheet calculation</subtask>
+        <subtask>Test: R100,000 home loan at 11.5% + R50,000 car at 13%</subtask>
+      </task>
+      <task id="11" goal="Write unit tests for edge cases" acs="3,4">
+        <subtask>Test: Payment exceeds balance (caps at balance)</subtask>
+        <subtask>Test: Zero balance account skipped</subtask>
+        <subtask>Test: Account paid off mid-projection</subtask>
+        <subtask>Test: Negative surplus handled gracefully (warning logged, continues with 0)</subtask>
+        <subtask>Test: Zero rate account (no interest charged)</subtask>
+      </task>
+      <task id="12" goal="Verify build and all tests pass" acs="all">
+        <subtask>Run npm run test and ensure all new tests pass</subtask>
+        <subtask>Run npm run build and ensure no type errors</subtask>
+        <subtask>Verify no regressions in existing test suite</subtask>
+        <subtask>Document any known limitations or assumptions</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-4.2.1">Given a financial snapshot and payment allocation for a month, when I run the projection generator, then for each month it calculates: starting balance per account, interest charged, payment applied, principal paid, ending balance, running total debt.</criterion>
+    <criterion id="AC-4.2.2">Projection continues until all debts reach zero OR maximum 360 months (30 years) is reached.</criterion>
+    <criterion id="AC-4.2.3">Projection handles accounts being paid off by skipping further calculations for zero-balance accounts.</criterion>
+    <criterion id="AC-4.2.4">When payment exceeds remaining balance, payment is capped at balance (no overpayment).</criterion>
+    <criterion id="AC-4.2.5">Output is an array of MonthlyProjection objects containing per-account snapshots and totals.</criterion>
+    <criterion id="AC-4.2.6">All calculations use big.js for precision with cent-level accuracy (2 decimal places in ZAR).</criterion>
+    <criterion id="AC-4.2.7">The projection generator accepts a PaymentAllocator function that determines how surplus is distributed across accounts (enabling different strategy implementations).</criterion>
+    <criterion id="AC-4.2.8">Unit tests verify projection correctness against manual spreadsheet calculations for 2-account scenarios.</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR22-FR23: Calculation Engine &amp; Strategy Modeling</section>
+        <snippet>FR22: System generates month-by-month projection for each strategy showing: remaining balance per account, interest paid, principal paid, total debt remaining. FR23: System calculates total interest saved and months saved for each strategy vs. baseline.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Novel Pattern: Multi-Strategy Comparison Engine</section>
+        <snippet>Projection Generator (month-by-month simulation) - Month-by-month simulation, interest calculations, balance tracking. Located in src/lib/calculations/projections.ts.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Core Interfaces</section>
+        <snippet>MonthlyProjection interface with month, date, accounts[], flexiBalance, totalDebt, totalInterestPaid, totalPrincipalPaid. DebtStrategy interface with calculate() and allocatePayment() methods.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>Story 4.2: Projection Generator</section>
+        <snippet>Detailed acceptance criteria for projection generator. Per-Strategy Calculation Flow: Initialize projection array, clone accounts, for each month calculate interest, apply payments, allocate surplus, record snapshot, check exit conditions.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>Data Models and Contracts</section>
+        <snippet>FinancialSnapshot, MonthlyProjection, AccountSnapshot, StrategyProjection, PaymentAllocation interfaces with full type definitions.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>Non-Functional Requirements: Performance</section>
+        <snippet>NFR-P1: All 8 strategies calculated in &lt; 3 seconds. Up to 360 months x 10 accounts x 8 strategies. Efficient big.js operations, early loop termination, no unnecessary allocations.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epics</title>
+        <section>Epic 4: Calculation Engine &amp; Strategy Modeling</section>
+        <snippet>Story 4.2: Implement Projection Generator - creates month-by-month debt payoff simulation that all strategies will use.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <file>
+        <path>src/lib/calculations/interest.ts</path>
+        <kind>calculation-module</kind>
+        <symbol>calculateMonthlyInterest</symbol>
+        <lines>34-54</lines>
+        <reason>Core interest calculation function to be used for each account during projection. Handles both monthly and daily interest types.</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/interest.ts</path>
+        <kind>calculation-module</kind>
+        <symbol>calculateFlexiMonthlyInterest</symbol>
+        <lines>65-78</lines>
+        <reason>Flexi facility interest calculation using daily compounding. Used when flexi balance is included in projection.</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/interest.ts</path>
+        <kind>calculation-module</kind>
+        <symbol>calculateTotalPayment</symbol>
+        <lines>285-347</lines>
+        <reason>Similar iterative loan payment pattern that can inform projection loop design. Already implements payment capping at balance.</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>types</kind>
+        <symbol>TotalPaymentResult, CompoundingFrequency</symbol>
+        <lines>1-51</lines>
+        <reason>Existing types to extend with projection-related types (AccountSnapshot, MonthlyProjection, PaymentAllocator, etc.).</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/index.ts</path>
+        <kind>barrel-export</kind>
+        <symbol>exports</symbol>
+        <lines>1-29</lines>
+        <reason>Barrel export to update with new projection functions and types.</reason>
+      </file>
+      <file>
+        <path>src/types/account.ts</path>
+        <kind>types</kind>
+        <symbol>DebtAccount, InterestType</symbol>
+        <lines>1-45</lines>
+        <reason>DebtAccount interface used as input to projection generator. InterestType determines calculation method.</reason>
+      </file>
+      <file>
+        <path>src/types/flexi-facility.ts</path>
+        <kind>types</kind>
+        <symbol>FlexiFacility</symbol>
+        <lines>1-34</lines>
+        <reason>FlexiFacility interface used as optional input to projection generator.</reason>
+      </file>
+      <file>
+        <path>tests/lib/calculations/interest.test.ts</path>
+        <kind>test</kind>
+        <symbol>interest calculation tests</symbol>
+        <lines>1-713</lines>
+        <reason>Existing test patterns for calculation functions. Follow same structure for projection tests.</reason>
+      </file>
+    </code>
+    <dependencies>
+      <node>
+        <package>big.js</package>
+        <version>^7.0.1</version>
+        <purpose>Arbitrary precision arithmetic for financial calculations (ADR-003)</purpose>
+      </node>
+      <node>
+        <package>date-fns</package>
+        <version>^4.1.0</version>
+        <purpose>Date manipulation for projection date calculations</purpose>
+      </node>
+      <node>
+        <package>vitest</package>
+        <version>^4.0.14</version>
+        <purpose>Unit testing framework</purpose>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="architecture">All calculations use big.js for cent-level precision (ADR-003)</constraint>
+    <constraint source="architecture">Strategy implementations follow Strategy Pattern (ADR-004) with common DebtStrategy interface</constraint>
+    <constraint source="architecture">Framework-agnostic design in src/lib/calculations/ - no React imports</constraint>
+    <constraint source="tech-spec">Projection generator is called by EACH strategy, so efficiency matters - avoid unnecessary Big instances in loops</constraint>
+    <constraint source="tech-spec">Use early termination when debt reaches zero</constraint>
+    <constraint source="tech-spec">Clone accounts once at start, mutate in place during simulation</constraint>
+    <constraint source="tech-spec">Maximum 360 months (30 years) projection limit</constraint>
+    <constraint source="dev-notes">Use .round(2, Big.roundHalfUp) for cent-level precision</constraint>
+    <constraint source="dev-notes">Reuse calculateMonthlyInterest() from interest.ts for interest calculations</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>generateProjection</name>
+      <kind>function</kind>
+      <signature>generateProjection(snapshot: FinancialSnapshot, allocator: PaymentAllocator, config?: ProjectionConfig): MonthlyProjection[]</signature>
+      <path>src/lib/calculations/projections.ts</path>
+    </interface>
+    <interface>
+      <name>PaymentAllocator</name>
+      <kind>type</kind>
+      <signature>(surplus: Big, accounts: SimulatedAccount[], flexi: SimulatedFlexi | null) => PaymentAllocation[]</signature>
+      <path>src/lib/calculations/types.ts</path>
+    </interface>
+    <interface>
+      <name>FinancialSnapshot</name>
+      <kind>interface</kind>
+      <signature>{ accounts: DebtAccount[]; flexiFacility: FlexiFacility | null; monthlyIncome: Big; monthlyExpenses: Big; availableSurplus: Big; snapshotDate: string; }</signature>
+      <path>src/lib/calculations/types.ts</path>
+    </interface>
+    <interface>
+      <name>MonthlyProjection</name>
+      <kind>interface</kind>
+      <signature>{ month: number; date: string; accounts: AccountSnapshot[]; flexiBalance?: Big; totalDebt: Big; totalInterestPaid: Big; totalPrincipalPaid: Big; }</signature>
+      <path>src/lib/calculations/types.ts</path>
+    </interface>
+    <interface>
+      <name>AccountSnapshot</name>
+      <kind>interface</kind>
+      <signature>{ accountId: number; startBalance: Big; interestCharged: Big; paymentApplied: Big; principalPaid: Big; endBalance: Big; }</signature>
+      <path>src/lib/calculations/types.ts</path>
+    </interface>
+    <interface>
+      <name>calculateMonthlyInterest</name>
+      <kind>function</kind>
+      <signature>calculateMonthlyInterest(balance: string, annualRate: string, interestType: InterestType): Big</signature>
+      <path>src/lib/calculations/interest.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Tests use Vitest as the testing framework (Vite-native, fast, TypeScript support). Tests are organized in tests/lib/calculations/ directory mirroring src/ structure. Each test file imports from @/ path alias. Tests verify against known spreadsheet calculations for accuracy. Use describe/it blocks with clear AC references in test descriptions. All calculation functions should be tested as pure functions - same inputs produce identical outputs.
+    </standards>
+    <locations>
+      <location>tests/lib/calculations/projections.test.ts (to create)</location>
+      <location>tests/lib/calculations/interest.test.ts (existing - for reference)</location>
+    </locations>
+    <ideas>
+      <idea acRef="AC-4.2.1">Test single account R10,000 at 12% with R500/month - verify each month's startBalance, interestCharged, paymentApplied, principalPaid, endBalance values</idea>
+      <idea acRef="AC-4.2.2">Test projection terminates when totalDebt = 0; Test projection stops at 360 months for never-payoff scenario</idea>
+      <idea acRef="AC-4.2.3">Test zero balance account is skipped in projection loop; Test paid-off account has no further interest calculations</idea>
+      <idea acRef="AC-4.2.4">Test payment of R1000 on R500 balance caps at R500; Test final month payment equals remaining balance</idea>
+      <idea acRef="AC-4.2.5">Test output is MonthlyProjection[] with all required fields populated</idea>
+      <idea acRef="AC-4.2.6">Test big.js precision maintained across 360 months; Test cumulative interest matches expected within 0.1%</idea>
+      <idea acRef="AC-4.2.7">Test with baseline allocator returns min payments only; Test custom allocator distributes surplus correctly</idea>
+      <idea acRef="AC-4.2.8">Test R100,000 home loan at 11.5% + R50,000 car at 13% against spreadsheet; Verify month-by-month values match</idea>
+    </ideas>
+  </tests>
+</story-context>
