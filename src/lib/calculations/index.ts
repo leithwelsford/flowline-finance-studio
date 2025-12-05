@@ -25,7 +25,7 @@ export {
   buildSnapshot,
 } from './projections';
 
-// Strategy exports (Story 4.3, Story 4.4)
+// Strategy exports (Story 4.3, Story 4.4, Story 4.5)
 export {
   // Strategy instances
   baselineStrategy,
@@ -33,6 +33,7 @@ export {
   avalancheStrategy,
   flexiChunkingStrategy,
   aggressiveFlexiStrategy,
+  velocityBankingStrategy,
   // Strategy registry functions
   getAllStrategies,
   getStrategyById,
