@@ -75,8 +75,8 @@ development_status:
   epic-4-retrospective: optional
 
   # Epic 5: Strategy Comparison & Recommendations
-  epic-5: backlog
-  5-1-implement-winners-podium-component: backlog
+  epic-5: contexted
+  5-1-implement-winners-podium-component: done
   5-2-implement-strategy-comparison-table: backlog
   5-3-implement-debt-reduction-curve-chart: backlog
   5-4-implement-interest-comparison-bar-chart: backlog

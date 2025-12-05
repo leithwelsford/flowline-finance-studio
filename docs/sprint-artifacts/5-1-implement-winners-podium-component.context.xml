@@ -1,0 +1,302 @@
+<story-context id="5-1-implement-winners-podium-component" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>1</storyId>
+    <title>Implement Winner's Podium Component</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-12-05</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-1-implement-winners-podium-component.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to see the top 3 debt payoff strategies highlighted visually on a podium</iWant>
+    <soThat>I immediately know which approaches perform best for my situation without scanning a full table of results</soThat>
+    <tasks>
+      <task id="1" status="pending">Create WinnersPodium component structure (AC: 1, 2, 3)
+        <subtask>Create src/components/strategies/WinnersPodium.tsx</subtask>
+        <subtask>Define props interface: strategies: StrategyProjection[], recommendedId?: string</subtask>
+        <subtask>Implement sorting to get top 3 by interestSaved descending</subtask>
+        <subtask>Create podium layout with 3 position slots (1st center, 2nd left, 3rd right)</subtask>
+        <subtask>Use shadcn/ui Card component for each position</subtask>
+      </task>
+      <task id="2" status="pending">Create PodiumPosition sub-component (AC: 2, 6)
+        <subtask>Create position component showing: rank, strategy name, interest saved, debt-free date</subtask>
+        <subtask>Style each position with appropriate height (1st tallest, 3rd shortest)</subtask>
+        <subtask>Apply medal color indicators (gold/silver/bronze)</subtask>
+        <subtask>Use formatCurrency for ZAR amounts, formatDate for dates</subtask>
+      </task>
+      <task id="3" status="pending">Implement recommended badge logic (AC: 4)
+        <subtask>Accept recommendedId prop</subtask>
+        <subtask>Compare 1st place strategy ID with recommendedId</subtask>
+        <subtask>Conditionally render "Recommended" Badge from shadcn/ui</subtask>
+      </task>
+      <task id="4" status="pending">Implement scroll-to-table functionality (AC: 5)
+        <subtask>Add onClick handler to each podium position</subtask>
+        <subtask>Use scrollIntoView({ behavior: 'smooth' }) to scroll to comparison table</subtask>
+        <subtask>Ensure comparison table has appropriate id attribute for scroll target</subtask>
+      </task>
+      <task id="5" status="pending">Handle edge cases for fewer than 3 strategies (AC: 7)
+        <subtask>Check strategies array length</subtask>
+        <subtask>Render 1 or 2 positions if fewer strategies available</subtask>
+        <subtask>Maintain layout integrity (no empty/broken positions)</subtask>
+      </task>
+      <task id="6" status="pending">Implement responsive layout (AC: 8)
+        <subtask>Desktop: flex-row with center position elevated</subtask>
+        <subtask>Mobile: flex-col stack with 1st at top</subtask>
+        <subtask>Use Tailwind responsive classes (md:flex-row, etc.)</subtask>
+      </task>
+      <task id="7" status="pending">Add entrance animation (AC: 9)
+        <subtask>Apply animate-in fade-in Tailwind classes</subtask>
+        <subtask>Stagger animation for each position (optional enhancement)</subtask>
+      </task>
+      <task id="8" status="pending">Implement loading state (AC: 10)
+        <subtask>Create loading skeleton version of podium</subtask>
+        <subtask>Use shadcn/ui Skeleton component</subtask>
+        <subtask>Show skeleton when isCalculating is true</subtask>
+      </task>
+      <task id="9" status="pending">Write unit tests for WinnersPodium
+        <subtask>Test: Renders 3 strategies in correct order</subtask>
+        <subtask>Test: First place shows recommended badge when applicable</subtask>
+        <subtask>Test: Handles 2 or 1 strategy gracefully</subtask>
+        <subtask>Test: Clicking triggers scroll</subtask>
+        <subtask>Test: Loading state displays skeleton</subtask>
+      </task>
+      <task id="10" status="pending">Integrate with ComparePage
+        <subtask>Import WinnersPodium into src/pages/ComparePage.tsx</subtask>
+        <subtask>Connect to useStrategies hook for data</subtask>
+        <subtask>Position above comparison table</subtask>
+        <subtask>Verify full flow from calculation to display</subtask>
+      </task>
+      <task id="11" status="pending">Verify build and all tests pass (AC: all)
+        <subtask>Run npm run test and ensure all tests pass</subtask>
+        <subtask>Run npm run build and ensure no type errors</subtask>
+        <subtask>Test responsive behavior in browser devtools</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-5.1.1">Given strategies have been calculated (via useStrategies hook), when I view the Compare page, then I see a "Winner's Podium" component showing the top 3 strategies ranked by interest saved (highest savings = 1st place).</criterion>
+    <criterion id="AC-5.1.2">The podium displays for each position (1st, 2nd, 3rd): Strategy name, Interest saved vs baseline (ZAR formatted), Debt-free date (SA DD/MM/YYYY format).</criterion>
+    <criterion id="AC-5.1.3">Visual layout follows Olympic podium style: 1st place center/tallest, 2nd place left/medium, 3rd place right/shortest.</criterion>
+    <criterion id="AC-5.1.4">If the recommended strategy (from recommendation engine) is in 1st place, it displays a "Recommended" badge (teal Badge component from shadcn/ui).</criterion>
+    <criterion id="AC-5.1.5">Clicking a podium position scrolls the page to the detailed comparison table (smooth scroll behavior).</criterion>
+    <criterion id="AC-5.1.6">Podium uses the Balanced Teal theme: Cards use teal-600 (#0d9488) accent for 1st place, Gold/Silver/Bronze visual indicators (CSS colors: #FFD700, #C0C0C0, #CD7F32), Text follows semantic colors from UX spec.</criterion>
+    <criterion id="AC-5.1.7">If fewer than 3 valid strategies exist, the podium gracefully displays only the available strategies (2 or 1) without empty placeholders.</criterion>
+    <criterion id="AC-5.1.8">Component is responsive: Desktop (>1024px) horizontal podium layout, Mobile (&lt;640px) vertical stacked layout.</criterion>
+    <criterion id="AC-5.1.9">Podium animates entrance with subtle fade-in using Tailwind CSS animate-in class.</criterion>
+    <criterion id="AC-5.1.10">Component shows skeleton loading state while isCalculating is true from calculation store.</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-5.md</path>
+        <title>Epic 5 Technical Specification</title>
+        <section>Story 5.1: Winner's Podium Component</section>
+        <snippet>AC-5.1.1 through AC-5.1.5 define requirements. WinnersPodium component at src/components/strategies/WinnersPodium.tsx displays top 3 strategies by interestSaved.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Structure - components/strategies/</section>
+        <snippet>Strategy comparison components live in src/components/strategies/. WinnersPodium, ComparisonTable, StrategyCard defined as custom financial components.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>2.2 Novel UX Patterns - Layered Comparison Approach</section>
+        <snippet>Level 1 (Overview): Visual "winner's podium" showing top 3 strategies by interest saved. Progressive disclosure from high-level insights to detailed projections.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>3.1 Color System - Balanced Teal</section>
+        <snippet>Primary: teal-600 (#0d9488). Success: green-500 (#10b981). Semantic colors for status indicators. Charts use patterns + colors for colorblind users.</snippet>
+      </doc>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR24 - Strategy Comparison</section>
+        <snippet>User can view side-by-side comparison of all calculated strategies. Winner's podium provides immediate visual hierarchy of best performers.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file>
+        <path>src/hooks/useStrategies.ts</path>
+        <kind>hook</kind>
+        <symbol>useStrategies</symbol>
+        <lines>63-183</lines>
+        <reason>Primary data source hook. Returns strategies (sorted by interestSaved), bestStrategy, isCalculating, baseline. strategies array is already sorted by interest saved descending - no re-sorting needed.</reason>
+      </file>
+      <file>
+        <path>src/store/calculationStore.ts</path>
+        <kind>store</kind>
+        <symbol>useCalculationStore</symbol>
+        <lines>1-45</lines>
+        <reason>Zustand store holding StrategyProjection[] results, isCalculating state. Component should read isCalculating for loading skeleton.</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>types</kind>
+        <symbol>StrategyProjection</symbol>
+        <lines>209-230</lines>
+        <reason>Core interface for strategy results. strategyId, strategyName, effortLevel, debtFreeDate, interestSaved (Big), monthsSaved are key fields for podium display.</reason>
+      </file>
+      <file>
+        <path>src/lib/format/currency.ts</path>
+        <kind>utility</kind>
+        <symbol>formatCurrency</symbol>
+        <lines>16-25</lines>
+        <reason>Format interestSaved as ZAR currency. Usage: formatCurrency(strategy.interestSaved.toString()).</reason>
+      </file>
+      <file>
+        <path>src/lib/format/date.ts</path>
+        <kind>utility</kind>
+        <symbol>formatDate</symbol>
+        <lines>15-17</lines>
+        <reason>Format debtFreeDate in SA format DD/MM/YYYY. Parse ISO string to Date first: formatDate(new Date(strategy.debtFreeDate)).</reason>
+      </file>
+      <file>
+        <path>src/components/strategies/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <lines>1-2</lines>
+        <reason>Barrel export file for strategies components. Add WinnersPodium export here after creation.</reason>
+      </file>
+      <file>
+        <path>src/pages/ComparePage.tsx</path>
+        <kind>page</kind>
+        <symbol>ComparePage</symbol>
+        <lines>1-7</lines>
+        <reason>Currently placeholder. WinnersPodium will be integrated here above future comparison table. Import useStrategies hook for data.</reason>
+      </file>
+      <file>
+        <path>src/components/ui/card.tsx</path>
+        <kind>component</kind>
+        <symbol>Card, CardHeader, CardContent</symbol>
+        <reason>shadcn/ui Card component for podium position cards. Use Card, CardHeader, CardContent for structure.</reason>
+      </file>
+      <file>
+        <path>src/components/ui/badge.tsx</path>
+        <kind>component</kind>
+        <symbol>Badge</symbol>
+        <reason>shadcn/ui Badge for "Recommended" label on 1st place when applicable.</reason>
+      </file>
+      <file>
+        <path>src/components/ui/skeleton.tsx</path>
+        <kind>component</kind>
+        <symbol>Skeleton</symbol>
+        <reason>shadcn/ui Skeleton for loading state while isCalculating is true.</reason>
+      </file>
+      <file>
+        <path>src/components/strategies/CalculationLoading.tsx</path>
+        <kind>component</kind>
+        <symbol>CalculationLoading</symbol>
+        <reason>Reference for loading state pattern used in strategy components.</reason>
+      </file>
+    </code>
+
+    <dependencies>
+      <node>
+        <package>react</package>
+        <version>^19.2.0</version>
+      </node>
+      <node>
+        <package>big.js</package>
+        <version>^7.0.1</version>
+        <note>StrategyProjection.interestSaved is Big type. Call .toString() before formatCurrency.</note>
+      </node>
+      <node>
+        <package>date-fns</package>
+        <version>^4.1.0</version>
+        <note>Used by formatDate utility for SA date formatting.</note>
+      </node>
+      <node>
+        <package>lucide-react</package>
+        <version>^0.555.0</version>
+        <note>Icons for podium positions. Consider Trophy, Medal, Award icons.</note>
+      </node>
+      <node>
+        <package>tailwindcss-animate</package>
+        <version>^1.0.7</version>
+        <note>Provides animate-in, fade-in classes for entrance animation.</note>
+      </node>
+      <node>
+        <package>zustand</package>
+        <version>^5.0.8</version>
+        <note>State management. useCalculationStore for isCalculating state.</note>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="architecture">Component follows Strategy Pattern - ADR-004. Pure presentation component, no business logic beyond sorting/filtering.</constraint>
+    <constraint source="architecture">Use big.js for any monetary display. Convert Big to string for formatCurrency.</constraint>
+    <constraint source="architecture">File naming: PascalCase for components (WinnersPodium.tsx), camelCase for hooks.</constraint>
+    <constraint source="architecture">Path alias: Use @/ prefix for imports (e.g., @/hooks/useStrategies).</constraint>
+    <constraint source="ux-spec">Primary color teal-600 (#0d9488). Never use color alone - pair with icons/labels for accessibility.</constraint>
+    <constraint source="ux-spec">Touch targets minimum 44x44px on mobile. Larger form inputs minimum 48px height.</constraint>
+    <constraint source="ux-spec">Charts/visuals must use patterns + colors for colorblind users.</constraint>
+    <constraint source="tech-spec">Results from useStrategies().strategies are already sorted by interestSaved descending. Simply take first 3 items.</constraint>
+    <constraint source="tech-spec">Use bestStrategy from hook as recommendedId initially until Story 5.5 recommendation engine.</constraint>
+    <constraint source="nfr">Chart/UI rendering under 2 seconds (NFR-P3). Keep component lightweight.</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>UseStrategiesReturn</name>
+      <kind>hook-return</kind>
+      <signature>{ strategies: StrategyProjection[], baseline: StrategyProjection | null, isCalculating: boolean, calculateStrategies: () => Promise&lt;void&gt;, bestStrategy: StrategyProjection | null, emptyMessage: string | null, lastCalculated: string | null, error: string | null, isDataLoading: boolean }</signature>
+      <path>src/hooks/useStrategies.ts</path>
+    </interface>
+    <interface>
+      <name>StrategyProjection</name>
+      <kind>type</kind>
+      <signature>{ strategyId: string, strategyName: string, effortLevel: EffortLevel, debtFreeMonth: number, debtFreeDate: string, totalInterestPaid: Big, totalPrincipalPaid: Big, monthsSaved: number, interestSaved: Big, monthlyProjections: MonthlyProjection[] }</signature>
+      <path>src/lib/calculations/types.ts</path>
+    </interface>
+    <interface>
+      <name>WinnersPodiumProps</name>
+      <kind>component-props</kind>
+      <signature>{ strategies: StrategyProjection[], recommendedId?: string, onPositionClick?: (strategyId: string) => void, isLoading?: boolean }</signature>
+      <path>src/components/strategies/WinnersPodium.tsx (to create)</path>
+    </interface>
+    <interface>
+      <name>formatCurrency</name>
+      <kind>function</kind>
+      <signature>(amount: string) => string</signature>
+      <path>src/lib/format/currency.ts</path>
+    </interface>
+    <interface>
+      <name>formatDate</name>
+      <kind>function</kind>
+      <signature>(date: Date) => string</signature>
+      <path>src/lib/format/date.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Vitest with @testing-library/react for component tests. Tests follow pattern in tests/components/ directory. Mock Dexie database using fake-indexeddb. Test file naming: [ComponentName].test.tsx. Use describe/it pattern with clear AC references. Assert on rendered output, user interactions, and state changes.
+    </standards>
+    <locations>
+      <location>tests/components/strategies/WinnersPodium.test.tsx</location>
+      <location>tests/hooks/useStrategies.test.ts (existing - reference for patterns)</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-5.1.1">Test renders 3 strategy cards when strategies array has 3+ items</idea>
+      <idea ac="AC-5.1.2">Test each position displays strategy name, formatted interest saved (ZAR), formatted debt-free date</idea>
+      <idea ac="AC-5.1.3">Test layout ordering: 2nd position left, 1st center, 3rd right (desktop view)</idea>
+      <idea ac="AC-5.1.4">Test "Recommended" badge appears only when 1st place strategy.strategyId matches recommendedId prop</idea>
+      <idea ac="AC-5.1.5">Test onClick handler calls scrollIntoView with { behavior: 'smooth' }</idea>
+      <idea ac="AC-5.1.7">Test graceful rendering with 2 strategies (no 3rd place shown)</idea>
+      <idea ac="AC-5.1.7">Test graceful rendering with 1 strategy (only 1st place shown)</idea>
+      <idea ac="AC-5.1.10">Test skeleton loading state when isLoading=true</idea>
+      <idea ac="AC-5.1.10">Test no skeleton when isLoading=false</idea>
+    </ideas>
+  </tests>
+</story-context>
