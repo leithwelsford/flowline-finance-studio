@@ -25,6 +25,23 @@ export {
   buildSnapshot,
 } from './projections';
 
+// Strategy exports (Story 4.3)
+export {
+  // Strategy instances
+  baselineStrategy,
+  snowballStrategy,
+  avalancheStrategy,
+  // Strategy registry functions
+  getAllStrategies,
+  getStrategyById,
+  getStrategiesByEffortLevel,
+  getFlexiStrategies,
+  getNonFlexiStrategies,
+  // Strategy helpers
+  buildStrategyProjection,
+  calculateInitialDebt,
+} from './strategies';
+
 // Type definitions
 export type {
   InterestCalculationResult,
@@ -41,4 +58,9 @@ export type {
   FinancialSnapshot,
   SimulatedAccount,
   SimulatedFlexi,
+  // Strategy types (Story 4.3)
+  EffortLevel,
+  StrategyConfig,
+  StrategyProjection,
+  DebtStrategy,
 } from './types';
