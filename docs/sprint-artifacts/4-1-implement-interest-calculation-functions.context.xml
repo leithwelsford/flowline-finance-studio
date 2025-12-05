@@ -1,0 +1,307 @@
+<story-context id="bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>1</storyId>
+    <title>Implement Interest Calculation Functions</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-04</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-1-implement-interest-calculation-functions.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>developer</asA>
+    <iWant>accurate interest calculation functions</iWant>
+    <soThat>all strategy projections are mathematically correct</soThat>
+    <tasks>
+      <task id="1" ac="7">Create calculation types file
+        <subtask>Create src/lib/calculations/types.ts</subtask>
+        <subtask>Define InterestCalculationResult interface</subtask>
+        <subtask>Define DaysInMonthOptions interface</subtask>
+        <subtask>Define PrimeRateLinkage interface</subtask>
+        <subtask>Export all types with barrel export</subtask>
+      </task>
+      <task id="2" ac="1,4,5">Implement monthly interest calculation
+        <subtask>Create src/lib/calculations/interest.ts (EXTEND existing)</subtask>
+        <subtask>Implement calculateMonthlyInterest (ALREADY EXISTS - verify)</subtask>
+        <subtask>Use big.js for all arithmetic</subtask>
+        <subtask>Round to 2 decimal places</subtask>
+        <subtask>Validate inputs</subtask>
+      </task>
+      <task id="3" ac="2,4,5">Implement daily interest calculation
+        <subtask>Add calculateDailyInterest(balance, annualRate): Big</subtask>
+        <subtask>Formula: Big(balance).times(Big(annualRate).div(365))</subtask>
+        <subtask>Add calculateMonthlyFromDaily(dailyInterest, daysInMonth): Big</subtask>
+        <subtask>Support configurable days in month (28, 29, 30, 31)</subtask>
+      </task>
+      <task id="4" ac="3,4">Implement effective rate calculation with prime linkage
+        <subtask>Add calculateEffectiveRate(primeRate, margin): Big</subtask>
+        <subtask>Add SA_PRIME_RATE constant (0.1175 = 11.75%)</subtask>
+        <subtask>Allow override for SARB rate change simulation</subtask>
+        <subtask>Validate combined rate does not exceed 100%</subtask>
+      </task>
+      <task id="5" ac="4,5">Implement compound interest helpers
+        <subtask>Add calculateCompoundInterest for daily/monthly compounding</subtask>
+        <subtask>Add calculateTotalPayment helper</subtask>
+        <subtask>Use big.js .pow() for exponentiation</subtask>
+      </task>
+      <task id="6" ac="7">Create barrel export for calculations
+        <subtask>Create src/lib/calculations/index.ts</subtask>
+        <subtask>Export all functions from interest.ts</subtask>
+        <subtask>Export all types from types.ts</subtask>
+      </task>
+      <task id="7" ac="1,6">Write unit tests for monthly interest</task>
+      <task id="8" ac="2,6">Write unit tests for daily interest</task>
+      <task id="9" ac="3,6">Write unit tests for effective rate</task>
+      <task id="10" ac="4,5">Write precision and edge case tests</task>
+      <task id="11" ac="all">Verify build and all tests pass</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-4.1.1" priority="high">
+      Given a debt account with monthly compounding, when I calculate monthly interest,
+      then the formula used is: monthlyInterest = balance x (annualRate / 12) with cent-level accuracy (2 decimal places in ZAR)
+    </criterion>
+    <criterion id="AC-4.1.2" priority="high">
+      Given a flexi facility with daily compounding, when I calculate daily interest,
+      then the formula is: dailyInterest = balance x (annualRate / 365) and monthly approximation is: monthlyInterest = dailyInterest x daysInMonth
+    </criterion>
+    <criterion id="AC-4.1.3" priority="high">
+      Given an account linked to SA prime rate, when I calculate interest with prime linkage,
+      then the effective rate = prime rate + margin (e.g., prime + 2% margin = 13.75% total if prime is 11.75%)
+    </criterion>
+    <criterion id="AC-4.1.4" priority="critical">
+      All calculations use big.js for arbitrary precision decimal arithmetic, preventing floating-point errors
+    </criterion>
+    <criterion id="AC-4.1.5" priority="critical">
+      Results are accurate to 2 decimal places (cent-level in ZAR) with no accumulated rounding errors
+    </criterion>
+    <criterion id="AC-4.1.6" priority="high">
+      Unit tests verify calculations against manual spreadsheet examples:
+      - R100,000 at 11.5% annual = R958.33/month
+      - R50,000 flexi at 12% annual = R16.44/day
+      - Prime (11.75%) + 2% margin = 13.75% effective rate
+    </criterion>
+    <criterion id="AC-4.1.7" priority="medium">
+      Functions are pure, deterministic, and framework-agnostic (can be used outside React context)
+    </criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>Calculation Engine &amp; Strategy Modeling (FR9-FR23)</section>
+        <snippet>FR9: Daily interest for flexi facilities using accurate daily compounding. FR10: Monthly interest for standard loans using standard amortization formulas. FR11: SA prime rate linkage for applicable accounts.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>ADR-003: big.js for Financial Calculations</section>
+        <snippet>Decision: Use big.js for all monetary calculations. Consequences: Cent-level accuracy guaranteed. String storage for precision preservation. 6KB bundle size impact.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Project Structure - lib/calculations/</section>
+        <snippet>Location for FR9-23 Calculation Engine: types.ts (interfaces), interest.ts (FR9-11 formulas), projections.ts (FR22-23), strategies/ (FR13-20)</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Core Interfaces - FinancialSnapshot, DebtStrategy</section>
+        <snippet>DebtAccount uses string for balance/rates (big.js precision). Rates stored as decimal (0.115 = 11.5%). All monetary calculations via big.js.</snippet>
+      </doc>
+      <doc>
+        <path>docs/epics.md</path>
+        <title>Epic Breakdown</title>
+        <section>Epic 4: Calculation Engine - Story 4.1</section>
+        <snippet>Story 4.1 implements foundational interest calculation functions. Required before Story 4.2 (Projection Generator) which depends on accurate interest math.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file>
+        <path>src/lib/calculations/interest.ts</path>
+        <kind>calculation-module</kind>
+        <symbol>calculateMonthlyInterest, calculateFlexiMonthlyInterest, calculateTotalMonthlyInterest</symbol>
+        <lines>1-103</lines>
+        <reason>EXISTING partial implementation from Story 3.3. Extend with calculateDailyInterest, calculateEffectiveRate, SA_PRIME_RATE constant.</reason>
+      </file>
+      <file>
+        <path>tests/lib/calculations/interest.test.ts</path>
+        <kind>test-file</kind>
+        <symbol>describe blocks for monthly, flexi, total interest</symbol>
+        <lines>1-237</lines>
+        <reason>EXISTING tests from Story 3.3. Add tests for new functions: daily interest, effective rate, prime linkage, compound interest.</reason>
+      </file>
+      <file>
+        <path>src/types/account.ts</path>
+        <kind>type-definition</kind>
+        <symbol>DebtAccount, AccountType, InterestType</symbol>
+        <lines>1-45</lines>
+        <reason>Existing type definitions. DebtAccount has balance/interestRate as strings, interestType for daily/monthly.</reason>
+      </file>
+      <file>
+        <path>src/types/flexi-facility.ts</path>
+        <kind>type-definition</kind>
+        <symbol>FlexiFacility, FlexiFacilityType</symbol>
+        <lines>1-34</lines>
+        <reason>Existing flexi type. Has currentBalance/interestRate as strings. Always uses daily compounding.</reason>
+      </file>
+      <file>
+        <path>src/lib/utils/result.ts</path>
+        <kind>utility</kind>
+        <symbol>Result, ok, err, isOk, isErr</symbol>
+        <lines>1-20</lines>
+        <reason>Error handling pattern. Consider using for input validation errors in calculation functions.</reason>
+      </file>
+      <file>
+        <path>src/lib/format/index.ts</path>
+        <kind>barrel-export</kind>
+        <symbol>formatCurrency, formatDate, formatPercentage</symbol>
+        <lines>1-3</lines>
+        <reason>Pattern for barrel exports. Create similar src/lib/calculations/index.ts.</reason>
+      </file>
+      <file>
+        <path>src/hooks/useTrueCost.ts</path>
+        <kind>react-hook</kind>
+        <symbol>useTrueCost</symbol>
+        <reason>Consumer of calculateTotalMonthlyInterest. Shows usage pattern for interest calculations.</reason>
+      </file>
+    </code>
+
+    <dependencies>
+      <node>
+        <package>big.js</package>
+        <version>^7.0.1</version>
+        <purpose>Arbitrary precision decimal arithmetic for financial calculations (ADR-003)</purpose>
+      </node>
+      <node>
+        <package>@types/big.js</package>
+        <version>^6.2.2</version>
+        <purpose>TypeScript type definitions for big.js</purpose>
+      </node>
+      <node>
+        <package>vitest</package>
+        <version>^4.0.14</version>
+        <purpose>Test runner for unit tests</purpose>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint category="precision" priority="critical">
+      All monetary calculations MUST use big.js. Never use native JavaScript number arithmetic for financial values. (ADR-003)
+    </constraint>
+    <constraint category="precision" priority="critical">
+      Round results to 2 decimal places for cent-level accuracy in ZAR. Use Big.roundHalfUp mode.
+    </constraint>
+    <constraint category="types" priority="high">
+      Store all monetary values and rates as strings to preserve big.js precision. Convert to Big only for calculations.
+    </constraint>
+    <constraint category="rates" priority="high">
+      Store interest rates as decimals (0.115 = 11.5%), not percentages. Document this convention clearly.
+    </constraint>
+    <constraint category="purity" priority="medium">
+      All calculation functions must be pure, deterministic, and have no side effects. Must work outside React context.
+    </constraint>
+    <constraint category="testing" priority="high">
+      Verify calculations against known spreadsheet values. Test floating-point edge cases (0.1 + 0.2).
+    </constraint>
+    <constraint category="structure" priority="medium">
+      Place calculation code in src/lib/calculations/. Create barrel export in index.ts. Tests in tests/lib/calculations/.
+    </constraint>
+    <constraint category="existing-code" priority="high">
+      EXTEND existing interest.ts - do not rewrite. The existing functions (calculateMonthlyInterest, calculateFlexiMonthlyInterest, calculateTotalMonthlyInterest) are used by useTrueCost hook.
+    </constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>calculateMonthlyInterest</name>
+      <kind>function</kind>
+      <signature>calculateMonthlyInterest(balance: string, annualRate: string, interestType: InterestType): Big</signature>
+      <path>src/lib/calculations/interest.ts:25</path>
+      <status>EXISTS - verify meets AC requirements</status>
+    </interface>
+    <interface>
+      <name>calculateDailyInterest</name>
+      <kind>function</kind>
+      <signature>calculateDailyInterest(balance: string, annualRate: string): Big</signature>
+      <path>src/lib/calculations/interest.ts</path>
+      <status>TO CREATE - standalone daily interest calculation</status>
+    </interface>
+    <interface>
+      <name>calculateMonthlyFromDaily</name>
+      <kind>function</kind>
+      <signature>calculateMonthlyFromDaily(dailyInterest: Big, daysInMonth?: number): Big</signature>
+      <path>src/lib/calculations/interest.ts</path>
+      <status>TO CREATE - convert daily to monthly approximation</status>
+    </interface>
+    <interface>
+      <name>calculateEffectiveRate</name>
+      <kind>function</kind>
+      <signature>calculateEffectiveRate(primeRate: string, margin: string): Big</signature>
+      <path>src/lib/calculations/interest.ts</path>
+      <status>TO CREATE - prime rate + margin calculation</status>
+    </interface>
+    <interface>
+      <name>SA_PRIME_RATE</name>
+      <kind>constant</kind>
+      <signature>SA_PRIME_RATE: string = "0.1175"</signature>
+      <path>src/lib/calculations/interest.ts</path>
+      <status>TO CREATE - current SA prime rate (11.75%)</status>
+    </interface>
+    <interface>
+      <name>calculateCompoundInterest</name>
+      <kind>function</kind>
+      <signature>calculateCompoundInterest(principal: string, rate: string, periods: number, frequency: 'daily' | 'monthly'): Big</signature>
+      <path>src/lib/calculations/interest.ts</path>
+      <status>TO CREATE - full compound interest calculation</status>
+    </interface>
+    <interface>
+      <name>InterestCalculationResult</name>
+      <kind>interface</kind>
+      <signature>{ interest: Big, effectiveRate?: Big }</signature>
+      <path>src/lib/calculations/types.ts</path>
+      <status>TO CREATE - type for calculation results</status>
+    </interface>
+    <interface>
+      <name>PrimeRateLinkage</name>
+      <kind>interface</kind>
+      <signature>{ primeRate: string, margin: string }</signature>
+      <path>src/lib/calculations/types.ts</path>
+      <status>TO CREATE - type for prime rate linkage config</status>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Tests use Vitest with @testing-library. Test files mirror source structure in tests/ directory.
+      Use describe/it blocks with descriptive names referencing acceptance criteria (e.g., "AC-4.1.1").
+      Verify calculations against known spreadsheet values. Test edge cases: zero balance, zero rate, empty strings.
+      Test big.js precision with floating-point edge cases (0.1 + 0.2 should equal 0.3).
+      Current test count: ~835 tests passing. Maintain test hygiene - no regressions.
+    </standards>
+    <locations>
+      <location>tests/lib/calculations/interest.test.ts (EXISTING - extend)</location>
+      <location>tests/lib/calculations/*.test.ts (pattern for calculation tests)</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-4.1.1">Test R100,000 at 11.5% = R958.33/month monthly interest</idea>
+      <idea ac="AC-4.1.1">Test R500,000 at 11.75% = R4,895.83/month</idea>
+      <idea ac="AC-4.1.2">Test R50,000 at 12% = R16.44/day daily interest</idea>
+      <idea ac="AC-4.1.2">Test daily to monthly conversion with 28, 29, 30, 31 days</idea>
+      <idea ac="AC-4.1.3">Test prime (11.75%) + 2% margin = 13.75% effective rate</idea>
+      <idea ac="AC-4.1.3">Test prime rate change simulation (12.00% + 2% = 14.00%)</idea>
+      <idea ac="AC-4.1.4">Test big.js precision: 0.1 + 0.2 handling</idea>
+      <idea ac="AC-4.1.4">Test large balance precision: R10,000,000 calculations</idea>
+      <idea ac="AC-4.1.5">Test 12-month cumulative interest doesn't drift from expected</idea>
+      <idea ac="AC-4.1.6">Verify all spreadsheet test values match exactly</idea>
+      <idea ac="AC-4.1.7">Test functions are pure - same inputs always produce same outputs</idea>
+    </ideas>
+  </tests>
+</story-context>
