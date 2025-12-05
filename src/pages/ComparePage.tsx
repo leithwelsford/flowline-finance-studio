@@ -1,10 +1,11 @@
 import { useEffect, useRef } from 'react'
 import { useStrategies } from '@/hooks/useStrategies'
-import { WinnersPodium } from '@/components/strategies'
+import { WinnersPodium, ComparisonTable } from '@/components/strategies'
 
 export function ComparePage() {
   const {
     strategies,
+    baseline,
     bestStrategy,
     isCalculating,
     calculateStrategies,
@@ -77,15 +78,14 @@ export function ComparePage() {
           isLoading={isCalculating}
         />
 
-        {/* Comparison Table placeholder (Story 5.2) */}
-        <div
-          ref={comparisonTableRef}
-          id="comparison-table"
-          className="min-h-[200px] flex items-center justify-center border border-dashed border-slate-300 rounded-lg"
-        >
-          <p className="text-muted-foreground">
-            Comparison table coming in Story 5.2
-          </p>
+        {/* Comparison Table */}
+        <div ref={comparisonTableRef}>
+          <ComparisonTable
+            strategies={strategies}
+            baselineId={baseline?.strategyId ?? ''}
+            recommendedId={bestStrategy?.strategyId}
+            isLoading={isCalculating}
+          />
         </div>
       </div>
     </div>
