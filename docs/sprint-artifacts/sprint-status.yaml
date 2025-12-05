@@ -67,7 +67,7 @@ development_status:
   4-1-implement-interest-calculation-functions: done
   4-2-implement-projection-generator: done
   4-3-implement-baseline-and-traditional-strategies: done
-  4-4-implement-flexi-chunking-strategies: backlog
+  4-4-implement-flexi-chunking-strategies: ready-for-dev
   4-5-implement-velocity-banking-strategy: backlog
   4-6-implement-hybrid-strategies: backlog
   4-7-implement-strategy-configuration-options: backlog
