@@ -178,6 +178,14 @@ export interface FinancialSnapshot {
 export type EffortLevel = 'low' | 'medium' | 'high';
 
 /**
+ * Payment frequency for strategy calculations
+ * - monthly: 12 payments per year (default)
+ * - bi-weekly: 26 payments per year (~2.167 payments/month)
+ * - weekly: 52 payments per year (~4.333 payments/month)
+ */
+export type PaymentFrequency = 'monthly' | 'bi-weekly' | 'weekly';
+
+/**
  * Configuration options for strategy calculation
  */
 export interface StrategyConfig {
@@ -187,6 +195,12 @@ export interface StrategyConfig {
   startDate?: string;
   /** Extra monthly payment amount (for traditional strategies) */
   extraPayment?: string;
+  /** Custom chunk amount for flexi strategies (null = use full surplus) */
+  chunkAmount?: string | null;
+  /** Payment frequency for strategies (default: 'monthly') */
+  paymentFrequency?: PaymentFrequency;
+  /** Target account ID override for manual prioritization (null = use strategy default) */
+  targetAccountId?: number | null;
 }
 
 /**
@@ -264,4 +278,15 @@ export interface DebtStrategy {
     accounts: SimulatedAccount[],
     flexi: SimulatedFlexi | null
   ): PaymentAllocation[];
+
+  /**
+   * Create an allocator function with config applied
+   *
+   * Returns a PaymentAllocator function that respects the provided config
+   * for target account override and other strategy-specific settings.
+   *
+   * @param config - Optional strategy configuration
+   * @returns PaymentAllocator function
+   */
+  createAllocator(config?: StrategyConfig): PaymentAllocator;
 }

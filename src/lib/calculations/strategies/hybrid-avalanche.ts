@@ -22,7 +22,11 @@
  */
 import Big from 'big.js';
 import { generateProjection } from '../projections';
-import { buildStrategyProjection } from './strategy-helpers';
+import {
+  buildStrategyProjection,
+  applyTargetOverride,
+  getEffectiveSurplus,
+} from './strategy-helpers';
 import type {
   DebtStrategy,
   FinancialSnapshot,
@@ -65,15 +69,25 @@ export const hybridAvalancheStrategy: DebtStrategy = {
       return null;
     }
 
-    // Create allocator that uses this strategy's allocatePayment method
+    // Apply config to get effective surplus (includes chunk amount limit)
+    const baseSurplus = new Big(snapshot.availableSurplus || '0');
+    const effectiveSurplus = getEffectiveSurplus(baseSurplus, config);
+
+    // Create modified snapshot with adjusted surplus
+    const adjustedSnapshot: FinancialSnapshot = {
+      ...snapshot,
+      availableSurplus: effectiveSurplus.toString(),
+    };
+
+    // Create allocator closure that includes config for target override
     const allocator = (
       surplus: Big,
       accounts: SimulatedAccount[],
       flexi: SimulatedFlexi | null
-    ) => this.allocatePayment(surplus, accounts, flexi);
+    ) => this.createAllocator(config)(surplus, accounts, flexi);
 
     // Generate projection with hybrid avalanche allocator
-    const projections = generateProjection(snapshot, allocator, {
+    const projections = generateProjection(adjustedSnapshot, allocator, {
       maxMonths: config?.maxMonths,
       startDate: config?.startDate ?? snapshot.snapshotDate,
     });
@@ -88,50 +102,63 @@ export const hybridAvalancheStrategy: DebtStrategy = {
   },
 
   /**
+   * Create an allocator function with config applied
+   */
+  createAllocator(config?: StrategyConfig) {
+    return (
+      surplus: Big,
+      accounts: SimulatedAccount[],
+      flexi: SimulatedFlexi | null
+    ): PaymentAllocation[] => {
+      // No surplus to allocate
+      if (surplus.lte(0)) {
+        return [];
+      }
+
+      // No flexi facility - shouldn't happen as calculate() checks, but be safe
+      if (!flexi) {
+        return [];
+      }
+
+      // Filter to accounts with positive balance
+      const activeAccounts = accounts.filter((acc) => acc.balance.gt(0));
+
+      if (activeAccounts.length === 0) {
+        return [];
+      }
+
+      // Default sorter: highest interest rate first (avalanche targeting)
+      const avalancheSorter = (accs: SimulatedAccount[]) =>
+        [...accs].sort((a, b) => b.interestRate.cmp(a.interestRate));
+
+      // Apply target override if configured, otherwise use avalanche sorting
+      const sorted = applyTargetOverride(
+        activeAccounts,
+        config?.targetAccountId,
+        avalancheSorter
+      );
+
+      const target = sorted[0];
+
+      return [
+        {
+          accountId: target.id,
+          amount: surplus,
+        },
+      ];
+    };
+  },
+
+  /**
    * Allocate surplus using hybrid flexi-avalanche pattern
    *
-   * Logic:
-   * - Uses flexi facility as batching mechanism (handled by projection engine)
-   * - Targets highest interest rate first (avalanche targeting)
-   * - When target is paid off, rolls to next highest rate
-   *
-   * The flexi facility benefits come from:
-   * - Surplus parks in flexi, reducing balance (daily interest benefit)
-   * - Chunks to target debt provide lump sum paydowns
+   * @deprecated Use createAllocator with config for target override support
    */
   allocatePayment(
     surplus: Big,
     accounts: SimulatedAccount[],
     flexi: SimulatedFlexi | null
   ): PaymentAllocation[] {
-    // No surplus to allocate
-    if (surplus.lte(0)) {
-      return [];
-    }
-
-    // No flexi facility - shouldn't happen as calculate() checks, but be safe
-    if (!flexi) {
-      return [];
-    }
-
-    // Filter to accounts with positive balance
-    const activeAccounts = accounts.filter((acc) => acc.balance.gt(0));
-
-    if (activeAccounts.length === 0) {
-      return [];
-    }
-
-    // Sort by interest rate descending (highest first) - avalanche targeting
-    const sorted = [...activeAccounts].sort((a, b) => b.interestRate.cmp(a.interestRate));
-    const target = sorted[0];
-
-    // Allocate surplus to the highest rate debt
-    // The flexi facility's daily interest benefit is handled by the projection engine
-    return [
-      {
-        accountId: target.id,
-        amount: surplus,
-      },
-    ];
+    return this.createAllocator()(surplus, accounts, flexi);
   },
 };

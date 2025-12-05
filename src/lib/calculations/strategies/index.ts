@@ -25,7 +25,14 @@ export { hybridSnowballStrategy } from './hybrid-snowball';
 export { hybridAvalancheStrategy } from './hybrid-avalanche';
 
 // Re-export helper functions
-export { buildStrategyProjection, calculateInitialDebt } from './strategy-helpers';
+export {
+  buildStrategyProjection,
+  calculateInitialDebt,
+  applyTargetOverride,
+  calculateEffectiveMonthlySurplus,
+  applyChunkAmountLimit,
+  getEffectiveSurplus,
+} from './strategy-helpers';
 
 /**
  * Get all available strategies

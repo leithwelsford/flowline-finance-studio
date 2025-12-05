@@ -29,3 +29,11 @@ export {
   expenseToFormValues,
   type ExpenseFormValues,
 } from './expense';
+
+export {
+  strategyConfigFormSchema,
+  paymentFrequencySchema,
+  formValuesToStrategyConfig,
+  strategyConfigToFormValues,
+  type StrategyConfigFormValues,
+} from './strategy-config';

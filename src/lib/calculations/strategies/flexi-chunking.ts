@@ -19,7 +19,11 @@
  */
 import Big from 'big.js';
 import { generateProjection } from '../projections';
-import { buildStrategyProjection } from './strategy-helpers';
+import {
+  buildStrategyProjection,
+  applyTargetOverride,
+  getEffectiveSurplus,
+} from './strategy-helpers';
 import type {
   DebtStrategy,
   FinancialSnapshot,
@@ -62,15 +66,25 @@ export const flexiChunkingStrategy: DebtStrategy = {
       return null;
     }
 
-    // Create allocator that uses this strategy's allocatePayment method
+    // Apply config to get effective surplus (includes chunk amount limit)
+    const baseSurplus = new Big(snapshot.availableSurplus || '0');
+    const effectiveSurplus = getEffectiveSurplus(baseSurplus, config);
+
+    // Create modified snapshot with adjusted surplus
+    const adjustedSnapshot: FinancialSnapshot = {
+      ...snapshot,
+      availableSurplus: effectiveSurplus.toString(),
+    };
+
+    // Create allocator closure that includes config for target override
     const allocator = (
       surplus: Big,
       accounts: SimulatedAccount[],
       flexi: SimulatedFlexi | null
-    ) => this.allocatePayment(surplus, accounts, flexi);
+    ) => this.createAllocator(config)(surplus, accounts, flexi);
 
     // Generate projection with flexi chunking allocator
-    const projections = generateProjection(snapshot, allocator, {
+    const projections = generateProjection(adjustedSnapshot, allocator, {
       maxMonths: config?.maxMonths,
       startDate: config?.startDate ?? snapshot.snapshotDate,
     });
@@ -85,67 +99,63 @@ export const flexiChunkingStrategy: DebtStrategy = {
   },
 
   /**
+   * Create an allocator function with config applied
+   */
+  createAllocator(config?: StrategyConfig) {
+    return (
+      surplus: Big,
+      accounts: SimulatedAccount[],
+      flexi: SimulatedFlexi | null
+    ): PaymentAllocation[] => {
+      // No surplus to allocate
+      if (surplus.lte(0)) {
+        return [];
+      }
+
+      // No flexi facility - shouldn't happen as calculate() checks, but be safe
+      if (!flexi) {
+        return [];
+      }
+
+      // Filter to accounts with positive balance
+      const activeAccounts = accounts.filter((acc) => acc.balance.gt(0));
+
+      if (activeAccounts.length === 0) {
+        return [];
+      }
+
+      // Default sorter: highest interest rate first (avalanche targeting)
+      const avalancheSorter = (accs: SimulatedAccount[]) =>
+        [...accs].sort((a, b) => b.interestRate.cmp(a.interestRate));
+
+      // Apply target override if configured, otherwise use avalanche sorting
+      const sorted = applyTargetOverride(
+        activeAccounts,
+        config?.targetAccountId,
+        avalancheSorter
+      );
+
+      const target = sorted[0];
+
+      return [
+        {
+          accountId: target.id,
+          amount: surplus,
+        },
+      ];
+    };
+  },
+
+  /**
    * Allocate surplus using flexi chunking pattern
    *
-   * Logic:
-   * - If flexi has positive balance (owes money), pay down flexi first from surplus
-   * - Once flexi is at zero or negative (credit available), chunk to highest-rate debt
-   * - The "chunk" is the full surplus amount each month
-   *
-   * This models the behavior where:
-   * 1. Surplus reduces flexi balance (building credit)
-   * 2. When credit is available, transfer lump sum to target debt
-   * 3. Flexi balance increases, repeat cycle
-   *
-   * For simplicity in this model, we always apply surplus to either:
-   * - Flexi repayment if flexi balance > 0
-   * - Highest-rate debt if flexi balance <= 0 (credit available)
+   * @deprecated Use createAllocator with config for target override support
    */
   allocatePayment(
     surplus: Big,
     accounts: SimulatedAccount[],
     flexi: SimulatedFlexi | null
   ): PaymentAllocation[] {
-    // No surplus to allocate
-    if (surplus.lte(0)) {
-      return [];
-    }
-
-    // No flexi facility - shouldn't happen as calculate() checks, but be safe
-    if (!flexi) {
-      return [];
-    }
-
-    // Filter to accounts with positive balance
-    const activeAccounts = accounts.filter((acc) => acc.balance.gt(0));
-
-    if (activeAccounts.length === 0) {
-      return [];
-    }
-
-    // Sort by interest rate descending (highest first) - avalanche targeting
-    const sorted = [...activeAccounts].sort((a, b) => b.interestRate.cmp(a.interestRate));
-    const target = sorted[0];
-
-    // Flexi chunking behavior:
-    // - The projection engine handles flexi balance tracking and interest
-    // - We allocate surplus to the highest-rate debt account
-    // - The interest arbitrage happens because flexi charges daily rate (lower)
-    //   while the debt we're paying off charges higher monthly rate
-    //
-    // In the real world, the user would:
-    // 1. Deposit surplus into flexi (reduces balance → less interest)
-    // 2. Periodically transfer chunks from flexi to target debt
-    //
-    // In our simulation, we simplify: apply surplus directly to target debt
-    // The flexi facility's lower interest rate on its balance provides the benefit
-    // compared to holding cash elsewhere.
-
-    return [
-      {
-        accountId: target.id,
-        amount: surplus,
-      },
-    ];
+    return this.createAllocator()(surplus, accounts, flexi);
   },
 };

@@ -30,3 +30,7 @@ export type { IncomeExpenseMetrics } from './income-expense';
 
 // True cost of debt types
 export type { TrueCostMetrics } from './true-cost';
+
+// Strategy configuration types
+export type { StrategyConfigData } from './strategy-config';
+export { STRATEGY_CONFIG_KEY, DEFAULT_STRATEGY_CONFIG } from './strategy-config';

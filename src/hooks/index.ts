@@ -11,3 +11,4 @@ export { useFinancialHealth, type UseFinancialHealthReturn } from './useFinancia
 export { useIncomeExpense, type UseIncomeExpenseReturn } from './useIncomeExpense';
 export { useTrueCost, type UseTrueCostReturn } from './useTrueCost';
 export { useDebouncedSave } from './useDebouncedSave';
+export { useStrategyConfig, type UseStrategyConfigReturn } from './useStrategyConfig';
