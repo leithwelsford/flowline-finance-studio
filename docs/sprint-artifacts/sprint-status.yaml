@@ -64,7 +64,7 @@ development_status:
 
   # Epic 4: Calculation Engine & Strategy Modeling
   epic-4: backlog
-  4-1-implement-interest-calculation-functions: ready-for-dev
+  4-1-implement-interest-calculation-functions: done
   4-2-implement-projection-generator: backlog
   4-3-implement-baseline-and-traditional-strategies: backlog
   4-4-implement-flexi-chunking-strategies: backlog
