@@ -2,3 +2,4 @@
 // Re-export all stores from this file
 
 export { useUIStore, type PageType } from './uiStore'
+export { useCalculationStore } from './calculationStore'

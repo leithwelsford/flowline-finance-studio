@@ -47,6 +47,18 @@ export {
   calculateInitialDebt,
 } from './strategies';
 
+// Engine exports (Story 4.8)
+export {
+  calculateAllStrategies,
+  calculateStrategy,
+  type CalculationResult,
+  type EmptyCalculationResult,
+  type SuccessfulCalculationResult,
+} from './engine';
+
+// Snapshot builder (Story 4.8)
+export { buildFinancialSnapshot } from './snapshot';
+
 // Type definitions
 export type {
   InterestCalculationResult,

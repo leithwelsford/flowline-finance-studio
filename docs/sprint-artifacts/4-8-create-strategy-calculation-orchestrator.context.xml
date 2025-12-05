@@ -1,0 +1,382 @@
+<story-context id="4-8-create-strategy-calculation-orchestrator" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>8</storyId>
+    <title>Create Strategy Calculation Orchestrator</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-05</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-8-create-strategy-calculation-orchestrator.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>all debt reduction strategies calculated from my current financial data with a single action</iWant>
+    <soThat>I can compare all 8 strategies side-by-side without manually triggering each calculation, and understand which approach saves the most interest and time</soThat>
+    <tasks>
+      <task id="1" ac="6">
+        <title>Create calculationStore (Zustand)</title>
+        <subtasks>
+          <subtask>Create src/store/calculationStore.ts</subtask>
+          <subtask>Define state: results, baseline, isCalculating, lastCalculated, error</subtask>
+          <subtask>Implement actions: setResults(), setBaseline(), setCalculating(), setError(), clearResults()</subtask>
+          <subtask>Export from src/store/index.ts</subtask>
+        </subtasks>
+      </task>
+      <task id="2" ac="1">
+        <title>Create FinancialSnapshot builder</title>
+        <subtasks>
+          <subtask>Create src/lib/calculations/snapshot.ts</subtask>
+          <subtask>Implement buildFinancialSnapshot(accounts, flexiFacility, income, expenses) function</subtask>
+          <subtask>Calculate availableSurplus = income - expenses - sum(minimumPayments)</subtask>
+          <subtask>Use big.js for all calculations</subtask>
+          <subtask>Return properly typed FinancialSnapshot object</subtask>
+        </subtasks>
+      </task>
+      <task id="3" ac="1,2,3,4,8">
+        <title>Create strategy calculation orchestrator</title>
+        <subtasks>
+          <subtask>Create src/lib/calculations/engine.ts</subtask>
+          <subtask>Import all strategies from strategies/index.ts</subtask>
+          <subtask>Implement calculateAllStrategies(snapshot, config?): Calculate baseline first, loop through all strategies, filter null results, return StrategyProjection[]</subtask>
+          <subtask>Pass user config to all strategy calculate() calls</subtask>
+          <subtask>Handle edge case: no accounts or zero balance (return empty array)</subtask>
+        </subtasks>
+      </task>
+      <task id="4" ac="7,9">
+        <title>Create useStrategies hook</title>
+        <subtasks>
+          <subtask>Create src/hooks/useStrategies.ts</subtask>
+          <subtask>Use useLiveQuery for accounts, flexiFacility, income, expenses</subtask>
+          <subtask>Use useStrategyConfig for user configuration</subtask>
+          <subtask>Implement calculateStrategies() that manages loading state and stores results</subtask>
+          <subtask>Compute bestStrategy as strategy with highest interestSaved</subtask>
+          <subtask>Return { strategies, baseline, isCalculating, calculateStrategies, bestStrategy }</subtask>
+        </subtasks>
+      </task>
+      <task id="5" ac="10">
+        <title>Implement results sorting</title>
+        <subtasks>
+          <subtask>Sort results by interestSaved descending (highest savings first)</subtask>
+          <subtask>Baseline always included but may be last (zero savings)</subtask>
+          <subtask>Sorting happens in orchestrator before returning</subtask>
+        </subtasks>
+      </task>
+      <task id="6" ac="9">
+        <title>Add loading state indicator component</title>
+        <subtasks>
+          <subtask>Create src/components/strategies/CalculationLoading.tsx</subtask>
+          <subtask>Use shadcn/ui Skeleton for loading states</subtask>
+          <subtask>Show "Calculating strategies..." message</subtask>
+          <subtask>Animate with subtle pulse</subtask>
+        </subtasks>
+      </task>
+      <task id="7" ac="11,5">
+        <title>Write unit tests for orchestrator</title>
+        <subtasks>
+          <subtask>Create tests/lib/calculations/engine.test.ts</subtask>
+          <subtask>Test: Snapshot built correctly from data</subtask>
+          <subtask>Test: Baseline calculated first</subtask>
+          <subtask>Test: All 8 strategies invoked</subtask>
+          <subtask>Test: Null strategies filtered (flexi without flexi facility)</subtask>
+          <subtask>Test: Results sorted by interest saved</subtask>
+          <subtask>Test: Empty results when no accounts</subtask>
+          <subtask>Test: Performance &lt; 3 seconds for typical scenario</subtask>
+        </subtasks>
+      </task>
+      <task id="8" ac="11">
+        <title>Write unit tests for useStrategies hook</title>
+        <subtasks>
+          <subtask>Create tests/hooks/useStrategies.test.ts</subtask>
+          <subtask>Test: Loading state management</subtask>
+          <subtask>Test: bestStrategy computed correctly</subtask>
+          <subtask>Test: calculateStrategies triggers full calculation</subtask>
+        </subtasks>
+      </task>
+      <task id="9" ac="1-12">
+        <title>Integration test with real data flow</title>
+        <subtasks>
+          <subtask>Test: Full flow from DB data to calculated results</subtask>
+          <subtask>Test: Config passed through correctly</subtask>
+          <subtask>Test: Store updated with results</subtask>
+        </subtasks>
+      </task>
+      <task id="10" ac="all">
+        <title>Update barrel exports</title>
+        <subtasks>
+          <subtask>Update src/lib/calculations/index.ts with engine exports</subtask>
+          <subtask>Update src/store/index.ts with calculationStore</subtask>
+          <subtask>Update src/hooks/index.ts with useStrategies</subtask>
+        </subtasks>
+      </task>
+      <task id="11" ac="all">
+        <title>Verify build and all tests pass</title>
+        <subtasks>
+          <subtask>Run npm run test and ensure all tests pass</subtask>
+          <subtask>Run npm run build and ensure no type errors</subtask>
+          <subtask>Verify performance target (&lt; 3 seconds)</subtask>
+        </subtasks>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-4.8.1">A calculateAllStrategies() function creates a FinancialSnapshot from the current Dexie database state (accounts, flexiFacility, income, expenses) and runs all 8 strategies.</criterion>
+    <criterion id="AC-4.8.2">The orchestrator calculates the baseline strategy first, then uses that result to compute monthsSaved and interestSaved metrics for all other strategies.</criterion>
+    <criterion id="AC-4.8.3">All 8 strategies (baseline, snowball, avalanche, flexi-chunking, aggressive-flexi, velocity-banking, hybrid-snowball, hybrid-avalanche) are executed and results collected.</criterion>
+    <criterion id="AC-4.8.4">Strategies that require a flexi facility return null gracefully when no flexi facility exists, and these nulls are filtered from the comparison results.</criterion>
+    <criterion id="AC-4.8.5">Calculation completes in under 3 seconds for typical scenarios (5-10 accounts, 360 months max projection) per NFR-P1.</criterion>
+    <criterion id="AC-4.8.6">A calculationStore (Zustand) stores calculation results: results (StrategyProjection[]), baseline (StrategyProjection | null), isCalculating (boolean), lastCalculated (string | null), error (string | null).</criterion>
+    <criterion id="AC-4.8.7">A useStrategies() hook provides React components access to: strategies, baseline, isCalculating, calculateStrategies(), bestStrategy.</criterion>
+    <criterion id="AC-4.8.8">User configuration from useStrategyConfig hook is passed to all strategy calculations, respecting chunk amount, payment frequency, and target account overrides.</criterion>
+    <criterion id="AC-4.8.9">While calculation is running, UI shows a loading state (skeleton loaders or spinner indicator).</criterion>
+    <criterion id="AC-4.8.10">Results are sorted by interest saved (highest savings first) by default in the store.</criterion>
+    <criterion id="AC-4.8.11">Unit tests verify: orchestrator creates correct FinancialSnapshot, baseline calculated first, all 8 strategies receive correct parameters, null strategies filtered, results sorted, loading state works.</criterion>
+    <criterion id="AC-4.8.12">If there are no accounts or accounts have zero total balance, orchestrator returns empty results with appropriate message (not an error).</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR23: Calculation Engine</section>
+        <snippet>System calculates total interest saved and months saved for each strategy vs. baseline. 55 FRs covering account management, calculation engine with 8 strategies, comparison dashboard, progress tracking.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture Document</title>
+        <section>Novel Pattern: Multi-Strategy Comparison Engine</section>
+        <snippet>Core calculation engine runs all 8 strategies from single FinancialSnapshot, uses Strategy Pattern (ADR-004), Zustand for state (ADR-005), big.js for precision (ADR-003). Project structure: src/lib/calculations/engine.ts for orchestrator.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>Story 4.8 Acceptance Criteria</section>
+        <snippet>Detailed design for calculation engine including FinancialSnapshot interface, DebtStrategy interface, engine API (calculateAllStrategies, calculateStrategy, calculateBaseline), and workflow sequence.</snippet>
+      </doc>
+    </docs>
+    <code>
+      <artifact>
+        <path>src/lib/calculations/strategies/index.ts</path>
+        <kind>module</kind>
+        <symbol>getAllStrategies</symbol>
+        <lines>42-53</lines>
+        <reason>Returns all 8 strategy implementations. This is the primary interface for getting strategies to iterate over in the orchestrator.</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/calculations/strategies/index.ts</path>
+        <kind>module</kind>
+        <symbol>getStrategyById</symbol>
+        <lines>61-63</lines>
+        <reason>Utility function to find specific strategy by ID.</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>types</kind>
+        <symbol>FinancialSnapshot</symbol>
+        <lines>153-166</lines>
+        <reason>Input type for all strategy calculations. Must be built from Dexie DB state.</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>types</kind>
+        <symbol>DebtStrategy</symbol>
+        <lines>238-292</lines>
+        <reason>Interface all strategies implement. Defines calculate(), allocatePayment(), createAllocator() methods.</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>types</kind>
+        <symbol>StrategyProjection</symbol>
+        <lines>209-230</lines>
+        <reason>Return type from strategy calculations. Contains debtFreeMonth, totalInterestPaid, monthsSaved, interestSaved.</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>types</kind>
+        <symbol>StrategyConfig</symbol>
+        <lines>191-204</lines>
+        <reason>Configuration options passed to strategies. Includes chunkAmount, paymentFrequency, targetAccountId.</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/calculations/strategies/strategy-helpers.ts</path>
+        <kind>module</kind>
+        <symbol>buildStrategyProjection</symbol>
+        <lines>162-221</lines>
+        <reason>Helper to build StrategyProjection from projection array with comparison metrics (monthsSaved, interestSaved vs baseline).</reason>
+      </artifact>
+      <artifact>
+        <path>src/lib/calculations/strategies/baseline.ts</path>
+        <kind>strategy</kind>
+        <symbol>baselineStrategy</symbol>
+        <reason>Baseline strategy implementation. Must be calculated first to provide comparison baseline.</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/useStrategyConfig.ts</path>
+        <kind>hook</kind>
+        <symbol>useStrategyConfig</symbol>
+        <lines>72-125</lines>
+        <reason>Provides config object with chunkAmount, paymentFrequency, targetAccountId. Hook returns {config, isLoading, updateConfig, resetConfig}.</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/useAccounts.ts</path>
+        <kind>hook</kind>
+        <symbol>useAccounts</symbol>
+        <lines>44-141</lines>
+        <reason>Provides accounts array via useLiveQuery. Returns {accounts, isLoading, totalDebt, totalMinPayments}.</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/useFlexiFacility.ts</path>
+        <kind>hook</kind>
+        <symbol>useFlexiFacility</symbol>
+        <lines>56-169</lines>
+        <reason>Provides flexi facility (or null) via useLiveQuery. Returns {facility, isLoading, availableCredit}.</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/useFinancialSnapshot.ts</path>
+        <kind>hook</kind>
+        <symbol>useFinancialSnapshot</symbol>
+        <lines>41-96</lines>
+        <reason>Composes useAccounts, useIncome, useExpenses, useFlexiFacility. Provides aggregated snapshot with availableSurplus. Note: Returns different FinancialSnapshot type than calculation engine expects - may need adapter.</reason>
+      </artifact>
+      <artifact>
+        <path>src/store/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <reason>Currently exports only useUIStore. Must be updated to export new calculationStore.</reason>
+      </artifact>
+      <artifact>
+        <path>src/hooks/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <reason>Exports all hooks. Must be updated to export new useStrategies hook.</reason>
+      </artifact>
+      <artifact>
+        <path>src/store/uiStore.ts</path>
+        <kind>store</kind>
+        <symbol>useUIStore</symbol>
+        <reason>Reference implementation for Zustand store pattern in this project.</reason>
+      </artifact>
+    </code>
+    <dependencies>
+      <node>
+        <package>big.js</package>
+        <version>^7.0.1</version>
+        <purpose>Arbitrary precision decimal arithmetic for financial calculations</purpose>
+      </node>
+      <node>
+        <package>zustand</package>
+        <version>^5.0.8</version>
+        <purpose>State management for calculationStore</purpose>
+      </node>
+      <node>
+        <package>dexie</package>
+        <version>^4.2.1</version>
+        <purpose>IndexedDB wrapper for database access</purpose>
+      </node>
+      <node>
+        <package>dexie-react-hooks</package>
+        <version>^4.2.0</version>
+        <purpose>useLiveQuery for reactive DB queries</purpose>
+      </node>
+      <node>
+        <package>date-fns</package>
+        <version>^4.1.0</version>
+        <purpose>Date manipulation (addMonths, format)</purpose>
+      </node>
+      <devNode>
+        <package>vitest</package>
+        <version>^4.0.14</version>
+        <purpose>Testing framework</purpose>
+      </devNode>
+      <devNode>
+        <package>fake-indexeddb</package>
+        <version>^6.2.5</version>
+        <purpose>IndexedDB mock for testing</purpose>
+      </devNode>
+      <devNode>
+        <package>@testing-library/react</package>
+        <version>^16.3.0</version>
+        <purpose>React component testing utilities</purpose>
+      </devNode>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="architecture">All monetary calculations must use big.js (ADR-003) for cent-level precision</constraint>
+    <constraint source="architecture">Strategy Pattern (ADR-004) - all strategies implement DebtStrategy interface</constraint>
+    <constraint source="architecture">Zustand for UI state (ADR-005) - calculationStore follows existing uiStore pattern</constraint>
+    <constraint source="NFR-P1">All 8 strategy calculations must complete in &lt; 3 seconds for typical portfolio (5-10 accounts, 360 months)</constraint>
+    <constraint source="architecture">Framework-agnostic calculation engine - no React dependencies in src/lib/calculations/</constraint>
+    <constraint source="dev-notes">Baseline must be calculated first and passed to other strategies for comparison metrics</constraint>
+    <constraint source="dev-notes">Strategies return null if they require flexi facility and none exists - these must be filtered</constraint>
+    <constraint source="story-4.7">Strategy config from useStrategyConfig includes chunkAmount, paymentFrequency, targetAccountId</constraint>
+    <constraint source="architecture">Use existing hook composition pattern - useStrategies should compose useAccounts, useFlexiFacility, useIncome, useExpenses, useStrategyConfig</constraint>
+    <constraint source="dev-notes">Results sorted by interestSaved descending (highest savings first)</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>getAllStrategies</name>
+      <kind>function</kind>
+      <signature>function getAllStrategies(): DebtStrategy[]</signature>
+      <path>src/lib/calculations/strategies/index.ts</path>
+    </interface>
+    <interface>
+      <name>DebtStrategy.calculate</name>
+      <kind>method</kind>
+      <signature>calculate(snapshot: FinancialSnapshot, config?: StrategyConfig, baseline?: StrategyProjection): StrategyProjection | null</signature>
+      <path>src/lib/calculations/types.ts</path>
+    </interface>
+    <interface>
+      <name>buildStrategyProjection</name>
+      <kind>function</kind>
+      <signature>function buildStrategyProjection(strategy: DebtStrategy, projections: MonthlyProjection[], startDate: string, baseline?: StrategyProjection): StrategyProjection</signature>
+      <path>src/lib/calculations/strategies/strategy-helpers.ts</path>
+    </interface>
+    <interface>
+      <name>useStrategyConfig</name>
+      <kind>hook</kind>
+      <signature>function useStrategyConfig(): { config: StrategyConfigData; isLoading: boolean; updateConfig: (config: Partial&lt;StrategyConfigData&gt;) => Promise&lt;Result&lt;void&gt;&gt;; resetConfig: () => Promise&lt;Result&lt;void&gt;&gt;; }</signature>
+      <path>src/hooks/useStrategyConfig.ts</path>
+    </interface>
+    <interface>
+      <name>useAccounts</name>
+      <kind>hook</kind>
+      <signature>function useAccounts(): { accounts: DebtAccount[]; isLoading: boolean; totalDebt: string; totalMinPayments: string; ... }</signature>
+      <path>src/hooks/useAccounts.ts</path>
+    </interface>
+    <interface>
+      <name>useFlexiFacility</name>
+      <kind>hook</kind>
+      <signature>function useFlexiFacility(): { facility: FlexiFacility | null; isLoading: boolean; availableCredit: string; ... }</signature>
+      <path>src/hooks/useFlexiFacility.ts</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Testing follows Vitest with @testing-library/react. Tests use describe/it/expect pattern with AC-based test organization. Use fake-indexeddb for Dexie mocking. Test files mirror src/ structure in tests/ folder. Create test snapshots with createTestSnapshot() helper pattern. Assert Big values with .toFixed(2) for precision comparison.
+    </standards>
+    <locations>
+      <location>tests/lib/calculations/</location>
+      <location>tests/hooks/</location>
+      <location>tests/store/</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-4.8.1">Test buildFinancialSnapshot creates correct snapshot from DB entities with calculated availableSurplus</idea>
+      <idea ac="AC-4.8.2">Test baseline is calculated first and passed to subsequent strategy calculations</idea>
+      <idea ac="AC-4.8.3">Test all 8 strategies are invoked when calculateAllStrategies is called</idea>
+      <idea ac="AC-4.8.4">Test strategies requiring flexi (flexi-chunking, aggressive-flexi, velocity-banking, hybrids) return null when no flexi facility and are filtered from results</idea>
+      <idea ac="AC-4.8.5">Performance test with 10-account snapshot measuring execution time &lt; 3000ms</idea>
+      <idea ac="AC-4.8.6">Test calculationStore state updates correctly: setResults, setBaseline, setCalculating, setError, clearResults</idea>
+      <idea ac="AC-4.8.7">Test useStrategies hook returns strategies, baseline, isCalculating, calculateStrategies function, bestStrategy</idea>
+      <idea ac="AC-4.8.8">Test strategy config is passed through to all strategy calculate() calls</idea>
+      <idea ac="AC-4.8.9">Test isCalculating state transitions: false -> true -> false during calculation</idea>
+      <idea ac="AC-4.8.10">Test results sorted by interestSaved descending (baseline last with 0 savings)</idea>
+      <idea ac="AC-4.8.11">Integration test: DB data -> snapshot builder -> orchestrator -> sorted results in store</idea>
+      <idea ac="AC-4.8.12">Test empty results returned (not error) when no accounts or zero total balance</idea>
+    </ideas>
+  </tests>
+</story-context>
