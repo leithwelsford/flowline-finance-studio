@@ -69,7 +69,7 @@ development_status:
   4-3-implement-baseline-and-traditional-strategies: done
   4-4-implement-flexi-chunking-strategies: done
   4-5-implement-velocity-banking-strategy: done
-  4-6-implement-hybrid-strategies: review
+  4-6-implement-hybrid-strategies: done
   4-7-implement-strategy-configuration-options: backlog
   4-8-create-strategy-calculation-orchestrator: backlog
   epic-4-retrospective: optional

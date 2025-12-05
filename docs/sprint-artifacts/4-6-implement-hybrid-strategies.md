@@ -1,6 +1,6 @@
 # Story 4.6: Implement Hybrid Strategies
 
-Status: review
+Status: done
 
 ## Story
 
@@ -319,3 +319,98 @@ None
 | 2025-12-05 | Story drafted with full context from Epic 4 tech spec (FR19, FR20), PRD, Architecture (Strategy Pattern ADR-004), and Story 4.5 learnings | SM Agent (Bob) |
 | 2025-12-05 | Story context generated, status updated to ready-for-dev | SM Agent (Bob) |
 | 2025-12-05 | Implementation complete. All 9 tasks done. 1176 tests passing. Status: review | Dev Agent (Amelia) |
+| 2025-12-05 | Senior Developer Review notes appended | Dev Agent (Amelia) |
+
+## Senior Developer Review (AI)
+
+### Reviewer
+Leith
+
+### Date
+2025-12-05
+
+### Outcome
+**APPROVE** ✅
+
+All 11 acceptance criteria are fully implemented with comprehensive test coverage. All 9 tasks marked complete have been verified against the codebase. Implementation follows architecture patterns (ADR-003, ADR-004) correctly.
+
+### Summary
+
+Story 4.6 delivers two hybrid debt strategies that combine flexi facility mechanics with traditional debt targeting methods. The implementation is clean, well-tested, and follows established patterns from previous stories. All claimed deliverables have been verified in the codebase.
+
+### Key Findings
+
+No HIGH or MEDIUM severity issues found.
+
+**LOW severity observations (informational only):**
+- Hybrid-avalanche is functionally identical to flexi-chunking - this is expected behavior and documented in completion notes
+
+### Acceptance Criteria Coverage
+
+| AC | Description | Status | Evidence |
+|----|-------------|--------|----------|
+| AC-4.6.1 | Hybrid Flexi-Snowball combines flexi + snowball targeting | ✅ IMPLEMENTED | [hybrid-snowball.ts:40-48](src/lib/calculations/strategies/hybrid-snowball.ts#L40-L48) - id, name, effortLevel, requiresFlexi; [hybrid-snowball.ts:121-123](src/lib/calculations/strategies/hybrid-snowball.ts#L121-L123) - sorts by balance ascending |
+| AC-4.6.2 | Hybrid Flexi-Avalanche combines flexi + avalanche targeting | ✅ IMPLEMENTED | [hybrid-avalanche.ts:43-51](src/lib/calculations/strategies/hybrid-avalanche.ts#L43-L51) - id, name, effortLevel, requiresFlexi; [hybrid-avalanche.ts:124-126](src/lib/calculations/strategies/hybrid-avalanche.ts#L124-L126) - sorts by rate descending |
+| AC-4.6.3 | Park surplus in flexi, chunk to target | ✅ IMPLEMENTED | [hybrid-snowball.ts:127-132](src/lib/calculations/strategies/hybrid-snowball.ts#L127-L132) - allocates to smallest; [hybrid-avalanche.ts:130-135](src/lib/calculations/strategies/hybrid-avalanche.ts#L130-L135) - allocates to highest rate |
+| AC-4.6.4 | Roll payment to next account on payoff | ✅ IMPLEMENTED | Uses `generateProjection()` which handles rollover; verified by tests [hybrid-snowball.test.ts:226-300](tests/lib/calculations/strategies/hybrid-snowball.test.ts#L226-L300) |
+| AC-4.6.5 | Effort level = 'medium' | ✅ IMPLEMENTED | [hybrid-snowball.ts:47](src/lib/calculations/strategies/hybrid-snowball.ts#L47); [hybrid-avalanche.ts:50](src/lib/calculations/strategies/hybrid-avalanche.ts#L50) |
+| AC-4.6.6 | Return null when no flexi facility | ✅ IMPLEMENTED | [hybrid-snowball.ts:60-63](src/lib/calculations/strategies/hybrid-snowball.ts#L60-L63); [hybrid-avalanche.ts:63-66](src/lib/calculations/strategies/hybrid-avalanche.ts#L63-L66) |
+| AC-4.6.7 | Complete StrategyProjection with all fields | ✅ IMPLEMENTED | [hybrid-snowball.ts:79-85](src/lib/calculations/strategies/hybrid-snowball.ts#L79-L85) - uses `buildStrategyProjection()` helper; tests verify all fields [hybrid-snowball.test.ts:332-380](tests/lib/calculations/strategies/hybrid-snowball.test.ts#L332-L380) |
+| AC-4.6.8 | Implements DebtStrategy interface | ✅ IMPLEMENTED | Both files export objects with id, name, description, effortLevel, requiresFlexi, calculate(), allocatePayment() |
+| AC-4.6.9 | Uses big.js for precision | ✅ IMPLEMENTED | [hybrid-snowball.ts:20](src/lib/calculations/strategies/hybrid-snowball.ts#L20) - imports Big; all calculations use Big; tests verify [hybrid-snowball.test.ts:437-481](tests/lib/calculations/strategies/hybrid-snowball.test.ts#L437-L481) |
+| AC-4.6.10 | Unit tests verify hybrid mechanics | ✅ IMPLEMENTED | [hybrid-snowball.test.ts](tests/lib/calculations/strategies/hybrid-snowball.test.ts) - 33 tests; [hybrid-avalanche.test.ts](tests/lib/calculations/strategies/hybrid-avalanche.test.ts) - 33 tests |
+| AC-4.6.11 | Comparison tests verify different behavior | ✅ IMPLEMENTED | [flexi-comparison.test.ts:580-801](tests/lib/calculations/strategies/flexi-comparison.test.ts#L580-L801) - 10 comparison tests including avalanche saves more interest, snowball faster wins |
+
+**Summary:** 11 of 11 acceptance criteria fully implemented
+
+### Task Completion Validation
+
+| Task | Marked As | Verified As | Evidence |
+|------|-----------|-------------|----------|
+| Task 1: Implement Hybrid Flexi-Snowball | ✅ Complete | ✅ Verified | File exists: [hybrid-snowball.ts](src/lib/calculations/strategies/hybrid-snowball.ts) (135 lines) |
+| Task 2: Implement Hybrid Flexi-Avalanche | ✅ Complete | ✅ Verified | File exists: [hybrid-avalanche.ts](src/lib/calculations/strategies/hybrid-avalanche.ts) (138 lines) |
+| Task 3: Handle flexi absence gracefully | ✅ Complete | ✅ Verified | Both strategies check `!snapshot.flexiFacility` and return null |
+| Task 4: Update strategy registry | ✅ Complete | ✅ Verified | [index.ts:14-15](src/lib/calculations/strategies/index.ts#L14-L15) imports; [index.ts:24-25](src/lib/calculations/strategies/index.ts#L24-L25) exports; [index.ts:43-44](src/lib/calculations/strategies/index.ts#L43-L44) in getAllStrategies() |
+| Task 5: Unit tests for Hybrid Snowball | ✅ Complete | ✅ Verified | [hybrid-snowball.test.ts](tests/lib/calculations/strategies/hybrid-snowball.test.ts) - 33 test cases covering all subtasks |
+| Task 6: Unit tests for Hybrid Avalanche | ✅ Complete | ✅ Verified | [hybrid-avalanche.test.ts](tests/lib/calculations/strategies/hybrid-avalanche.test.ts) - 33 test cases covering all subtasks |
+| Task 7: Comparison tests | ✅ Complete | ✅ Verified | [flexi-comparison.test.ts:580-801](tests/lib/calculations/strategies/flexi-comparison.test.ts#L580-L801) - includes all specified comparison tests |
+| Task 8: Update barrel exports | ✅ Complete | ✅ Verified | [src/lib/calculations/index.ts:37-38](src/lib/calculations/index.ts#L37-L38) exports both strategies |
+| Task 9: Verify build and tests | ✅ Complete | ✅ Verified | 1176 tests passing, build succeeds (641KB) |
+
+**Summary:** 9 of 9 completed tasks verified, 0 questionable, 0 falsely marked complete
+
+### Test Coverage and Gaps
+
+- **Unit tests:** 66 new tests (33 per strategy) covering all acceptance criteria
+- **Comparison tests:** 10 new tests verifying behavioral differences
+- **Total test count:** 1176 (up from 1100 in Story 4.5)
+- **Strategy registry:** Correctly updated to 8 strategies
+- **No gaps identified**
+
+### Architectural Alignment
+
+- ✅ Follows Strategy Pattern (ADR-004) - both strategies implement DebtStrategy interface
+- ✅ Uses big.js for all calculations (ADR-003)
+- ✅ Reuses existing helpers (generateProjection, buildStrategyProjection)
+- ✅ File placement matches architecture: `src/lib/calculations/strategies/`
+- ✅ Effort levels correct: medium for both (between low for traditional and high for velocity banking)
+
+### Security Notes
+
+No security concerns - calculation-only code with no external I/O, user input handling, or persistence.
+
+### Best-Practices and References
+
+- TypeScript strict mode with proper type imports
+- Clean separation between strategy metadata and calculation logic
+- Consistent with existing strategy implementations
+- ADR-004 Strategy Pattern documentation: [architecture.md#ADR-004](docs/architecture.md#ADR-004)
+
+### Action Items
+
+**Code Changes Required:**
+(none)
+
+**Advisory Notes:**
+- Note: Hybrid-avalanche produces identical results to flexi-chunking (both use avalanche targeting). This is expected and documented. Future UX could consider explaining this equivalence to users.
+- Note: Consider adding JSDoc examples showing when to use hybrid-snowball vs hybrid-avalanche in future polish story
