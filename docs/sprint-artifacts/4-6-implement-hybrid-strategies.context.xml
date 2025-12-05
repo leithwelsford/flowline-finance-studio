@@ -1,0 +1,223 @@
+<story-context id=".bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>6</storyId>
+    <title>Implement Hybrid Strategies</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-05</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-6-implement-hybrid-strategies.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>hybrid strategies that combine flexi optimization with traditional debt targeting methods</iWant>
+    <soThat>I have more options to compare and can see whether combining flexi chunking with snowball (smallest balance first) or avalanche (highest rate first) targeting delivers better results than either approach alone</soThat>
+    <tasks>
+      <task id="1" ac="1,3,4,5,6,7,8,9">Implement Hybrid Flexi-Snowball Strategy
+        <subtask>Create src/lib/calculations/strategies/hybrid-snowball.ts</subtask>
+        <subtask>Implement hybridSnowballStrategy object implementing DebtStrategy</subtask>
+        <subtask>id: 'hybrid-flexi-snowball', name: 'Hybrid Flexi-Snowball', effortLevel: 'medium', requiresFlexi: true</subtask>
+        <subtask>allocatePayment(): Park surplus in flexi, then chunk to smallest balance first</subtask>
+        <subtask>Reuse sorting logic: sort accounts by balance ascending (smallest first)</subtask>
+        <subtask>Roll payment to next smallest debt when one is paid off</subtask>
+        <subtask>calculate(): Use generateProjection() with snowball-targeting allocator</subtask>
+      </task>
+      <task id="2" ac="2,3,4,5,6,7,8,9">Implement Hybrid Flexi-Avalanche Strategy
+        <subtask>Create src/lib/calculations/strategies/hybrid-avalanche.ts</subtask>
+        <subtask>Implement hybridAvalancheStrategy object implementing DebtStrategy</subtask>
+        <subtask>id: 'hybrid-flexi-avalanche', name: 'Hybrid Flexi-Avalanche', effortLevel: 'medium', requiresFlexi: true</subtask>
+        <subtask>allocatePayment(): Park surplus in flexi, then chunk to highest rate first</subtask>
+        <subtask>Reuse sorting logic from avalanche.ts or strategy-helpers.ts</subtask>
+        <subtask>Roll payment to next highest-rate debt when one is paid off</subtask>
+        <subtask>calculate(): Use generateProjection() with avalanche-targeting allocator</subtask>
+      </task>
+      <task id="3" ac="6">Handle flexi facility absence gracefully
+        <subtask>Check if snapshot.flexiFacility is null at start of calculate() for both strategies</subtask>
+        <subtask>If null, return null (not an error, just not applicable)</subtask>
+        <subtask>Ensure orchestrator handles null returns correctly (already does from previous stories)</subtask>
+      </task>
+      <task id="4" ac="8">Update strategy registry
+        <subtask>Update src/lib/calculations/strategies/index.ts</subtask>
+        <subtask>Export hybridSnowballStrategy and hybridAvalancheStrategy</subtask>
+        <subtask>Update getAllStrategies() to include both new strategies</subtask>
+        <subtask>Update getStrategyById() to find both new strategies</subtask>
+      </task>
+      <task id="5" ac="1,3,4,5,6,7,8,9,10">Write unit tests for Hybrid Flexi-Snowball Strategy
+        <subtask>Create tests/lib/calculations/strategies/hybrid-snowball.test.ts</subtask>
+        <subtask>Test: Returns correct strategyId, name, effortLevel</subtask>
+        <subtask>Test: Returns null when no flexi facility (AC-4.6.6)</subtask>
+        <subtask>Test: Targets smallest balance first (snowball targeting)</subtask>
+        <subtask>Test: Parks surplus in flexi, then chunks to target</subtask>
+        <subtask>Test: Rolls payment to next smallest when debt paid off</subtask>
+        <subtask>Test: StrategyProjection has all required fields</subtask>
+        <subtask>Test: Uses big.js for all calculations (precision check)</subtask>
+      </task>
+      <task id="6" ac="2,3,4,5,6,7,8,9,10">Write unit tests for Hybrid Flexi-Avalanche Strategy
+        <subtask>Create tests/lib/calculations/strategies/hybrid-avalanche.test.ts</subtask>
+        <subtask>Test: Returns correct strategyId, name, effortLevel</subtask>
+        <subtask>Test: Returns null when no flexi facility (AC-4.6.6)</subtask>
+        <subtask>Test: Targets highest interest rate first (avalanche targeting)</subtask>
+        <subtask>Test: Parks surplus in flexi, then chunks to target</subtask>
+        <subtask>Test: Rolls payment to next highest-rate when debt paid off</subtask>
+        <subtask>Test: StrategyProjection has all required fields</subtask>
+        <subtask>Test: Uses big.js for all calculations (precision check)</subtask>
+      </task>
+      <task id="7" ac="11">Write comparison tests
+        <subtask>Add to tests/lib/calculations/strategies/flexi-comparison.test.ts or create new comparison file</subtask>
+        <subtask>Test: Hybrid-avalanche saves more interest than hybrid-snowball (expected behavior)</subtask>
+        <subtask>Test: Hybrid-snowball pays off smallest debt faster than hybrid-avalanche (psychological wins)</subtask>
+        <subtask>Test: Both hybrid strategies differ from pure flexi-chunking in targeting behavior</subtask>
+        <subtask>Test: Compare all flexi strategies</subtask>
+        <subtask>Use test snapshot with flexi facility and multiple debts of varying sizes/rates</subtask>
+      </task>
+      <task id="8" ac="all">Update barrel exports
+        <subtask>Update src/lib/calculations/index.ts with hybrid strategy exports</subtask>
+        <subtask>Ensure strategies and types are exported</subtask>
+      </task>
+      <task id="9" ac="all">Verify build and all tests pass
+        <subtask>Run npm run test and ensure all new tests pass</subtask>
+        <subtask>Run npm run build and ensure no type errors</subtask>
+        <subtask>Verify no regressions in existing test suite (1100+ tests from Story 4.5)</subtask>
+        <subtask>Document any known limitations or edge cases in Completion Notes</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-4.6.1">Given my financial data with a flexi facility, when I calculate the Hybrid Flexi-Snowball Strategy (FR19), then it combines flexi chunking methodology (use flexi for lump sums) with snowball target selection (smallest balance first).</criterion>
+    <criterion id="AC-4.6.2">Given my financial data with a flexi facility, when I calculate the Hybrid Flexi-Avalanche Strategy (FR20), then it combines flexi chunking methodology with avalanche target selection (highest rate first).</criterion>
+    <criterion id="AC-4.6.3">Both hybrid strategies park surplus in the flexi facility during the month, then chunk to the target debt account based on their respective targeting logic (snowball: smallest balance, avalanche: highest rate).</criterion>
+    <criterion id="AC-4.6.4">When the target debt account is paid off, both strategies roll the freed-up payment amount to the next account according to their targeting logic.</criterion>
+    <criterion id="AC-4.6.5">Both hybrid strategies have effort level = 'medium' (more complex than traditional methods, but simpler than velocity banking).</criterion>
+    <criterion id="AC-4.6.6">Given no flexi facility exists in the financial snapshot, when either hybrid strategy is calculated, then it returns null (not an error, just not applicable) with requiresFlexi = true.</criterion>
+    <criterion id="AC-4.6.7">Both strategies return a complete StrategyProjection with all required fields: strategyId, strategyName, effortLevel, debtFreeMonth, debtFreeDate, totalInterestPaid, totalPrincipalPaid, monthsSaved, interestSaved, monthlyProjections[].</criterion>
+    <criterion id="AC-4.6.8">Both strategies implement the DebtStrategy interface with calculate() and allocatePayment() methods, following the Strategy Pattern (ADR-004).</criterion>
+    <criterion id="AC-4.6.9">All calculations use big.js for precision with cent-level accuracy (2 decimal places in ZAR).</criterion>
+    <criterion id="AC-4.6.10">Unit tests verify that hybrid strategies correctly combine flexi chunking mechanics with their respective targeting methods.</criterion>
+    <criterion id="AC-4.6.11">Comparison tests verify hybrid strategies perform differently from pure flexi-chunking (which uses avalanche by default) and show expected behavior: hybrid-avalanche should save more interest, hybrid-snowball should have faster psychological "wins".</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/prd.md" title="Product Requirements Document">
+        <section>Calculation Engine &amp; Strategy Modeling (FR9-FR23)</section>
+        <snippet>FR19: System calculates "Hybrid Flexi-Snowball Strategy" combining flexi optimization with smallest debt targeting. FR20: System calculates "Hybrid Flexi-Avalanche Strategy" combining flexi optimization with highest interest targeting.</snippet>
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture">
+        <section>Novel Pattern: Multi-Strategy Comparison Engine</section>
+        <snippet>DebtStrategy interface defines: id, name, description, effortLevel, requiresFlexi, calculate(), allocatePayment(). Adding new strategy requires implementing interface and registering in strategies/index.ts.</snippet>
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture">
+        <section>ADR-004: Strategy Pattern for Calculation Engine</section>
+        <snippet>Implement Strategy Pattern with common interface. Each strategy isolated and testable. Framework-agnostic (portable to React Native, Node.js).</snippet>
+      </doc>
+      <doc path="docs/architecture.md" title="System Architecture">
+        <section>ADR-003: big.js for Financial Calculations</section>
+        <snippet>Use big.js for all monetary calculations. Cent-level accuracy guaranteed. String storage for precision preservation.</snippet>
+      </doc>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-4.md" title="Epic 4 Technical Specification">
+        <section>Story 4.6: Hybrid Strategies</section>
+        <snippet>AC1: Hybrid Flexi-Snowball combines flexi chunking + smallest balance targeting. AC2: Hybrid Flexi-Avalanche combines flexi chunking + highest rate targeting. AC3: Both return null if no flexi facility. AC4: Effort levels = medium.</snippet>
+      </doc>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-4.md" title="Epic 4 Technical Specification">
+        <section>Data Models and Contracts</section>
+        <snippet>DebtStrategy interface with calculate() returning StrategyProjection and allocatePayment() returning PaymentAllocation[]. StrategyProjection includes: strategyId, strategyName, effortLevel, debtFreeMonth, debtFreeDate, totalInterestPaid, totalPrincipalPaid, monthsSaved, interestSaved, monthlyProjections[].</snippet>
+      </doc>
+    </docs>
+    <code>
+      <!-- Files to CREATE -->
+      <file path="src/lib/calculations/strategies/hybrid-snowball.ts" kind="strategy" symbol="hybridSnowballStrategy" reason="NEW: Hybrid Flexi-Snowball strategy combining flexi chunking with smallest balance targeting" />
+      <file path="src/lib/calculations/strategies/hybrid-avalanche.ts" kind="strategy" symbol="hybridAvalancheStrategy" reason="NEW: Hybrid Flexi-Avalanche strategy combining flexi chunking with highest rate targeting" />
+      <file path="tests/lib/calculations/strategies/hybrid-snowball.test.ts" kind="test" symbol="hybrid-snowball tests" reason="NEW: Unit tests for hybrid snowball strategy" />
+      <file path="tests/lib/calculations/strategies/hybrid-avalanche.test.ts" kind="test" symbol="hybrid-avalanche tests" reason="NEW: Unit tests for hybrid avalanche strategy" />
+
+      <!-- Files to MODIFY -->
+      <file path="src/lib/calculations/strategies/index.ts" kind="registry" symbol="getAllStrategies, getStrategyById" lines="31-50" reason="MODIFY: Add hybrid strategies to registry and exports" />
+      <file path="src/lib/calculations/index.ts" kind="barrel" symbol="exports" lines="28-46" reason="MODIFY: Add hybrid strategy exports" />
+      <file path="tests/lib/calculations/strategies/flexi-comparison.test.ts" kind="test" symbol="flexi comparison tests" reason="MODIFY: Add hybrid strategy comparison tests" />
+      <file path="tests/lib/calculations/strategies/comparison.test.ts" kind="test" symbol="getAllStrategies test" lines="199-209" reason="MODIFY: Update test to expect 8 strategies instead of 6" />
+
+      <!-- Files to REFERENCE (patterns to follow) -->
+      <file path="src/lib/calculations/strategies/flexi-chunking.ts" kind="strategy" symbol="flexiChunkingStrategy" reason="REFERENCE: Base flexi chunking pattern to reuse - uses avalanche targeting" />
+      <file path="src/lib/calculations/strategies/snowball.ts" kind="strategy" symbol="snowballStrategy" lines="79-108" reason="REFERENCE: Snowball allocatePayment() sorting by balance ascending" />
+      <file path="src/lib/calculations/strategies/avalanche.ts" kind="strategy" symbol="avalancheStrategy" lines="78-107" reason="REFERENCE: Avalanche allocatePayment() sorting by rate descending" />
+      <file path="src/lib/calculations/strategies/strategy-helpers.ts" kind="helper" symbol="buildStrategyProjection, calculateInitialDebt" reason="REFERENCE: Helper functions to build strategy projections" />
+      <file path="src/lib/calculations/types.ts" kind="types" symbol="DebtStrategy, StrategyProjection, PaymentAllocation" reason="REFERENCE: Type definitions for strategy interface" />
+      <file path="src/lib/calculations/projections.ts" kind="service" symbol="generateProjection" reason="REFERENCE: Projection generator function used by all strategies" />
+    </code>
+    <dependencies>
+      <runtime>
+        <package name="big.js" version="^7.0.1" purpose="Arbitrary precision decimal arithmetic for financial calculations" />
+        <package name="date-fns" version="^4.1.0" purpose="Date formatting and manipulation (SA date format)" />
+      </runtime>
+      <dev>
+        <package name="vitest" version="^4.0.14" purpose="Unit testing framework" />
+        <package name="@types/big.js" version="^6.2.2" purpose="TypeScript types for big.js" />
+      </dev>
+      <internal>
+        <module path="@/lib/calculations/types" purpose="DebtStrategy, StrategyProjection, FinancialSnapshot types" />
+        <module path="@/lib/calculations/projections" purpose="generateProjection function" />
+        <module path="@/lib/calculations/strategies/strategy-helpers" purpose="buildStrategyProjection helper" />
+      </internal>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="ADR-003">All monetary calculations must use big.js for precision. Never use JavaScript floats for financial math.</constraint>
+    <constraint source="ADR-004">Follow Strategy Pattern - implement DebtStrategy interface with id, name, description, effortLevel, requiresFlexi, calculate(), allocatePayment().</constraint>
+    <constraint source="Architecture">Framework-agnostic - calculation engine code in src/lib/calculations/ must not import React or UI code.</constraint>
+    <constraint source="Dev Notes">Hybrid strategies have effortLevel = 'medium' (more complex than traditional, simpler than velocity banking).</constraint>
+    <constraint source="Dev Notes">Both hybrid strategies must return null when snapshot.flexiFacility is null (requiresFlexi = true).</constraint>
+    <constraint source="NFR-R1">Calculations accurate to 2 decimal places (cent-level ZAR). Rounding errors must not accumulate beyond 0.1% over 360-month projections.</constraint>
+    <constraint source="Performance">All 8 strategies must calculate in under 3 seconds for typical portfolio (5-10 accounts).</constraint>
+  </constraints>
+  <interfaces>
+    <interface name="DebtStrategy" kind="interface" path="src/lib/calculations/types.ts">
+      <signature>interface DebtStrategy { id: string; name: string; description: string; effortLevel: 'low' | 'medium' | 'high'; requiresFlexi: boolean; calculate(snapshot: FinancialSnapshot, config?: StrategyConfig, baseline?: StrategyProjection): StrategyProjection | null; allocatePayment(surplus: Big, accounts: SimulatedAccount[], flexi: SimulatedFlexi | null): PaymentAllocation[]; }</signature>
+    </interface>
+    <interface name="StrategyProjection" kind="type" path="src/lib/calculations/types.ts">
+      <signature>interface StrategyProjection { strategyId: string; strategyName: string; effortLevel: EffortLevel; debtFreeMonth: number; debtFreeDate: string; totalInterestPaid: Big; totalPrincipalPaid: Big; monthsSaved: number; interestSaved: Big; monthlyProjections: MonthlyProjection[]; }</signature>
+    </interface>
+    <interface name="PaymentAllocation" kind="type" path="src/lib/calculations/types.ts">
+      <signature>interface PaymentAllocation { accountId: number; amount: Big; }</signature>
+    </interface>
+    <interface name="generateProjection" kind="function" path="src/lib/calculations/projections.ts">
+      <signature>function generateProjection(snapshot: FinancialSnapshot, allocator: PaymentAllocator, config?: ProjectionConfig): MonthlyProjection[]</signature>
+    </interface>
+    <interface name="buildStrategyProjection" kind="function" path="src/lib/calculations/strategies/strategy-helpers.ts">
+      <signature>function buildStrategyProjection(strategy: DebtStrategy, projections: MonthlyProjection[], startDate: string, baseline?: StrategyProjection): StrategyProjection</signature>
+    </interface>
+  </interfaces>
+  <tests>
+    <standards>
+      Tests use Vitest framework with TypeScript. Strategy tests follow existing patterns in tests/lib/calculations/strategies/*.test.ts.
+      Tests should verify: (1) strategy metadata (id, name, effortLevel, requiresFlexi), (2) null return when flexi missing,
+      (3) correct targeting behavior (snowball=smallest balance, avalanche=highest rate), (4) StrategyProjection structure completeness,
+      (5) big.js precision for all monetary values, (6) comparison metrics vs baseline. Use createTechSpecSnapshot() pattern from existing tests.
+    </standards>
+    <locations>
+      <location>tests/lib/calculations/strategies/hybrid-snowball.test.ts (NEW)</location>
+      <location>tests/lib/calculations/strategies/hybrid-avalanche.test.ts (NEW)</location>
+      <location>tests/lib/calculations/strategies/flexi-comparison.test.ts (MODIFY - add hybrid comparison tests)</location>
+      <location>tests/lib/calculations/strategies/comparison.test.ts (MODIFY - update strategy count from 6 to 8)</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-4.6.1,AC-4.6.10">Test hybrid-snowball targets smallest balance first using createDifferentTargetSnapshot where smallest balance != highest rate</idea>
+      <idea ac="AC-4.6.2,AC-4.6.10">Test hybrid-avalanche targets highest rate first using same snapshot</idea>
+      <idea ac="AC-4.6.3">Test both strategies park surplus via flexi chunking mechanics (flexi balance tracking)</idea>
+      <idea ac="AC-4.6.4">Test payment rollover when debt paid off - verify next account targeted correctly</idea>
+      <idea ac="AC-4.6.5">Test effortLevel === 'medium' for both hybrid strategies</idea>
+      <idea ac="AC-4.6.6">Test both strategies return null when snapshot.flexiFacility is null</idea>
+      <idea ac="AC-4.6.7">Test StrategyProjection has all required fields (strategyId, strategyName, effortLevel, debtFreeMonth, debtFreeDate, totalInterestPaid, totalPrincipalPaid, monthsSaved, interestSaved, monthlyProjections[])</idea>
+      <idea ac="AC-4.6.8">Test both implement DebtStrategy interface - can call calculate() and allocatePayment()</idea>
+      <idea ac="AC-4.6.9">Test big.js precision - monetary values have .toFixed() method and 2 decimal places</idea>
+      <idea ac="AC-4.6.11">Test hybrid-avalanche saves more interest than hybrid-snowball (same as avalanche vs snowball)</idea>
+      <idea ac="AC-4.6.11">Test hybrid-snowball pays off smallest debt faster (psychological wins)</idea>
+      <idea ac="AC-4.6.11">Test hybrid-avalanche behaves similarly to flexi-chunking (both use avalanche targeting)</idea>
+      <idea ac="registry">Test getAllStrategies() returns 8 strategies including both hybrids</idea>
+      <idea ac="registry">Test getStrategyById('hybrid-flexi-snowball') returns correct strategy</idea>
+      <idea ac="registry">Test getStrategyById('hybrid-flexi-avalanche') returns correct strategy</idea>
+    </ideas>
+  </tests>
+</story-context>

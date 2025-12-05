@@ -1,6 +1,6 @@
 # Story 4.6: Implement Hybrid Strategies
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -34,72 +34,72 @@ so that **I have more options to compare and can see whether combining flexi chu
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Implement Hybrid Flexi-Snowball Strategy (AC: 1, 3, 4, 5, 6, 7, 8, 9)
-  - [ ] Create `src/lib/calculations/strategies/hybrid-snowball.ts`
-  - [ ] Implement `hybridSnowballStrategy` object implementing `DebtStrategy`
-  - [ ] id: 'hybrid-flexi-snowball', name: 'Hybrid Flexi-Snowball', effortLevel: 'medium', requiresFlexi: true
-  - [ ] `allocatePayment()`: Park surplus in flexi, then chunk to smallest balance first
-  - [ ] Reuse sorting logic: sort accounts by balance ascending (smallest first)
-  - [ ] Roll payment to next smallest debt when one is paid off
-  - [ ] `calculate()`: Use `generateProjection()` with snowball-targeting allocator
+- [x] Task 1: Implement Hybrid Flexi-Snowball Strategy (AC: 1, 3, 4, 5, 6, 7, 8, 9)
+  - [x] Create `src/lib/calculations/strategies/hybrid-snowball.ts`
+  - [x] Implement `hybridSnowballStrategy` object implementing `DebtStrategy`
+  - [x] id: 'hybrid-flexi-snowball', name: 'Hybrid Flexi-Snowball', effortLevel: 'medium', requiresFlexi: true
+  - [x] `allocatePayment()`: Park surplus in flexi, then chunk to smallest balance first
+  - [x] Reuse sorting logic: sort accounts by balance ascending (smallest first)
+  - [x] Roll payment to next smallest debt when one is paid off
+  - [x] `calculate()`: Use `generateProjection()` with snowball-targeting allocator
 
-- [ ] Task 2: Implement Hybrid Flexi-Avalanche Strategy (AC: 2, 3, 4, 5, 6, 7, 8, 9)
-  - [ ] Create `src/lib/calculations/strategies/hybrid-avalanche.ts`
-  - [ ] Implement `hybridAvalancheStrategy` object implementing `DebtStrategy`
-  - [ ] id: 'hybrid-flexi-avalanche', name: 'Hybrid Flexi-Avalanche', effortLevel: 'medium', requiresFlexi: true
-  - [ ] `allocatePayment()`: Park surplus in flexi, then chunk to highest rate first
-  - [ ] Reuse sorting logic from avalanche.ts or strategy-helpers.ts
-  - [ ] Roll payment to next highest-rate debt when one is paid off
-  - [ ] `calculate()`: Use `generateProjection()` with avalanche-targeting allocator
+- [x] Task 2: Implement Hybrid Flexi-Avalanche Strategy (AC: 2, 3, 4, 5, 6, 7, 8, 9)
+  - [x] Create `src/lib/calculations/strategies/hybrid-avalanche.ts`
+  - [x] Implement `hybridAvalancheStrategy` object implementing `DebtStrategy`
+  - [x] id: 'hybrid-flexi-avalanche', name: 'Hybrid Flexi-Avalanche', effortLevel: 'medium', requiresFlexi: true
+  - [x] `allocatePayment()`: Park surplus in flexi, then chunk to highest rate first
+  - [x] Reuse sorting logic from avalanche.ts or strategy-helpers.ts
+  - [x] Roll payment to next highest-rate debt when one is paid off
+  - [x] `calculate()`: Use `generateProjection()` with avalanche-targeting allocator
 
-- [ ] Task 3: Handle flexi facility absence gracefully (AC: 6)
-  - [ ] Check if `snapshot.flexiFacility` is null at start of `calculate()` for both strategies
-  - [ ] If null, return `null` (not an error, just not applicable)
-  - [ ] Ensure orchestrator handles null returns correctly (already does from previous stories)
+- [x] Task 3: Handle flexi facility absence gracefully (AC: 6)
+  - [x] Check if `snapshot.flexiFacility` is null at start of `calculate()` for both strategies
+  - [x] If null, return `null` (not an error, just not applicable)
+  - [x] Ensure orchestrator handles null returns correctly (already does from previous stories)
 
-- [ ] Task 4: Update strategy registry (AC: 8)
-  - [ ] Update `src/lib/calculations/strategies/index.ts`
-  - [ ] Export `hybridSnowballStrategy` and `hybridAvalancheStrategy`
-  - [ ] Update `getAllStrategies()` to include both new strategies
-  - [ ] Update `getStrategyById()` to find both new strategies
+- [x] Task 4: Update strategy registry (AC: 8)
+  - [x] Update `src/lib/calculations/strategies/index.ts`
+  - [x] Export `hybridSnowballStrategy` and `hybridAvalancheStrategy`
+  - [x] Update `getAllStrategies()` to include both new strategies
+  - [x] Update `getStrategyById()` to find both new strategies
 
-- [ ] Task 5: Write unit tests for Hybrid Flexi-Snowball Strategy (AC: 1, 3, 4, 5, 6, 7, 8, 9, 10)
-  - [ ] Create `tests/lib/calculations/strategies/hybrid-snowball.test.ts`
-  - [ ] Test: Returns correct strategyId, name, effortLevel
-  - [ ] Test: Returns null when no flexi facility (AC-4.6.6)
-  - [ ] Test: Targets smallest balance first (snowball targeting)
-  - [ ] Test: Parks surplus in flexi, then chunks to target
-  - [ ] Test: Rolls payment to next smallest when debt paid off
-  - [ ] Test: StrategyProjection has all required fields
-  - [ ] Test: Uses big.js for all calculations (precision check)
+- [x] Task 5: Write unit tests for Hybrid Flexi-Snowball Strategy (AC: 1, 3, 4, 5, 6, 7, 8, 9, 10)
+  - [x] Create `tests/lib/calculations/strategies/hybrid-snowball.test.ts`
+  - [x] Test: Returns correct strategyId, name, effortLevel
+  - [x] Test: Returns null when no flexi facility (AC-4.6.6)
+  - [x] Test: Targets smallest balance first (snowball targeting)
+  - [x] Test: Parks surplus in flexi, then chunks to target
+  - [x] Test: Rolls payment to next smallest when debt paid off
+  - [x] Test: StrategyProjection has all required fields
+  - [x] Test: Uses big.js for all calculations (precision check)
 
-- [ ] Task 6: Write unit tests for Hybrid Flexi-Avalanche Strategy (AC: 2, 3, 4, 5, 6, 7, 8, 9, 10)
-  - [ ] Create `tests/lib/calculations/strategies/hybrid-avalanche.test.ts`
-  - [ ] Test: Returns correct strategyId, name, effortLevel
-  - [ ] Test: Returns null when no flexi facility (AC-4.6.6)
-  - [ ] Test: Targets highest interest rate first (avalanche targeting)
-  - [ ] Test: Parks surplus in flexi, then chunks to target
-  - [ ] Test: Rolls payment to next highest-rate when debt paid off
-  - [ ] Test: StrategyProjection has all required fields
-  - [ ] Test: Uses big.js for all calculations (precision check)
+- [x] Task 6: Write unit tests for Hybrid Flexi-Avalanche Strategy (AC: 2, 3, 4, 5, 6, 7, 8, 9, 10)
+  - [x] Create `tests/lib/calculations/strategies/hybrid-avalanche.test.ts`
+  - [x] Test: Returns correct strategyId, name, effortLevel
+  - [x] Test: Returns null when no flexi facility (AC-4.6.6)
+  - [x] Test: Targets highest interest rate first (avalanche targeting)
+  - [x] Test: Parks surplus in flexi, then chunks to target
+  - [x] Test: Rolls payment to next highest-rate when debt paid off
+  - [x] Test: StrategyProjection has all required fields
+  - [x] Test: Uses big.js for all calculations (precision check)
 
-- [ ] Task 7: Write comparison tests (AC: 11)
-  - [ ] Add to `tests/lib/calculations/strategies/flexi-comparison.test.ts` or create new comparison file
-  - [ ] Test: Hybrid-avalanche saves more interest than hybrid-snowball (expected behavior)
-  - [ ] Test: Hybrid-snowball pays off smallest debt faster than hybrid-avalanche (psychological wins)
-  - [ ] Test: Both hybrid strategies differ from pure flexi-chunking in targeting behavior
-  - [ ] Test: Compare all flexi strategies (flexi-chunking, aggressive-flexi, velocity-banking, hybrid-snowball, hybrid-avalanche)
-  - [ ] Use test snapshot with flexi facility and multiple debts of varying sizes/rates
+- [x] Task 7: Write comparison tests (AC: 11)
+  - [x] Add to `tests/lib/calculations/strategies/flexi-comparison.test.ts` or create new comparison file
+  - [x] Test: Hybrid-avalanche saves more interest than hybrid-snowball (expected behavior)
+  - [x] Test: Hybrid-snowball pays off smallest debt faster than hybrid-avalanche (psychological wins)
+  - [x] Test: Both hybrid strategies differ from pure flexi-chunking in targeting behavior
+  - [x] Test: Compare all flexi strategies (flexi-chunking, aggressive-flexi, velocity-banking, hybrid-snowball, hybrid-avalanche)
+  - [x] Use test snapshot with flexi facility and multiple debts of varying sizes/rates
 
-- [ ] Task 8: Update barrel exports (AC: all)
-  - [ ] Update `src/lib/calculations/index.ts` with hybrid strategy exports
-  - [ ] Ensure strategies and types are exported
+- [x] Task 8: Update barrel exports (AC: all)
+  - [x] Update `src/lib/calculations/index.ts` with hybrid strategy exports
+  - [x] Ensure strategies and types are exported
 
-- [ ] Task 9: Verify build and all tests pass (AC: all)
-  - [ ] Run `npm run test` and ensure all new tests pass
-  - [ ] Run `npm run build` and ensure no type errors
-  - [ ] Verify no regressions in existing test suite (1100+ tests from Story 4.5)
-  - [ ] Document any known limitations or edge cases in Completion Notes
+- [x] Task 9: Verify build and all tests pass (AC: all)
+  - [x] Run `npm run test` and ensure all new tests pass
+  - [x] Run `npm run build` and ensure no type errors
+  - [x] Verify no regressions in existing test suite (1100+ tests from Story 4.5)
+  - [x] Document any known limitations or edge cases in Completion Notes
 
 ## Dev Notes
 
@@ -281,13 +281,36 @@ const testSnapshotWithFlexi: FinancialSnapshot = {
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+None
+
 ### Completion Notes List
 
+- **Test Results:** 1176 tests passing (76 new tests for hybrid strategies)
+- **Build:** Succeeds with 641KB bundle (acceptable for MVP)
+- **Strategy Registry:** Now has 8 strategies total (baseline, snowball, avalanche, flexi-chunking, aggressive-flexi, velocity-banking, hybrid-flexi-snowball, hybrid-flexi-avalanche)
+- **Key Insight:** Hybrid-avalanche is functionally identical to flexi-chunking (both use avalanche targeting). The value is in making the strategy combination explicit for user clarity.
+- **Comparison Tests Verified:**
+  - Hybrid-avalanche saves R7,619.53 more interest than hybrid-snowball (with different target snapshot)
+  - Hybrid-snowball pays off smallest debt in month 1 vs month 15 for hybrid-avalanche (psychological wins)
+  - All 5 flexi strategies beat baseline by R2.9M+ interest on tech spec snapshot
+
 ### File List
+
+**Created:**
+- `src/lib/calculations/strategies/hybrid-snowball.ts` (125 lines)
+- `src/lib/calculations/strategies/hybrid-avalanche.ts` (125 lines)
+- `tests/lib/calculations/strategies/hybrid-snowball.test.ts` (33 tests)
+- `tests/lib/calculations/strategies/hybrid-avalanche.test.ts` (33 tests)
+
+**Modified:**
+- `src/lib/calculations/strategies/index.ts` - Added hybrid strategies to registry
+- `src/lib/calculations/index.ts` - Added hybrid strategy exports
+- `tests/lib/calculations/strategies/flexi-comparison.test.ts` - Added 10 comparison tests for AC-4.6.11
+- `tests/lib/calculations/strategies/comparison.test.ts` - Updated strategy count from 6 to 8
 
 ## Change Log
 
@@ -295,3 +318,4 @@ const testSnapshotWithFlexi: FinancialSnapshot = {
 |------|--------|--------|
 | 2025-12-05 | Story drafted with full context from Epic 4 tech spec (FR19, FR20), PRD, Architecture (Strategy Pattern ADR-004), and Story 4.5 learnings | SM Agent (Bob) |
 | 2025-12-05 | Story context generated, status updated to ready-for-dev | SM Agent (Bob) |
+| 2025-12-05 | Implementation complete. All 9 tasks done. 1176 tests passing. Status: review | Dev Agent (Amelia) |

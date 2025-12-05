@@ -11,6 +11,8 @@ import { avalancheStrategy } from './avalanche';
 import { flexiChunkingStrategy } from './flexi-chunking';
 import { aggressiveFlexiStrategy } from './aggressive-flexi';
 import { velocityBankingStrategy } from './velocity-banking';
+import { hybridSnowballStrategy } from './hybrid-snowball';
+import { hybridAvalancheStrategy } from './hybrid-avalanche';
 
 // Re-export individual strategies
 export { baselineStrategy } from './baseline';
@@ -19,6 +21,8 @@ export { avalancheStrategy } from './avalanche';
 export { flexiChunkingStrategy } from './flexi-chunking';
 export { aggressiveFlexiStrategy } from './aggressive-flexi';
 export { velocityBankingStrategy } from './velocity-banking';
+export { hybridSnowballStrategy } from './hybrid-snowball';
+export { hybridAvalancheStrategy } from './hybrid-avalanche';
 
 // Re-export helper functions
 export { buildStrategyProjection, calculateInitialDebt } from './strategy-helpers';
@@ -36,6 +40,8 @@ export function getAllStrategies(): DebtStrategy[] {
     flexiChunkingStrategy,
     aggressiveFlexiStrategy,
     velocityBankingStrategy,
+    hybridSnowballStrategy,
+    hybridAvalancheStrategy,
   ];
 }
 
