@@ -239,13 +239,14 @@ export interface DebtStrategy {
    * @param snapshot - Current financial state
    * @param config - Optional configuration
    * @param baseline - Optional baseline projection for comparison metrics
-   * @returns Complete strategy projection with all metrics
+   * @returns Complete strategy projection with all metrics, or null if strategy
+   *          is not applicable (e.g., flexi strategy without flexi facility)
    */
   calculate(
     snapshot: FinancialSnapshot,
     config?: StrategyConfig,
     baseline?: StrategyProjection
-  ): StrategyProjection;
+  ): StrategyProjection | null;
 
   /**
    * Allocate surplus payment across accounts for a single month

@@ -1,0 +1,263 @@
+<story-context id="4-4-implement-flexi-chunking-strategies" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>4</storyId>
+    <title>Implement Flexi Chunking Strategies</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-05</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-4-implement-flexi-chunking-strategies.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>flexi chunking and aggressive flexi strategies calculated</iWant>
+    <soThat>I can see how leveraging my flexi facility for lump sum payments or income parking affects my debt payoff timeline compared to traditional methods</soThat>
+    <tasks>
+      <task id="1">Implement Flexi Chunking Strategy (AC: 1, 3, 5, 6, 7, 8)
+        - Create src/lib/calculations/strategies/flexi-chunking.ts
+        - Implement FlexiChunkingStrategy object implementing DebtStrategy
+        - id: 'flexi-chunking', name: 'Flexi Chunking', effortLevel: 'medium', requiresFlexi: true
+        - Model "chunk and repay" cycle with flexi daily interest
+        - allocatePayment(): allocate surplus to repay flexi first, then chunk to highest-rate debt
+        - calculate(): use generateProjection() with flexi-chunking allocator
+      </task>
+      <task id="2">Implement Aggressive Flexi Strategy (AC: 2, 3, 5, 6, 7, 8)
+        - Create src/lib/calculations/strategies/aggressive-flexi.ts
+        - Implement AggressiveFlexiStrategy object implementing DebtStrategy
+        - id: 'aggressive-flexi', name: 'Aggressive Flexi', effortLevel: 'high', requiresFlexi: true
+        - Model maximum flexi utilization with periodic large lump sum payments
+        - allocatePayment(): maximize flexi deposits, periodic large debt payments
+        - calculate(): use generateProjection() with aggressive-flexi allocator
+      </task>
+      <task id="3">Handle flexi facility absence gracefully (AC: 4)
+        - Check if snapshot.flexiFacility is null at start of calculate()
+        - If null, return null (not an error, just not applicable)
+      </task>
+      <task id="4">Implement flexi interest calculation integration (AC: 3)
+        - Use calculateDailyInterest() from Story 4.1 for flexi facility
+        - Calculate monthly flexi interest as daily x 30
+        - Model interest differential: flexi daily vs debt monthly compounding
+      </task>
+      <task id="5">Update strategy registry (AC: 7)
+        - Update src/lib/calculations/strategies/index.ts
+        - Export flexiChunkingStrategy, aggressiveFlexiStrategy
+        - Update getAllStrategies() to include new strategies
+        - Update getStrategyById() to find new strategies
+      </task>
+      <task id="6">Write unit tests for Flexi Chunking Strategy (AC: 1, 3, 4, 5, 6, 9)</task>
+      <task id="7">Write unit tests for Aggressive Flexi Strategy (AC: 2, 3, 4, 5, 6, 9)</task>
+      <task id="8">Write comparison tests (AC: 9)</task>
+      <task id="9">Update barrel exports (AC: all)</task>
+      <task id="10">Verify build and all tests pass (AC: all)</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-4.4.1">Given my financial data including a flexi facility, when I calculate the Flexi Chunking Strategy, then it models regular lump sum deposits from the flexi facility to the highest-rate debt account, with the flexi being repaid from income over subsequent months.</criterion>
+    <criterion id="AC-4.4.2">Given my financial data with a flexi facility, when I calculate the Aggressive Flexi Strategy, then it models maximum deposits to the flexi facility with minimum withdrawals (only for required expenses), using daily interest savings to accelerate debt payoff.</criterion>
+    <criterion id="AC-4.4.3">Both strategies correctly model flexi daily interest compounding versus standard loan monthly interest compounding, capturing the interest arbitrage opportunity.</criterion>
+    <criterion id="AC-4.4.4">Given no flexi facility exists in the financial snapshot, when either flexi-based strategy is calculated, then it returns null or a "Not applicable - requires flexi facility" result (not an error).</criterion>
+    <criterion id="AC-4.4.5">Effort levels are assigned: Flexi Chunking = 'medium', Aggressive Flexi = 'high'.</criterion>
+    <criterion id="AC-4.4.6">Each strategy returns a StrategyProjection with all required fields: strategyId, strategyName, effortLevel, debtFreeMonth, debtFreeDate, totalInterestPaid, totalPrincipalPaid, monthsSaved, interestSaved, monthlyProjections[].</criterion>
+    <criterion id="AC-4.4.7">Both strategies implement the DebtStrategy interface with calculate() and allocatePayment() methods, following the Strategy Pattern (ADR-004).</criterion>
+    <criterion id="AC-4.4.8">All calculations use big.js for precision with cent-level accuracy (2 decimal places in ZAR).</criterion>
+    <criterion id="AC-4.4.9">Unit tests verify that both strategies perform better than baseline and traditional strategies when a flexi facility is available with favorable rate differential.</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>Story 4.4: Flexi Chunking Strategies</section>
+        <snippet>Defines flexi chunking (FR16) and aggressive flexi (FR17) strategy requirements, including interest arbitrage modeling and effort levels.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>Novel Pattern: Multi-Strategy Comparison Engine</section>
+        <snippet>Defines DebtStrategy interface with id, name, description, effortLevel, requiresFlexi, calculate(), and allocatePayment() methods. All strategies in src/lib/calculations/strategies/.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>ADR-004: Strategy Pattern for Calculation Engine</section>
+        <snippet>Explains the Strategy Pattern choice for extensibility - each strategy implements DebtStrategy interface, registered in strategies/index.ts.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>Architecture</title>
+        <section>ADR-003: big.js for Financial Calculations</section>
+        <snippet>Mandates big.js for all monetary calculations to ensure cent-level accuracy, avoiding JavaScript floating-point errors.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/4-3-implement-baseline-and-traditional-strategies.md</path>
+        <title>Story 4.3: Baseline and Traditional Strategies</title>
+        <section>Dev Agent Record</section>
+        <snippet>Previous story implemented baseline, snowball, avalanche strategies with buildStrategyProjection() helper and 980 passing tests.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>types</kind>
+        <symbol>DebtStrategy, StrategyProjection, FinancialSnapshot, SimulatedAccount, SimulatedFlexi, PaymentAllocation, PaymentAllocator</symbol>
+        <lines>224-266</lines>
+        <reason>Core interfaces that flexi strategies must implement. DebtStrategy interface defines calculate() and allocatePayment() methods.</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/strategies/index.ts</path>
+        <kind>registry</kind>
+        <symbol>getAllStrategies, getStrategyById, getFlexiStrategies</symbol>
+        <lines>1-67</lines>
+        <reason>Strategy registry to modify - add flexi strategies to getAllStrategies() and exports.</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/strategies/strategy-helpers.ts</path>
+        <kind>helper</kind>
+        <symbol>buildStrategyProjection, calculateInitialDebt</symbol>
+        <lines>1-101</lines>
+        <reason>Helper functions for building StrategyProjection results with comparison metrics.</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/strategies/avalanche.ts</path>
+        <kind>strategy</kind>
+        <symbol>avalancheStrategy</symbol>
+        <lines>1-108</lines>
+        <reason>Reference implementation showing strategy pattern usage - flexi strategies follow same structure.</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/projections.ts</path>
+        <kind>engine</kind>
+        <symbol>generateProjection, calculateMonthSnapshot</symbol>
+        <lines>1-330</lines>
+        <reason>Projection generator that flexi strategies use via calculate(). Handles flexi balance tracking at lines 240-252.</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/interest.ts</path>
+        <kind>calculator</kind>
+        <symbol>calculateDailyInterest, calculateFlexiMonthlyInterest, calculateMonthlyInterest</symbol>
+        <lines>126-148, 65-78, 34-54</lines>
+        <reason>Interest calculation functions for flexi daily compounding vs standard monthly compounding. Critical for modeling interest arbitrage.</reason>
+      </file>
+      <file>
+        <path>tests/lib/calculations/strategies/avalanche.test.ts</path>
+        <kind>test</kind>
+        <symbol>describe blocks for AC testing</symbol>
+        <lines>1-289</lines>
+        <reason>Reference test file showing test organization patterns - group by AC, test edge cases, comparison tests.</reason>
+      </file>
+    </code>
+
+    <dependencies>
+      <node>
+        <package>big.js</package>
+        <version>^7.0.1</version>
+        <purpose>Arbitrary precision decimals for financial calculations</purpose>
+      </node>
+      <node>
+        <package>date-fns</package>
+        <version>^4.1.0</version>
+        <purpose>Date manipulation for projection dates</purpose>
+      </node>
+      <node>
+        <package>vitest</package>
+        <version>^4.0.14</version>
+        <purpose>Unit testing framework</purpose>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <interfaces>
+    <interface>
+      <name>DebtStrategy</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface DebtStrategy {
+  id: string;
+  name: string;
+  description: string;
+  effortLevel: 'low' | 'medium' | 'high';
+  requiresFlexi: boolean;
+  calculate(snapshot: FinancialSnapshot, config?: StrategyConfig, baseline?: StrategyProjection): StrategyProjection;
+  allocatePayment(surplus: Big, accounts: SimulatedAccount[], flexi: SimulatedFlexi | null): PaymentAllocation[];
+}</signature>
+      <path>src/lib/calculations/types.ts#L224-266</path>
+    </interface>
+    <interface>
+      <name>StrategyProjection</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface StrategyProjection {
+  strategyId: string;
+  strategyName: string;
+  effortLevel: EffortLevel;
+  debtFreeMonth: number;
+  debtFreeDate: string;
+  totalInterestPaid: Big;
+  totalPrincipalPaid: Big;
+  monthsSaved: number;
+  interestSaved: Big;
+  monthlyProjections: MonthlyProjection[];
+}</signature>
+      <path>src/lib/calculations/types.ts#L195-216</path>
+    </interface>
+    <interface>
+      <name>PaymentAllocator</name>
+      <kind>Function type</kind>
+      <signature>type PaymentAllocator = (surplus: Big, accounts: SimulatedAccount[], flexi: SimulatedFlexi | null) => PaymentAllocation[];</signature>
+      <path>src/lib/calculations/types.ts#L134-138</path>
+    </interface>
+    <interface>
+      <name>generateProjection</name>
+      <kind>Function</kind>
+      <signature>function generateProjection(snapshot: FinancialSnapshot, allocator: PaymentAllocator, config?: ProjectionConfig): MonthlyProjection[]</signature>
+      <path>src/lib/calculations/projections.ts#L37-103</path>
+    </interface>
+    <interface>
+      <name>buildStrategyProjection</name>
+      <kind>Function</kind>
+      <signature>function buildStrategyProjection(strategy: DebtStrategy, projections: MonthlyProjection[], startDate: string, baseline?: StrategyProjection): StrategyProjection</signature>
+      <path>src/lib/calculations/strategies/strategy-helpers.ts#L27-86</path>
+    </interface>
+  </interfaces>
+
+  <constraints>
+    <constraint>All monetary calculations MUST use big.js, not JavaScript native numbers (ADR-003)</constraint>
+    <constraint>Strategies MUST implement the DebtStrategy interface exactly (ADR-004)</constraint>
+    <constraint>Flexi strategies MUST set requiresFlexi: true</constraint>
+    <constraint>Flexi strategies MUST return null (not throw) when snapshot.flexiFacility is null</constraint>
+    <constraint>All Big values MUST be rounded to 2 decimal places for ZAR precision</constraint>
+    <constraint>Strategy files go in src/lib/calculations/strategies/ directory</constraint>
+    <constraint>Test files go in tests/lib/calculations/strategies/ directory</constraint>
+    <constraint>Must register new strategies in strategies/index.ts getAllStrategies()</constraint>
+    <constraint>Interest arbitrage: Flexi uses daily compounding (rate/365 x days), debts use monthly (rate/12)</constraint>
+  </constraints>
+
+  <tests>
+    <standards>
+      Vitest is the testing framework (vitest ^4.0.14). Tests use describe/it/expect pattern. Test files are in tests/ directory mirroring src/ structure. Tests should be organized by acceptance criteria using describe blocks (e.g., describe('AC-4.4.1: ...')). Use Big.js instances for assertions, comparing with toFixed(2) for monetary values. Current test count: 980+ passing tests. Build must pass with no type errors.
+    </standards>
+    <locations>
+      <location>tests/lib/calculations/strategies/*.test.ts</location>
+      <location>tests/lib/calculations/interest.test.ts</location>
+      <location>tests/lib/calculations/projections.test.ts</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-4.4.1">Test flexi chunking models chunk transfer from flexi to highest-rate debt</idea>
+      <idea ac="AC-4.4.1">Test flexi balance increases after chunk, decreases as repaid from surplus</idea>
+      <idea ac="AC-4.4.2">Test aggressive flexi models maximum deposit pattern</idea>
+      <idea ac="AC-4.4.2">Test aggressive flexi makes larger periodic lump sum payments</idea>
+      <idea ac="AC-4.4.3">Test flexi interest calculated using daily rate (rate/365 x 30)</idea>
+      <idea ac="AC-4.4.3">Test debt interest uses monthly rate (rate/12)</idea>
+      <idea ac="AC-4.4.4">Test both strategies return null when no flexi facility</idea>
+      <idea ac="AC-4.4.5">Test flexi chunking effortLevel = 'medium'</idea>
+      <idea ac="AC-4.4.5">Test aggressive flexi effortLevel = 'high'</idea>
+      <idea ac="AC-4.4.6">Test StrategyProjection has all required fields</idea>
+      <idea ac="AC-4.4.7">Test strategies implement DebtStrategy interface correctly</idea>
+      <idea ac="AC-4.4.8">Test all monetary values are Big instances with 2 decimal precision</idea>
+      <idea ac="AC-4.4.9">Test flexi strategies beat baseline when flexi rate &lt; debt rate</idea>
+      <idea ac="AC-4.4.9">Test aggressive flexi saves more interest than flexi chunking (typical scenario)</idea>
+    </ideas>
+  </tests>
+</story-context>

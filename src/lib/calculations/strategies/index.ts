@@ -8,11 +8,15 @@ import type { DebtStrategy } from '../types';
 import { baselineStrategy } from './baseline';
 import { snowballStrategy } from './snowball';
 import { avalancheStrategy } from './avalanche';
+import { flexiChunkingStrategy } from './flexi-chunking';
+import { aggressiveFlexiStrategy } from './aggressive-flexi';
 
 // Re-export individual strategies
 export { baselineStrategy } from './baseline';
 export { snowballStrategy } from './snowball';
 export { avalancheStrategy } from './avalanche';
+export { flexiChunkingStrategy } from './flexi-chunking';
+export { aggressiveFlexiStrategy } from './aggressive-flexi';
 
 // Re-export helper functions
 export { buildStrategyProjection, calculateInitialDebt } from './strategy-helpers';
@@ -23,7 +27,13 @@ export { buildStrategyProjection, calculateInitialDebt } from './strategy-helper
  * @returns Array of all DebtStrategy implementations
  */
 export function getAllStrategies(): DebtStrategy[] {
-  return [baselineStrategy, snowballStrategy, avalancheStrategy];
+  return [
+    baselineStrategy,
+    snowballStrategy,
+    avalancheStrategy,
+    flexiChunkingStrategy,
+    aggressiveFlexiStrategy,
+  ];
 }
 
 /**
