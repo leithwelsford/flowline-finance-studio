@@ -164,3 +164,103 @@ export interface FinancialSnapshot {
   /** Snapshot date as ISO string */
   snapshotDate: string;
 }
+
+// =============================================================================
+// Strategy Types (Story 4.3)
+// =============================================================================
+
+/**
+ * Effort level indicator for strategies
+ * - low: Simple rules, no active management (baseline, snowball, avalanche)
+ * - medium: Some active management required (flexi chunking)
+ * - high: Active management and monitoring (velocity banking, hybrids)
+ */
+export type EffortLevel = 'low' | 'medium' | 'high';
+
+/**
+ * Configuration options for strategy calculation
+ */
+export interface StrategyConfig {
+  /** Maximum months to project (default: 360 = 30 years) */
+  maxMonths?: number;
+  /** Start date for projection as ISO string */
+  startDate?: string;
+  /** Extra monthly payment amount (for traditional strategies) */
+  extraPayment?: string;
+}
+
+/**
+ * Result of a strategy calculation - complete projection with metadata
+ */
+export interface StrategyProjection {
+  /** Unique strategy identifier */
+  strategyId: string;
+  /** Human-readable strategy name */
+  strategyName: string;
+  /** Effort level required for this strategy */
+  effortLevel: EffortLevel;
+  /** Month number when debt-free (1-based) */
+  debtFreeMonth: number;
+  /** ISO date string when debt-free */
+  debtFreeDate: string;
+  /** Total interest paid over the payoff period */
+  totalInterestPaid: Big;
+  /** Total principal paid (should equal initial debt) */
+  totalPrincipalPaid: Big;
+  /** Months saved compared to baseline (0 for baseline itself) */
+  monthsSaved: number;
+  /** Interest saved compared to baseline (0 for baseline itself) */
+  interestSaved: Big;
+  /** Month-by-month projection data */
+  monthlyProjections: MonthlyProjection[];
+}
+
+/**
+ * Interface for debt reduction strategies (Strategy Pattern - ADR-004)
+ *
+ * All strategies implement this interface to ensure consistent behavior
+ * and enable polymorphic strategy comparison.
+ */
+export interface DebtStrategy {
+  /** Unique strategy identifier */
+  id: string;
+  /** Human-readable strategy name */
+  name: string;
+  /** Description of how the strategy works */
+  description: string;
+  /** Effort level required to execute this strategy */
+  effortLevel: EffortLevel;
+  /** Whether this strategy requires a flexi facility */
+  requiresFlexi: boolean;
+
+  /**
+   * Calculate the full strategy projection
+   *
+   * @param snapshot - Current financial state
+   * @param config - Optional configuration
+   * @param baseline - Optional baseline projection for comparison metrics
+   * @returns Complete strategy projection with all metrics
+   */
+  calculate(
+    snapshot: FinancialSnapshot,
+    config?: StrategyConfig,
+    baseline?: StrategyProjection
+  ): StrategyProjection;
+
+  /**
+   * Allocate surplus payment across accounts for a single month
+   *
+   * This is called by the projection generator to determine how extra
+   * payments should be distributed. Each strategy implements its own logic.
+   *
+   * @param surplus - Available surplus after minimum payments
+   * @param accounts - Current account states (with balances)
+   * @param flexi - Flexi facility state (or null)
+   * @returns Array of payment allocations
+   */
+  allocatePayment(
+    surplus: Big,
+    accounts: SimulatedAccount[],
+    flexi: SimulatedFlexi | null
+  ): PaymentAllocation[];
+}

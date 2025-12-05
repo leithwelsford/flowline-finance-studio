@@ -1,6 +1,6 @@
 # Story 4.3: Implement Baseline and Traditional Strategies
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -28,92 +28,92 @@ so that **I can compare traditional debt payoff methods against each other and u
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Define StrategyProjection and DebtStrategy types (AC: 4, 6)
-  - [ ] Update `src/lib/calculations/types.ts`:
-  - [ ] Define `StrategyProjection` interface with all required fields
-  - [ ] Define `DebtStrategy` interface with id, name, description, effortLevel, requiresFlexi, calculate(), allocatePayment()
-  - [ ] Export types via barrel export
+- [x] Task 1: Define StrategyProjection and DebtStrategy types (AC: 4, 6)
+  - [x] Update `src/lib/calculations/types.ts`:
+  - [x] Define `StrategyProjection` interface with all required fields
+  - [x] Define `DebtStrategy` interface with id, name, description, effortLevel, requiresFlexi, calculate(), allocatePayment()
+  - [x] Export types via barrel export
 
-- [ ] Task 2: Implement Baseline Strategy (AC: 1, 4, 5, 6, 8)
-  - [ ] Create `src/lib/calculations/strategies/baseline.ts`
-  - [ ] Implement `BaselineStrategy` class/object implementing `DebtStrategy`
-  - [ ] id: 'baseline', name: 'Baseline (Minimum Payments)', effortLevel: 'low', requiresFlexi: false
-  - [ ] `calculate()`: use `generateProjection()` with `createBaselineAllocator()` from Story 4.2
-  - [ ] `allocatePayment()`: return empty array (no extra payments)
-  - [ ] Build `StrategyProjection` from projection results
-  - [ ] Calculate debtFreeMonth, debtFreeDate, totalInterestPaid from projection
+- [x] Task 2: Implement Baseline Strategy (AC: 1, 4, 5, 6, 8)
+  - [x] Create `src/lib/calculations/strategies/baseline.ts`
+  - [x] Implement `BaselineStrategy` class/object implementing `DebtStrategy`
+  - [x] id: 'baseline', name: 'Baseline (Minimum Payments)', effortLevel: 'low', requiresFlexi: false
+  - [x] `calculate()`: use `generateProjection()` with `createBaselineAllocator()` from Story 4.2
+  - [x] `allocatePayment()`: return empty array (no extra payments)
+  - [x] Build `StrategyProjection` from projection results
+  - [x] Calculate debtFreeMonth, debtFreeDate, totalInterestPaid from projection
 
-- [ ] Task 3: Create strategy helper to build StrategyProjection (AC: 4)
-  - [ ] Create `src/lib/calculations/strategies/strategy-helpers.ts`
-  - [ ] Implement `buildStrategyProjection(strategy: DebtStrategy, projection: MonthlyProjection[], baseline?: StrategyProjection): StrategyProjection`
-  - [ ] Calculate debtFreeMonth from projection length
-  - [ ] Calculate debtFreeDate by adding months to snapshot date
-  - [ ] Sum totalInterestPaid and totalPrincipalPaid from projection
-  - [ ] Calculate monthsSaved and interestSaved vs baseline (0 if no baseline provided)
+- [x] Task 3: Create strategy helper to build StrategyProjection (AC: 4)
+  - [x] Create `src/lib/calculations/strategies/strategy-helpers.ts`
+  - [x] Implement `buildStrategyProjection(strategy: DebtStrategy, projection: MonthlyProjection[], baseline?: StrategyProjection): StrategyProjection`
+  - [x] Calculate debtFreeMonth from projection length
+  - [x] Calculate debtFreeDate by adding months to snapshot date
+  - [x] Sum totalInterestPaid and totalPrincipalPaid from projection
+  - [x] Calculate monthsSaved and interestSaved vs baseline (0 if no baseline provided)
 
-- [ ] Task 4: Implement Snowball Strategy (AC: 2, 4, 5, 6, 8)
-  - [ ] Create `src/lib/calculations/strategies/snowball.ts`
-  - [ ] Implement `SnowballStrategy` class/object implementing `DebtStrategy`
-  - [ ] id: 'snowball', name: 'Debt Snowball (Smallest First)', effortLevel: 'low', requiresFlexi: false
-  - [ ] `allocatePayment()`: sort accounts by balance ascending, allocate all surplus to smallest non-zero balance
-  - [ ] `calculate()`: use `generateProjection()` with snowball allocator
-  - [ ] Handle "rolling" - when target account paid off, surplus goes to next smallest
+- [x] Task 4: Implement Snowball Strategy (AC: 2, 4, 5, 6, 8)
+  - [x] Create `src/lib/calculations/strategies/snowball.ts`
+  - [x] Implement `SnowballStrategy` class/object implementing `DebtStrategy`
+  - [x] id: 'snowball', name: 'Debt Snowball (Smallest First)', effortLevel: 'low', requiresFlexi: false
+  - [x] `allocatePayment()`: sort accounts by balance ascending, allocate all surplus to smallest non-zero balance
+  - [x] `calculate()`: use `generateProjection()` with snowball allocator
+  - [x] Handle "rolling" - when target account paid off, surplus goes to next smallest
 
-- [ ] Task 5: Implement Avalanche Strategy (AC: 3, 4, 5, 6, 8)
-  - [ ] Create `src/lib/calculations/strategies/avalanche.ts`
-  - [ ] Implement `AvalancheStrategy` class/object implementing `DebtStrategy`
-  - [ ] id: 'avalanche', name: 'Debt Avalanche (Highest Rate First)', effortLevel: 'low', requiresFlexi: false
-  - [ ] `allocatePayment()`: sort accounts by interestRate descending, allocate all surplus to highest rate non-zero balance
-  - [ ] `calculate()`: use `generateProjection()` with avalanche allocator
-  - [ ] Handle "rolling" - when target account paid off, surplus goes to next highest rate
+- [x] Task 5: Implement Avalanche Strategy (AC: 3, 4, 5, 6, 8)
+  - [x] Create `src/lib/calculations/strategies/avalanche.ts`
+  - [x] Implement `AvalancheStrategy` class/object implementing `DebtStrategy`
+  - [x] id: 'avalanche', name: 'Debt Avalanche (Highest Rate First)', effortLevel: 'low', requiresFlexi: false
+  - [x] `allocatePayment()`: sort accounts by interestRate descending, allocate all surplus to highest rate non-zero balance
+  - [x] `calculate()`: use `generateProjection()` with avalanche allocator
+  - [x] Handle "rolling" - when target account paid off, surplus goes to next highest rate
 
-- [ ] Task 6: Create strategy registry (AC: 6)
-  - [ ] Create `src/lib/calculations/strategies/index.ts`
-  - [ ] Export all strategy instances: `baselineStrategy`, `snowballStrategy`, `avalancheStrategy`
-  - [ ] Export `getAllStrategies(): DebtStrategy[]` function
-  - [ ] Export `getStrategyById(id: string): DebtStrategy | undefined` function
+- [x] Task 6: Create strategy registry (AC: 6)
+  - [x] Create `src/lib/calculations/strategies/index.ts`
+  - [x] Export all strategy instances: `baselineStrategy`, `snowballStrategy`, `avalancheStrategy`
+  - [x] Export `getAllStrategies(): DebtStrategy[]` function
+  - [x] Export `getStrategyById(id: string): DebtStrategy | undefined` function
 
-- [ ] Task 7: Write unit tests for Baseline Strategy (AC: 1, 4, 5)
-  - [ ] Create `tests/lib/calculations/strategies/baseline.test.ts`
-  - [ ] Test: Returns correct strategyId, name, effortLevel
-  - [ ] Test: Applies only minimum payments (no surplus allocation)
-  - [ ] Test: StrategyProjection has all required fields
-  - [ ] Test: debtFreeMonth matches projection length
-  - [ ] Test: totalInterestPaid matches sum from projection
+- [x] Task 7: Write unit tests for Baseline Strategy (AC: 1, 4, 5)
+  - [x] Create `tests/lib/calculations/strategies/baseline.test.ts`
+  - [x] Test: Returns correct strategyId, name, effortLevel
+  - [x] Test: Applies only minimum payments (no surplus allocation)
+  - [x] Test: StrategyProjection has all required fields
+  - [x] Test: debtFreeMonth matches projection length
+  - [x] Test: totalInterestPaid matches sum from projection
 
-- [ ] Task 8: Write unit tests for Snowball Strategy (AC: 2, 4, 5, 7)
-  - [ ] Create `tests/lib/calculations/strategies/snowball.test.ts`
-  - [ ] Test: Returns correct strategyId, name, effortLevel
-  - [ ] Test: Allocates surplus to smallest balance first
-  - [ ] Test: When smallest paid off, surplus rolls to next smallest
-  - [ ] Test: With 3 accounts, smallest is targeted first regardless of rate
-  - [ ] Test: Faster early wins - count months until first account paid off
+- [x] Task 8: Write unit tests for Snowball Strategy (AC: 2, 4, 5, 7)
+  - [x] Create `tests/lib/calculations/strategies/snowball.test.ts`
+  - [x] Test: Returns correct strategyId, name, effortLevel
+  - [x] Test: Allocates surplus to smallest balance first
+  - [x] Test: When smallest paid off, surplus rolls to next smallest
+  - [x] Test: With 3 accounts, smallest is targeted first regardless of rate
+  - [x] Test: Faster early wins - count months until first account paid off
 
-- [ ] Task 9: Write unit tests for Avalanche Strategy (AC: 3, 4, 5, 7)
-  - [ ] Create `tests/lib/calculations/strategies/avalanche.test.ts`
-  - [ ] Test: Returns correct strategyId, name, effortLevel
-  - [ ] Test: Allocates surplus to highest rate first
-  - [ ] Test: When highest rate paid off, surplus rolls to next highest
-  - [ ] Test: With 3 accounts, highest rate is targeted first regardless of balance
-  - [ ] Test: Saves more total interest than snowball (key verification)
+- [x] Task 9: Write unit tests for Avalanche Strategy (AC: 3, 4, 5, 7)
+  - [x] Create `tests/lib/calculations/strategies/avalanche.test.ts`
+  - [x] Test: Returns correct strategyId, name, effortLevel
+  - [x] Test: Allocates surplus to highest rate first
+  - [x] Test: When highest rate paid off, surplus rolls to next highest
+  - [x] Test: With 3 accounts, highest rate is targeted first regardless of balance
+  - [x] Test: Saves more total interest than snowball (key verification)
 
-- [ ] Task 10: Write comparison tests (AC: 7)
-  - [ ] Create `tests/lib/calculations/strategies/comparison.test.ts`
-  - [ ] Test: Avalanche totalInterestPaid < Snowball totalInterestPaid (for typical portfolio)
-  - [ ] Test: Snowball has first account paid off in fewer months than Avalanche (for typical portfolio)
-  - [ ] Test: Both strategies beat Baseline in monthsSaved and interestSaved
-  - [ ] Use test snapshot from tech spec: home loan R1.5M, car R250k, credit card R50k
+- [x] Task 10: Write comparison tests (AC: 7)
+  - [x] Create `tests/lib/calculations/strategies/comparison.test.ts`
+  - [x] Test: Avalanche totalInterestPaid < Snowball totalInterestPaid (for typical portfolio)
+  - [x] Test: Snowball has first account paid off in fewer months than Avalanche (for typical portfolio)
+  - [x] Test: Both strategies beat Baseline in monthsSaved and interestSaved
+  - [x] Use test snapshot from tech spec: home loan R1.5M, car R250k, credit card R50k
 
-- [ ] Task 11: Update barrel exports (AC: all)
-  - [ ] Update `src/lib/calculations/index.ts` with strategy exports
-  - [ ] Export strategy instances and registry functions
-  - [ ] Export DebtStrategy and StrategyProjection types
+- [x] Task 11: Update barrel exports (AC: all)
+  - [x] Update `src/lib/calculations/index.ts` with strategy exports
+  - [x] Export strategy instances and registry functions
+  - [x] Export DebtStrategy and StrategyProjection types
 
-- [ ] Task 12: Verify build and all tests pass (AC: all)
-  - [ ] Run `npm run test` and ensure all new tests pass
-  - [ ] Run `npm run build` and ensure no type errors
-  - [ ] Verify no regressions in existing test suite
-  - [ ] Document any known limitations
+- [x] Task 12: Verify build and all tests pass (AC: all)
+  - [x] Run `npm run test` and ensure all new tests pass
+  - [x] Run `npm run build` and ensure no type errors
+  - [x] Verify no regressions in existing test suite
+  - [x] Document any known limitations
 
 ## Dev Notes
 
@@ -305,16 +305,44 @@ Note: In this test case, Snowball and Avalanche have the same target order becau
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+- Task 1: Added EffortLevel, StrategyConfig, StrategyProjection, DebtStrategy types to types.ts
+- Task 3: Created strategy-helpers.ts with buildStrategyProjection helper before strategies (dependency)
+- Task 2,4,5: Implemented strategies using Strategy Pattern, each with calculate() and allocatePayment()
+- Task 10: Tech spec snapshot has credit card with both smallest balance AND highest rate, so snowball/avalanche target same account. Added separate test with different target ordering to verify distinct behaviors.
+
 ### Completion Notes List
 
+- All 3 strategies (baseline, snowball, avalanche) implemented following ADR-004 Strategy Pattern
+- 57 new tests across 4 test files, all passing
+- 980 total tests passing, no regressions
+- Strategies reuse generateProjection() from Story 4.2 with custom allocators
+- Avalanche saves R2,353.98 more interest than Snowball (with different target ordering scenario)
+- Known: Tech spec snapshot has credit card as both smallest balance and highest rate, so strategies produce identical results for that specific case
+
 ### File List
+
+**Created:**
+- src/lib/calculations/strategies/strategy-helpers.ts
+- src/lib/calculations/strategies/baseline.ts
+- src/lib/calculations/strategies/snowball.ts
+- src/lib/calculations/strategies/avalanche.ts
+- src/lib/calculations/strategies/index.ts
+- tests/lib/calculations/strategies/baseline.test.ts
+- tests/lib/calculations/strategies/snowball.test.ts
+- tests/lib/calculations/strategies/avalanche.test.ts
+- tests/lib/calculations/strategies/comparison.test.ts
+
+**Modified:**
+- src/lib/calculations/types.ts (added strategy types)
+- src/lib/calculations/index.ts (added strategy exports)
 
 ## Change Log
 
 | Date | Change | Author |
 |------|--------|--------|
 | 2025-12-05 | Story drafted with full context from Epic 4 tech spec, PRD (FR13-15), Architecture (Strategy Pattern), and Story 4.2 learnings | SM Agent (Bob) |
+| 2025-12-05 | Implementation complete: baseline, snowball, avalanche strategies with 57 tests (980 total passing) | Dev Agent (Amelia) |
