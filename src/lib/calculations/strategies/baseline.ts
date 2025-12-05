@@ -26,6 +26,10 @@ import type {
  * Applies only minimum payments - no surplus allocation.
  * Effort level: low (no extra effort required)
  * Flexi required: no
+ *
+ * Note: Baseline ignores StrategyConfig options (chunkAmount, paymentFrequency,
+ * targetAccountId) since it doesn't apply surplus payments. Config is only
+ * used for maxMonths and startDate.
  */
 export const baselineStrategy: DebtStrategy = {
   id: 'baseline',
@@ -38,6 +42,9 @@ export const baselineStrategy: DebtStrategy = {
 
   /**
    * Calculate baseline projection (minimum payments only)
+   *
+   * Baseline ignores payment frequency, chunk amount, and target account
+   * config since it doesn't apply surplus payments.
    */
   calculate(
     snapshot: FinancialSnapshot,
@@ -45,6 +52,7 @@ export const baselineStrategy: DebtStrategy = {
     _baseline?: StrategyProjection
   ): StrategyProjection {
     // Use the baseline allocator (returns empty allocations)
+    // Note: Baseline doesn't apply surplus, so config options don't affect it
     const allocator = createBaselineAllocator();
 
     // Generate projection with minimum payments only
@@ -60,6 +68,13 @@ export const baselineStrategy: DebtStrategy = {
       config?.startDate ?? snapshot.snapshotDate
       // No baseline parameter - this IS the baseline
     );
+  },
+
+  /**
+   * Create an allocator function - baseline always returns empty allocations
+   */
+  createAllocator() {
+    return (): PaymentAllocation[] => [];
   },
 
   /**

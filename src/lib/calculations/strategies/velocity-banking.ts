@@ -22,7 +22,11 @@
  */
 import Big from 'big.js';
 import { generateProjection } from '../projections';
-import { buildStrategyProjection } from './strategy-helpers';
+import {
+  buildStrategyProjection,
+  applyTargetOverride,
+  getEffectiveSurplus,
+} from './strategy-helpers';
 import type {
   DebtStrategy,
   FinancialSnapshot,
@@ -60,13 +64,6 @@ export const velocityBankingStrategy: DebtStrategy = {
    * Calculate velocity banking projection
    *
    * Returns null if no flexi facility exists (AC-4.5.6)
-   *
-   * The key difference from flexi chunking is how we model the income parking effect:
-   * - Income immediately reduces flexi balance (day 1)
-   * - Expenses drawn throughout month increase flexi balance
-   * - Net effect: lower average daily balance = less interest
-   *
-   * For MVP, we simplify the intra-month tracking using average balance model.
    */
   calculate(
     snapshot: FinancialSnapshot,
@@ -78,15 +75,25 @@ export const velocityBankingStrategy: DebtStrategy = {
       return null;
     }
 
-    // Create allocator that uses this strategy's allocatePayment method
+    // Apply config to get effective surplus (includes chunk amount limit)
+    const baseSurplus = new Big(snapshot.availableSurplus || '0');
+    const effectiveSurplus = getEffectiveSurplus(baseSurplus, config);
+
+    // Create modified snapshot with adjusted surplus
+    const adjustedSnapshot: FinancialSnapshot = {
+      ...snapshot,
+      availableSurplus: effectiveSurplus.toString(),
+    };
+
+    // Create allocator closure that includes config for target override
     const allocator = (
       surplus: Big,
       accounts: SimulatedAccount[],
       flexi: SimulatedFlexi | null
-    ) => this.allocatePayment(surplus, accounts, flexi);
+    ) => this.createAllocator(config)(surplus, accounts, flexi);
 
     // Generate projection with velocity banking allocator
-    const projections = generateProjection(snapshot, allocator, {
+    const projections = generateProjection(adjustedSnapshot, allocator, {
       maxMonths: config?.maxMonths,
       startDate: config?.startDate ?? snapshot.snapshotDate,
     });
@@ -101,73 +108,63 @@ export const velocityBankingStrategy: DebtStrategy = {
   },
 
   /**
+   * Create an allocator function with config applied
+   */
+  createAllocator(config?: StrategyConfig) {
+    return (
+      surplus: Big,
+      accounts: SimulatedAccount[],
+      flexi: SimulatedFlexi | null
+    ): PaymentAllocation[] => {
+      // No surplus to allocate
+      if (surplus.lte(0)) {
+        return [];
+      }
+
+      // No flexi facility - shouldn't happen as calculate() checks, but be safe
+      if (!flexi) {
+        return [];
+      }
+
+      // Filter to accounts with positive balance
+      const activeAccounts = accounts.filter((acc) => acc.balance.gt(0));
+
+      if (activeAccounts.length === 0) {
+        return [];
+      }
+
+      // Default sorter: highest interest rate first (avalanche targeting)
+      const avalancheSorter = (accs: SimulatedAccount[]) =>
+        [...accs].sort((a, b) => b.interestRate.cmp(a.interestRate));
+
+      // Apply target override if configured, otherwise use avalanche sorting
+      const sorted = applyTargetOverride(
+        activeAccounts,
+        config?.targetAccountId,
+        avalancheSorter
+      );
+
+      const target = sorted[0];
+
+      return [
+        {
+          accountId: target.id,
+          amount: surplus,
+        },
+      ];
+    };
+  },
+
+  /**
    * Allocate surplus using velocity banking pattern
    *
-   * Velocity banking allocation logic:
-   * 1. All surplus is directed to the highest-rate debt (avalanche targeting)
-   * 2. The "income parking" benefit comes from flexi interest calculation,
-   *    not from the allocation logic itself
-   *
-   * The income parking effect is modeled in the flexi interest calculation:
-   * - Traditional: surplus transferred at end of month
-   * - Velocity: income sits in flexi from day 1, reducing average balance
-   *
-   * Since our projection engine calculates monthly, we model the velocity
-   * banking benefit through the allocator targeting highest-rate debt aggressively.
-   *
-   * AC-4.5.1: Income deposited to flexi (modeled via surplus from income)
-   * AC-4.5.2: Expenses paid from flexi (modeled via net surplus calculation)
-   * AC-4.5.3: Chunks to highest-rate debt (avalanche targeting)
+   * @deprecated Use createAllocator with config for target override support
    */
   allocatePayment(
     surplus: Big,
     accounts: SimulatedAccount[],
     flexi: SimulatedFlexi | null
   ): PaymentAllocation[] {
-    // No surplus to allocate
-    if (surplus.lte(0)) {
-      return [];
-    }
-
-    // No flexi facility - shouldn't happen as calculate() checks, but be safe
-    if (!flexi) {
-      return [];
-    }
-
-    // Filter to accounts with positive balance
-    const activeAccounts = accounts.filter((acc) => acc.balance.gt(0));
-
-    if (activeAccounts.length === 0) {
-      return [];
-    }
-
-    // Sort by interest rate descending (highest first) - avalanche targeting
-    // AC-4.5.3: Periodic chunks to highest-rate debt
-    const sorted = [...activeAccounts].sort((a, b) => b.interestRate.cmp(a.interestRate));
-    const target = sorted[0];
-
-    // Velocity banking allocation:
-    // All surplus goes to the highest-rate debt.
-    //
-    // The key velocity banking benefit is:
-    // 1. Income enters flexi immediately (day 1) → lower flexi balance
-    // 2. Expenses draw from flexi throughout month → gradual increase
-    // 3. Average daily balance is LOWER than flexi chunking
-    // 4. Daily interest on lower average = savings
-    //
-    // In our monthly simulation, we capture this by:
-    // - Flexi interest is calculated on balance (daily compounding formula)
-    // - Surplus (income - expenses) is applied as chunk to target debt
-    //
-    // The "velocity" effect is that income spends more time in flexi,
-    // reducing the average balance. This is captured in the flexi interest
-    // calculation which uses daily compounding formula.
-
-    return [
-      {
-        accountId: target.id,
-        amount: surplus,
-      },
-    ];
+    return this.createAllocator()(surplus, accounts, flexi);
   },
 };

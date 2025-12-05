@@ -12,7 +12,11 @@
  */
 import Big from 'big.js';
 import { generateProjection } from '../projections';
-import { buildStrategyProjection } from './strategy-helpers';
+import {
+  buildStrategyProjection,
+  applyTargetOverride,
+  getEffectiveSurplus,
+} from './strategy-helpers';
 import type {
   DebtStrategy,
   FinancialSnapshot,
@@ -48,15 +52,25 @@ export const snowballStrategy: DebtStrategy = {
     config?: StrategyConfig,
     baseline?: StrategyProjection
   ): StrategyProjection {
-    // Create allocator that uses this strategy's allocatePayment method
+    // Apply config to get effective surplus
+    const baseSurplus = new Big(snapshot.availableSurplus || '0');
+    const effectiveSurplus = getEffectiveSurplus(baseSurplus, config);
+
+    // Create modified snapshot with adjusted surplus
+    const adjustedSnapshot: FinancialSnapshot = {
+      ...snapshot,
+      availableSurplus: effectiveSurplus.toString(),
+    };
+
+    // Create allocator closure that includes config for target override
     const allocator = (
       surplus: Big,
       accounts: SimulatedAccount[],
       flexi: SimulatedFlexi | null
-    ) => this.allocatePayment(surplus, accounts, flexi);
+    ) => this.createAllocator(config)(surplus, accounts, flexi);
 
     // Generate projection with snowball allocator
-    const projections = generateProjection(snapshot, allocator, {
+    const projections = generateProjection(adjustedSnapshot, allocator, {
       maxMonths: config?.maxMonths,
       startDate: config?.startDate ?? snapshot.snapshotDate,
     });
@@ -71,39 +85,62 @@ export const snowballStrategy: DebtStrategy = {
   },
 
   /**
+   * Create an allocator function with config applied
+   */
+  createAllocator(config?: StrategyConfig) {
+    return (
+      surplus: Big,
+      accounts: SimulatedAccount[],
+      _flexi: SimulatedFlexi | null
+    ): PaymentAllocation[] => {
+      // No surplus to allocate
+      if (surplus.lte(0)) {
+        return [];
+      }
+
+      // Filter to accounts with positive balance
+      const activeAccounts = accounts.filter((acc) => acc.balance.gt(0));
+
+      if (activeAccounts.length === 0) {
+        return [];
+      }
+
+      // Default sorter: smallest balance first
+      const snowballSorter = (accs: SimulatedAccount[]) =>
+        [...accs].sort((a, b) => a.balance.cmp(b.balance));
+
+      // Apply target override if configured, otherwise use snowball sorting
+      const sorted = applyTargetOverride(
+        activeAccounts,
+        config?.targetAccountId,
+        snowballSorter
+      );
+
+      // Allocate all surplus to the target (first in sorted list)
+      const target = sorted[0];
+
+      return [
+        {
+          accountId: target.id,
+          amount: surplus,
+        },
+      ];
+    };
+  },
+
+  /**
    * Allocate surplus to smallest balance first
    *
    * Sorts accounts by balance (ascending) and allocates all surplus
    * to the account with the smallest non-zero balance.
+   *
+   * @deprecated Use createAllocator with config for target override support
    */
   allocatePayment(
     surplus: Big,
     accounts: SimulatedAccount[],
-    _flexi: SimulatedFlexi | null
+    flexi: SimulatedFlexi | null
   ): PaymentAllocation[] {
-    // No surplus to allocate
-    if (surplus.lte(0)) {
-      return [];
-    }
-
-    // Filter to accounts with positive balance
-    const activeAccounts = accounts.filter((acc) => acc.balance.gt(0));
-
-    if (activeAccounts.length === 0) {
-      return [];
-    }
-
-    // Sort by balance ascending (smallest first)
-    const sorted = [...activeAccounts].sort((a, b) => a.balance.cmp(b.balance));
-
-    // Allocate all surplus to the smallest balance
-    const target = sorted[0];
-
-    return [
-      {
-        accountId: target.id,
-        amount: surplus,
-      },
-    ];
+    return this.createAllocator()(surplus, accounts, flexi);
   },
 };

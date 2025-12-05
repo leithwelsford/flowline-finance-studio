@@ -1,0 +1,256 @@
+<story-context id="4-7-implement-strategy-configuration-options" v="1.0">
+  <metadata>
+    <epicId>4</epicId>
+    <storyId>7</storyId>
+    <title>Implement Strategy Configuration Options</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-12-05</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/4-7-implement-strategy-configuration-options.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to configure strategy parameters such as chunk amounts, payment frequencies, and target account overrides</iWant>
+    <soThat>I can customize the debt acceleration calculations to my specific situation and preferences, rather than relying solely on default values</soThat>
+    <tasks>
+      <task id="1">Extend StrategyConfig type in src/lib/calculations/types.ts</task>
+      <task id="2">Create StrategyConfigData type for persistence in src/types/strategy-config.ts</task>
+      <task id="3">Implement useStrategyConfig hook in src/hooks/useStrategyConfig.ts</task>
+      <task id="4">Update strategy calculations to respect config in projections.ts</task>
+      <task id="5">Create StrategyConfigForm UI component in src/components/strategies/</task>
+      <task id="6">Create Zod validation schema in src/lib/validation/strategy-config.ts</task>
+      <task id="7">Write unit tests for configuration</task>
+      <task id="8">Integration test with orchestrator</task>
+      <task id="9">Update barrel exports</task>
+      <task id="10">Verify build and all tests pass</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-4.7.1">User can configure a custom chunk amount for flexi strategies (default: full available surplus)</criterion>
+    <criterion id="AC-4.7.2">User can configure payment frequency for strategies (Monthly, Bi-Weekly, Weekly)</criterion>
+    <criterion id="AC-4.7.3">User can configure a target account override to manually select which debt to prioritize</criterion>
+    <criterion id="AC-4.7.4">Configuration is stored in the Dexie settings table as JSON with key strategyConfig</criterion>
+    <criterion id="AC-4.7.5">Default configuration is created on first access if none exists</criterion>
+    <criterion id="AC-4.7.6">When configuration changes, strategies recalculate using the new parameters</criterion>
+    <criterion id="AC-4.7.7">The existing StrategyConfig interface in types.ts is extended to include new configuration options</criterion>
+    <criterion id="AC-4.7.8">A useStrategyConfig hook provides React components access to read and update configuration</criterion>
+    <criterion id="AC-4.7.9">A StrategyConfig UI component allows users to modify configuration via a form with validation</criterion>
+    <criterion id="AC-4.7.10">Unit tests verify configuration loading, saving, and application to strategy calculations</criterion>
+    <criterion id="AC-4.7.11">All strategies (8 total) respect the configuration when calculating projections</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>FR21: Strategy Configuration</section>
+        <snippet>User can configure strategy parameters (chunk amounts, payment frequencies, target accounts)</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>Data Architecture - Dexie Schema</section>
+        <snippet>Settings table uses key-value store with string key as primary key. Values stored as JSON strings for complex data.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>ADR-003: big.js for Financial Calculations</section>
+        <snippet>Use big.js for all monetary calculations including chunk amounts to ensure cent-level precision.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>Story 4.7 Acceptance Criteria</section>
+        <snippet>AC1: User can configure chunk amount. AC2: Payment frequency (monthly, bi-weekly, weekly). AC3: Target account override. AC4: Configuration persists in Dexie settings table.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-4.md</path>
+        <title>Epic 4 Technical Specification</title>
+        <section>StrategyConfig Interface</section>
+        <snippet>StrategyConfig contains chunkAmount (optional string), paymentFrequency ('monthly'|'bi-weekly'|'weekly'), targetAccountId (optional number).</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Form Patterns</section>
+        <snippet>Use shadcn/ui Form, Input, Select components. React Hook Form + Zod for validation. Toast notifications for feedback. Currency inputs use ZAR formatting with R prefix.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>type definitions</kind>
+        <symbol>StrategyConfig</symbol>
+        <lines>183-190</lines>
+        <reason>Existing StrategyConfig interface to be extended with chunkAmount, paymentFrequency, targetAccountId</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>type definitions</kind>
+        <symbol>DebtStrategy</symbol>
+        <lines>224-267</lines>
+        <reason>DebtStrategy interface showing calculate method signature that accepts StrategyConfig</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>type definitions</kind>
+        <symbol>SimulatedAccount</symbol>
+        <lines>107-118</lines>
+        <reason>SimulatedAccount interface used in applyTargetOverride logic for target account selection</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/projections.ts</path>
+        <kind>calculation module</kind>
+        <symbol>generateProjection</symbol>
+        <lines>37-103</lines>
+        <reason>Main projection generator function to be updated to respect payment frequency and chunk amount config</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/strategies/index.ts</path>
+        <kind>barrel export</kind>
+        <symbol>getAllStrategies</symbol>
+        <lines>35-46</lines>
+        <reason>Strategy registry listing all 8 strategies that must respect configuration</reason>
+      </file>
+      <file>
+        <path>src/lib/db/schema.ts</path>
+        <kind>database schema</kind>
+        <symbol>FlowlineDB.settings</symbol>
+        <lines>39, 62</lines>
+        <reason>Dexie settings table where strategyConfig will be stored as JSON</reason>
+      </file>
+      <file>
+        <path>src/types/settings.ts</path>
+        <kind>type definitions</kind>
+        <symbol>AppSettings</symbol>
+        <lines>1-12</lines>
+        <reason>AppSettings interface for key-value storage pattern used by settings table</reason>
+      </file>
+      <file>
+        <path>src/types/index.ts</path>
+        <kind>barrel export</kind>
+        <symbol>exports</symbol>
+        <lines>1-33</lines>
+        <reason>Barrel export file to be updated with new StrategyConfigData type</reason>
+      </file>
+      <file>
+        <path>src/hooks/useAccounts.ts</path>
+        <kind>hook</kind>
+        <symbol>useAccounts</symbol>
+        <lines>44-141</lines>
+        <reason>Reference hook pattern using useLiveQuery, Result type, and CRUD operations for useStrategyConfig implementation</reason>
+      </file>
+      <file>
+        <path>src/hooks/index.ts</path>
+        <kind>barrel export</kind>
+        <symbol>exports</symbol>
+        <lines>1-14</lines>
+        <reason>Hooks barrel export to be updated with useStrategyConfig</reason>
+      </file>
+      <file>
+        <path>src/lib/utils/result.ts</path>
+        <kind>utility</kind>
+        <symbol>Result, ok, err</symbol>
+        <reason>Result type pattern used for error handling in hooks</reason>
+      </file>
+    </code>
+
+    <dependencies>
+      <npm>
+        <package name="dexie" version="^4.2.1">IndexedDB wrapper for settings storage</package>
+        <package name="dexie-react-hooks" version="^4.2.0">useLiveQuery for reactive config loading</package>
+        <package name="big.js" version="^7.0.1">Precision math for chunk amounts</package>
+        <package name="react-hook-form" version="^7.66.1">Form handling for StrategyConfigForm</package>
+        <package name="zod" version="^4.1.13">Validation schema for config form</package>
+        <package name="@hookform/resolvers" version="^5.2.2">Zod resolver for react-hook-form</package>
+        <package name="zustand" version="^5.0.8">State management (if needed for calculation triggers)</package>
+        <package name="sonner" version="^2.0.7">Toast notifications for save feedback</package>
+      </npm>
+      <shadcn>
+        <component>Form</component>
+        <component>Input</component>
+        <component>Select</component>
+        <component>Button</component>
+        <component>Label</component>
+      </shadcn>
+    </dependencies>
+  </artifacts>
+
+  <interfaces>
+    <interface>
+      <name>StrategyConfig (existing)</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface StrategyConfig { maxMonths?: number; startDate?: string; extraPayment?: string; }</signature>
+      <path>src/lib/calculations/types.ts:183-190</path>
+    </interface>
+    <interface>
+      <name>StrategyConfig (extended)</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface StrategyConfig { maxMonths?: number; startDate?: string; extraPayment?: string; chunkAmount?: string; paymentFrequency?: 'monthly' | 'bi-weekly' | 'weekly'; targetAccountId?: number | null; }</signature>
+      <path>src/lib/calculations/types.ts (to modify)</path>
+    </interface>
+    <interface>
+      <name>AppSettings</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface AppSettings { key: string; value: string; }</signature>
+      <path>src/types/settings.ts</path>
+    </interface>
+    <interface>
+      <name>db.settings API</name>
+      <kind>Dexie table</kind>
+      <signature>db.settings.get(key: string): Promise&lt;AppSettings | undefined&gt;; db.settings.put(item: AppSettings): Promise&lt;string&gt;</signature>
+      <path>src/lib/db/schema.ts</path>
+    </interface>
+    <interface>
+      <name>DebtStrategy.calculate</name>
+      <kind>method signature</kind>
+      <signature>calculate(snapshot: FinancialSnapshot, config?: StrategyConfig, baseline?: StrategyProjection): StrategyProjection | null</signature>
+      <path>src/lib/calculations/types.ts:245-249</path>
+    </interface>
+  </interfaces>
+
+  <constraints>
+    <constraint type="pattern">All monetary values stored as strings for big.js precision (ADR-003)</constraint>
+    <constraint type="pattern">Use Result type for error handling in hooks: Result&lt;T, E&gt; = { success: true; data: T } | { success: false; error: E }</constraint>
+    <constraint type="pattern">Hooks use useLiveQuery for reactive database queries</constraint>
+    <constraint type="pattern">Form components use React Hook Form + Zod validation</constraint>
+    <constraint type="pattern">Toast notifications via sonner for user feedback</constraint>
+    <constraint type="layer">Calculation logic in src/lib/calculations/ is framework-agnostic</constraint>
+    <constraint type="naming">Files: kebab-case, Components: PascalCase, Hooks: use prefix, Functions: camelCase</constraint>
+    <constraint type="testing">Unit tests in tests/ directory mirroring src/ structure</constraint>
+    <constraint type="testing">Use fake-indexeddb for Dexie testing</constraint>
+    <constraint type="backward-compat">Existing StrategyConfig properties (maxMonths, startDate, extraPayment) must remain intact</constraint>
+    <constraint type="default">Default config: chunkAmount=null (use full surplus), paymentFrequency='monthly', targetAccountId=null (use strategy default)</constraint>
+  </constraints>
+
+  <tests>
+    <standards>
+      Tests use Vitest framework with describe/it/expect pattern. Test files co-located in tests/ directory mirroring src/ structure.
+      Use fake-indexeddb for Dexie database mocking. React components tested with @testing-library/react.
+      Acceptance criteria referenced in describe blocks (e.g., "AC-4.7.1: ..."). Test coverage targets: 90% for calculation functions, 80% for hooks.
+    </standards>
+    <locations>
+      <location>tests/hooks/useStrategyConfig.test.ts</location>
+      <location>tests/lib/calculations/config-application.test.ts</location>
+      <location>tests/lib/validation/strategy-config.test.ts</location>
+      <location>tests/lib/calculations/strategies/*.test.ts (update existing)</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-4.7.1">Test chunk amount override applied: custom chunk vs full surplus behavior</idea>
+      <idea ac="AC-4.7.2">Test payment frequency: monthly=12/yr, bi-weekly=26/yr (×2.167/mo), weekly=52/yr (×4.333/mo)</idea>
+      <idea ac="AC-4.7.3">Test target override: selected account prioritized, fallback on payoff</idea>
+      <idea ac="AC-4.7.4">Test DB persistence: save/load round-trip with JSON.stringify/parse</idea>
+      <idea ac="AC-4.7.5">Test default config returned when settings key not found</idea>
+      <idea ac="AC-4.7.6">Test recalculation: changing config produces different projection results</idea>
+      <idea ac="AC-4.7.8">Test hook returns { config, updateConfig, isLoading } with correct types</idea>
+      <idea ac="AC-4.7.9">Test form validation: chunkAmount >= 0, valid frequency enum, valid accountId</idea>
+      <idea ac="AC-4.7.10">Test invalid config rejected by Zod schema</idea>
+      <idea ac="AC-4.7.11">Test all 8 strategies pass config through to projection generator</idea>
+    </ideas>
+  </tests>
+</story-context>

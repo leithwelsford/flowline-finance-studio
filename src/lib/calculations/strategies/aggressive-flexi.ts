@@ -20,7 +20,11 @@
  */
 import Big from 'big.js';
 import { generateProjection } from '../projections';
-import { buildStrategyProjection } from './strategy-helpers';
+import {
+  buildStrategyProjection,
+  applyTargetOverride,
+  getEffectiveSurplus,
+} from './strategy-helpers';
 import type {
   DebtStrategy,
   FinancialSnapshot,
@@ -64,15 +68,25 @@ export const aggressiveFlexiStrategy: DebtStrategy = {
       return null;
     }
 
-    // Create allocator that uses this strategy's allocatePayment method
+    // Apply config to get effective surplus (includes chunk amount limit)
+    const baseSurplus = new Big(snapshot.availableSurplus || '0');
+    const effectiveSurplus = getEffectiveSurplus(baseSurplus, config);
+
+    // Create modified snapshot with adjusted surplus
+    const adjustedSnapshot: FinancialSnapshot = {
+      ...snapshot,
+      availableSurplus: effectiveSurplus.toString(),
+    };
+
+    // Create allocator closure that includes config for target override
     const allocator = (
       surplus: Big,
       accounts: SimulatedAccount[],
       flexi: SimulatedFlexi | null
-    ) => this.allocatePayment(surplus, accounts, flexi);
+    ) => this.createAllocator(config)(surplus, accounts, flexi);
 
     // Generate projection with aggressive flexi allocator
-    const projections = generateProjection(snapshot, allocator, {
+    const projections = generateProjection(adjustedSnapshot, allocator, {
       maxMonths: config?.maxMonths,
       startDate: config?.startDate ?? snapshot.snapshotDate,
     });
@@ -87,69 +101,63 @@ export const aggressiveFlexiStrategy: DebtStrategy = {
   },
 
   /**
+   * Create an allocator function with config applied
+   */
+  createAllocator(config?: StrategyConfig) {
+    return (
+      surplus: Big,
+      accounts: SimulatedAccount[],
+      flexi: SimulatedFlexi | null
+    ): PaymentAllocation[] => {
+      // No surplus to allocate
+      if (surplus.lte(0)) {
+        return [];
+      }
+
+      // No flexi facility - shouldn't happen as calculate() checks, but be safe
+      if (!flexi) {
+        return [];
+      }
+
+      // Filter to accounts with positive balance
+      const activeAccounts = accounts.filter((acc) => acc.balance.gt(0));
+
+      if (activeAccounts.length === 0) {
+        return [];
+      }
+
+      // Default sorter: highest interest rate first (avalanche targeting)
+      const avalancheSorter = (accs: SimulatedAccount[]) =>
+        [...accs].sort((a, b) => b.interestRate.cmp(a.interestRate));
+
+      // Apply target override if configured, otherwise use avalanche sorting
+      const sorted = applyTargetOverride(
+        activeAccounts,
+        config?.targetAccountId,
+        avalancheSorter
+      );
+
+      const target = sorted[0];
+
+      return [
+        {
+          accountId: target.id,
+          amount: surplus,
+        },
+      ];
+    };
+  },
+
+  /**
    * Allocate surplus using aggressive flexi pattern
    *
-   * Aggressive strategy logic:
-   * - Apply full surplus to highest-rate debt each month
-   * - In the real world, users run ALL money through flexi:
-   *   - Income → flexi (reduces balance)
-   *   - Expenses → from flexi (increases balance)
-   *   - Net effect: lower average daily balance
-   * - The simulation captures the end result: surplus goes to debt payoff
-   *
-   * The key difference from flexi chunking:
-   * - Flexi chunking: occasional lump sums, medium management
-   * - Aggressive: continuous flow-through, maximizes daily balance benefits
-   *
-   * In our simplified simulation, both allocate surplus to highest-rate debt.
-   * The distinction is primarily in effort level and real-world behavior.
-   * Both benefit from flexi daily interest vs debt monthly interest.
-   *
-   * For more sophisticated modeling, we could:
-   * - Track partial-month flexi balances
-   * - Model income timing within month
-   * - Calculate weighted average daily balance
-   *
-   * Current approach: allocate full surplus to highest-rate debt
+   * @deprecated Use createAllocator with config for target override support
    */
   allocatePayment(
     surplus: Big,
     accounts: SimulatedAccount[],
     flexi: SimulatedFlexi | null
   ): PaymentAllocation[] {
-    // No surplus to allocate
-    if (surplus.lte(0)) {
-      return [];
-    }
-
-    // No flexi facility - shouldn't happen as calculate() checks, but be safe
-    if (!flexi) {
-      return [];
-    }
-
-    // Filter to accounts with positive balance
-    const activeAccounts = accounts.filter((acc) => acc.balance.gt(0));
-
-    if (activeAccounts.length === 0) {
-      return [];
-    }
-
-    // Sort by interest rate descending (highest first) - avalanche targeting
-    const sorted = [...activeAccounts].sort((a, b) => b.interestRate.cmp(a.interestRate));
-    const target = sorted[0];
-
-    // Aggressive flexi behavior:
-    // Apply full surplus to highest-rate debt
-    // The aggressive nature is reflected in:
-    // 1. effortLevel: 'high' - requires active management
-    // 2. Real-world: all money flows through flexi for daily balance benefits
-    // 3. Simulation: captures the optimal debt payoff from available surplus
-
-    return [
-      {
-        accountId: target.id,
-        amount: surplus,
-      },
-    ];
+    return this.createAllocator()(surplus, accounts, flexi);
   },
 };
