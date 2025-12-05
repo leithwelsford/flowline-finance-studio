@@ -1,6 +1,6 @@
 # Story 4.7: Implement Strategy Configuration Options
 
-Status: ready-for-dev
+Status: in-review
 
 ## Story
 
