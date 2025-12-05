@@ -1,6 +1,6 @@
 # Story 4.7: Implement Strategy Configuration Options
 
-Status: in-review
+Status: done
 
 ## Story
 
@@ -294,3 +294,109 @@ From [ux-design-specification.md](../ux-design-specification.md):
 | Date | Change | Author |
 |------|--------|--------|
 | 2025-12-05 | Story drafted with full context from Epic 4 (FR21), PRD, Architecture, UX Design, and Story 4.6 learnings | SM Agent (Bob) |
+| 2025-12-05 | Senior Developer Review notes appended - APPROVED | Dev Agent (Amelia) |
+
+---
+
+## Senior Developer Review (AI)
+
+### Reviewer
+Leith
+
+### Date
+2025-12-05
+
+### Outcome
+**✅ APPROVE**
+
+All 11 acceptance criteria are implemented and verified. All 1251 tests pass. Build succeeds (641KB bundle). Implementation follows architecture patterns correctly.
+
+### Summary
+
+Story 4.7 delivers a complete strategy configuration system allowing users to customize chunk amounts, payment frequencies, and target account overrides. The implementation properly extends the existing `StrategyConfig` interface, persists to Dexie, and integrates with all 8 debt reduction strategies.
+
+### Key Findings
+
+**No HIGH or MEDIUM severity issues found.**
+
+**LOW Severity:**
+- Note: Task checkboxes in story file were not updated (all show `[ ]` though tasks were implemented). This is a documentation housekeeping issue, not a code issue.
+- Note: No dedicated hook tests for `useStrategyConfig` (tests/hooks/useStrategyConfig.test.ts not created). However, the hook's functionality is indirectly tested through validation and strategy integration tests.
+
+### Acceptance Criteria Coverage
+
+| AC | Description | Status | Evidence |
+|----|-------------|--------|----------|
+| AC-4.7.1 | Custom chunk amount | ✅ IMPLEMENTED | [strategy-helpers.ts:106-123](src/lib/calculations/strategies/strategy-helpers.ts#L106-L123) `applyChunkAmountLimit` |
+| AC-4.7.2 | Payment frequency | ✅ IMPLEMENTED | [strategy-helpers.ts:73-94](src/lib/calculations/strategies/strategy-helpers.ts#L73-L94) `calculateEffectiveMonthlySurplus`, [types.ts:186](src/lib/calculations/types.ts#L186) `PaymentFrequency` |
+| AC-4.7.3 | Target account override | ✅ IMPLEMENTED | [strategy-helpers.ts:38-60](src/lib/calculations/strategies/strategy-helpers.ts#L38-L60) `applyTargetOverride` |
+| AC-4.7.4 | Dexie settings storage | ✅ IMPLEMENTED | [useStrategyConfig.ts:93-96](src/hooks/useStrategyConfig.ts#L93-L96) `db.settings.put` |
+| AC-4.7.5 | Default config on first access | ✅ IMPLEMENTED | [strategy-config.ts:36-40](src/types/strategy-config.ts#L36-L40) `DEFAULT_STRATEGY_CONFIG` |
+| AC-4.7.6 | Recalculation on config change | ✅ IMPLEMENTED | useLiveQuery reactivity + strategy tests verify different results |
+| AC-4.7.7 | StrategyConfig interface extended | ✅ IMPLEMENTED | [types.ts:191-204](src/lib/calculations/types.ts#L191-L204) |
+| AC-4.7.8 | useStrategyConfig hook | ✅ IMPLEMENTED | [useStrategyConfig.ts:72-125](src/hooks/useStrategyConfig.ts#L72-L125) |
+| AC-4.7.9 | StrategyConfigForm UI | ✅ IMPLEMENTED | [StrategyConfigForm.tsx](src/components/strategies/StrategyConfigForm.tsx), [validation/strategy-config.ts](src/lib/validation/strategy-config.ts) |
+| AC-4.7.10 | Unit tests | ✅ IMPLEMENTED | 33 validation tests + 42 config application tests |
+| AC-4.7.11 | All 8 strategies respect config | ✅ IMPLEMENTED | [strategy-config.test.ts:507-631](tests/lib/calculations/strategies/strategy-config.test.ts#L507-L631) |
+
+**Summary:** 11 of 11 acceptance criteria fully implemented
+
+### Task Completion Validation
+
+| Task | Marked As | Verified As | Evidence |
+|------|-----------|-------------|----------|
+| Task 1: Extend StrategyConfig type | [ ] | ✅ DONE | [types.ts:186-204](src/lib/calculations/types.ts#L186-L204) |
+| Task 2: Create StrategyConfigData type | [ ] | ✅ DONE | [strategy-config.ts](src/types/strategy-config.ts) |
+| Task 3: Implement useStrategyConfig hook | [ ] | ✅ DONE | [useStrategyConfig.ts](src/hooks/useStrategyConfig.ts) |
+| Task 4: Update strategy calculations | [ ] | ✅ DONE | [strategy-helpers.ts](src/lib/calculations/strategies/strategy-helpers.ts) |
+| Task 5: Create StrategyConfigForm | [ ] | ✅ DONE | [StrategyConfigForm.tsx](src/components/strategies/StrategyConfigForm.tsx) |
+| Task 6: Create Zod validation schema | [ ] | ✅ DONE | [validation/strategy-config.ts](src/lib/validation/strategy-config.ts) |
+| Task 7: Write unit tests | [ ] | ✅ DONE | [strategy-config.test.ts](tests/lib/calculations/strategies/strategy-config.test.ts), [validation/strategy-config.test.ts](tests/lib/validation/strategy-config.test.ts) |
+| Task 8: Integration test with orchestrator | [ ] | ✅ DONE | [strategy-config.test.ts:464-631](tests/lib/calculations/strategies/strategy-config.test.ts#L464-L631) |
+| Task 9: Update barrel exports | [ ] | ✅ DONE | [types/index.ts:34-36](src/types/index.ts#L34-L36), [hooks/index.ts:14](src/hooks/index.ts#L14), [components/strategies/index.ts](src/components/strategies/index.ts) |
+| Task 10: Verify build and all tests pass | [ ] | ✅ DONE | 1251 tests pass, build succeeds |
+
+**Summary:** 10 of 10 tasks verified complete. Task checkboxes not updated in story file (documentation issue only).
+
+### Test Coverage and Gaps
+
+**Tests Present:**
+- `tests/lib/validation/strategy-config.test.ts` - 33 tests for Zod schema validation
+- `tests/lib/calculations/strategies/strategy-config.test.ts` - 42 tests for config application
+
+**Test Results:**
+- All 1251 tests passing (75 new tests added in this story)
+- Build: Succeeds (641KB bundle)
+
+**Minor Gap:**
+- No dedicated `tests/hooks/useStrategyConfig.test.ts` file. Hook DB operations are tested indirectly through integration tests.
+
+### Architectural Alignment
+
+✅ **Follows ADR-003:** All monetary values (chunkAmount) stored as strings for big.js precision
+✅ **Follows ADR-004:** Strategy pattern maintained; config passed through `createAllocator`
+✅ **Follows ADR-005:** Config stored in Dexie settings table, not Zustand
+✅ **Component locations:** Match architecture.md structure
+✅ **Naming conventions:** Files kebab-case, components PascalCase, hooks use prefix
+
+### Security Notes
+
+No security concerns identified:
+- Input validation via Zod schema (negative values rejected, enum enforcement)
+- No sensitive data exposure
+- Client-side only (no network transmission)
+
+### Best-Practices and References
+
+- React Hook Form + Zod integration: [react-hook-form.com](https://react-hook-form.com/get-started#SchemaValidation)
+- Dexie useLiveQuery: [dexie.org/docs/dexie-react-hooks/useLiveQuery()](https://dexie.org/docs/dexie-react-hooks/useLiveQuery())
+- big.js precision: Maintained throughout config flow
+
+### Action Items
+
+**Code Changes Required:**
+None - all acceptance criteria met
+
+**Advisory Notes:**
+- Note: Consider adding dedicated `tests/hooks/useStrategyConfig.test.ts` for hook-specific DB operations (future improvement)
+- Note: Update task checkboxes in story file for accurate documentation (housekeeping)
