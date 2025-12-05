@@ -3,6 +3,8 @@ import Big from 'big.js';
 import { flexiChunkingStrategy } from '@/lib/calculations/strategies/flexi-chunking';
 import { aggressiveFlexiStrategy } from '@/lib/calculations/strategies/aggressive-flexi';
 import { velocityBankingStrategy } from '@/lib/calculations/strategies/velocity-banking';
+import { hybridSnowballStrategy } from '@/lib/calculations/strategies/hybrid-snowball';
+import { hybridAvalancheStrategy } from '@/lib/calculations/strategies/hybrid-avalanche';
 import { baselineStrategy } from '@/lib/calculations/strategies/baseline';
 import { avalancheStrategy } from '@/lib/calculations/strategies/avalanche';
 import { snowballStrategy } from '@/lib/calculations/strategies/snowball';
@@ -572,6 +574,229 @@ describe('Flexi Strategy Comparisons (AC-4.4.9)', () => {
       // Both should beat baseline
       expect(flexiChunking.totalInterestPaid.lt(baseline.totalInterestPaid)).toBe(true);
       expect(velocityBanking.totalInterestPaid.lt(baseline.totalInterestPaid)).toBe(true);
+    });
+  });
+
+  describe('Hybrid Strategy Comparisons (AC-4.6.11)', () => {
+    /**
+     * Snapshot where smallest balance != highest rate
+     * This is critical for testing snowball vs avalanche targeting difference
+     */
+    const createDifferentTargetSnapshot = (): FinancialSnapshot => ({
+      accounts: [
+        {
+          id: 1,
+          balance: '150000',
+          interestRate: '0.22', // 22% - Highest rate, largest balance
+          minimumPayment: '3000',
+          interestType: 'monthly',
+        },
+        {
+          id: 2,
+          balance: '75000',
+          interestRate: '0.15', // 15% - Middle rate, middle balance
+          minimumPayment: '1500',
+          interestType: 'monthly',
+        },
+        {
+          id: 3,
+          balance: '15000',
+          interestRate: '0.10', // 10% - Lowest rate, smallest balance
+          minimumPayment: '300',
+          interestType: 'monthly',
+        },
+      ],
+      flexiFacility: {
+        currentBalance: '20000',
+        interestRate: '0.1375',
+      },
+      monthlyIncome: '50000',
+      monthlyExpenses: '30000',
+      availableSurplus: '15200', // 50000 - 30000 - 4800 (min payments)
+      snapshotDate: '2024-01-01',
+    });
+
+    it('hybrid-avalanche saves more interest than hybrid-snowball (AC-4.6.11)', () => {
+      const snapshot = createDifferentTargetSnapshot();
+
+      const baseline = baselineStrategy.calculate(snapshot);
+      const hybridSnowball = hybridSnowballStrategy.calculate(snapshot, undefined, baseline);
+      const hybridAvalanche = hybridAvalancheStrategy.calculate(snapshot, undefined, baseline);
+
+      expect(hybridSnowball).not.toBeNull();
+      expect(hybridAvalanche).not.toBeNull();
+      if (hybridSnowball === null || hybridAvalanche === null) return;
+
+      // Avalanche targeting (highest rate first) should save more interest
+      // than snowball targeting (smallest balance first)
+      expect(hybridAvalanche.totalInterestPaid.lt(hybridSnowball.totalInterestPaid)).toBe(true);
+
+      console.log(
+        `Hybrid Snowball: R${hybridSnowball.totalInterestPaid.toFixed(2)} interest`
+      );
+      console.log(
+        `Hybrid Avalanche: R${hybridAvalanche.totalInterestPaid.toFixed(2)} interest (saves R${hybridSnowball.totalInterestPaid.minus(hybridAvalanche.totalInterestPaid).toFixed(2)} more)`
+      );
+    });
+
+    it('hybrid-snowball pays off smallest debt faster (psychological wins) (AC-4.6.11)', () => {
+      const snapshot = createDifferentTargetSnapshot();
+
+      const hybridSnowball = hybridSnowballStrategy.calculate(snapshot);
+      const hybridAvalanche = hybridAvalancheStrategy.calculate(snapshot);
+
+      expect(hybridSnowball).not.toBeNull();
+      expect(hybridAvalanche).not.toBeNull();
+      if (hybridSnowball === null || hybridAvalanche === null) return;
+
+      // Find when smallest balance (id=3, R15k, 10%) is paid off for each strategy
+      const snowballSmallestPaidOff = hybridSnowball.monthlyProjections.findIndex(
+        (m) => m.accounts.find((a) => a.accountId === 3)?.endBalance.eq(0)
+      );
+
+      const avalancheSmallestPaidOff = hybridAvalanche.monthlyProjections.findIndex(
+        (m) => m.accounts.find((a) => a.accountId === 3)?.endBalance.eq(0)
+      );
+
+      // Snowball should pay off smallest balance faster
+      expect(snowballSmallestPaidOff).toBeGreaterThan(-1);
+      expect(snowballSmallestPaidOff).toBeLessThan(avalancheSmallestPaidOff);
+
+      console.log(
+        `Hybrid Snowball pays off smallest in month ${snowballSmallestPaidOff + 1}`
+      );
+      console.log(
+        `Hybrid Avalanche pays off smallest in month ${avalancheSmallestPaidOff + 1}`
+      );
+    });
+
+    it('hybrid-avalanche behaves similarly to flexi-chunking (both use avalanche targeting) (AC-4.6.11)', () => {
+      const snapshot = createDifferentTargetSnapshot();
+
+      const baseline = baselineStrategy.calculate(snapshot);
+      const flexiChunking = flexiChunkingStrategy.calculate(snapshot, undefined, baseline);
+      const hybridAvalanche = hybridAvalancheStrategy.calculate(snapshot, undefined, baseline);
+
+      expect(flexiChunking).not.toBeNull();
+      expect(hybridAvalanche).not.toBeNull();
+      if (flexiChunking === null || hybridAvalanche === null) return;
+
+      // Both use avalanche targeting, so should have identical payoff order
+      // and very similar interest totals (implementation may have minor differences)
+      expect(hybridAvalanche.debtFreeMonth).toBe(flexiChunking.debtFreeMonth);
+
+      // Interest should be within 1% of each other
+      const interestDiff = hybridAvalanche.totalInterestPaid
+        .minus(flexiChunking.totalInterestPaid)
+        .abs();
+      const tolerance = flexiChunking.totalInterestPaid.times('0.01');
+      expect(interestDiff.lte(tolerance)).toBe(true);
+
+      console.log(
+        `Flexi Chunking: ${flexiChunking.debtFreeMonth} months, R${flexiChunking.totalInterestPaid.toFixed(2)} interest`
+      );
+      console.log(
+        `Hybrid Avalanche: ${hybridAvalanche.debtFreeMonth} months, R${hybridAvalanche.totalInterestPaid.toFixed(2)} interest`
+      );
+    });
+
+    it('both hybrid strategies differ from pure flexi-chunking in targeting behavior', () => {
+      const snapshot = createDifferentTargetSnapshot();
+
+      const hybridSnowball = hybridSnowballStrategy.calculate(snapshot);
+      const flexiChunking = flexiChunkingStrategy.calculate(snapshot);
+
+      expect(hybridSnowball).not.toBeNull();
+      expect(flexiChunking).not.toBeNull();
+      if (hybridSnowball === null || flexiChunking === null) return;
+
+      // Hybrid snowball targets smallest (id=3), flexi-chunking targets highest rate (id=1)
+      // Check first month allocations differ
+      const snowballMonth1 = hybridSnowball.monthlyProjections[0];
+      const flexiMonth1 = flexiChunking.monthlyProjections[0];
+
+      // Snowball should prioritize smallest balance (id=3), chunking should prioritize highest rate (id=1)
+      const snowballTarget = snowballMonth1.accounts.reduce((max, acc) =>
+        acc.paymentApplied.gt(max.paymentApplied) ? acc : max
+      );
+      const flexiTarget = flexiMonth1.accounts.reduce((max, acc) =>
+        acc.paymentApplied.gt(max.paymentApplied) ? acc : max
+      );
+
+      // Snowball targets smallest balance (id=3), flexi-chunking targets highest rate (id=1)
+      expect(snowballTarget.accountId).toBe(3); // Smallest balance
+      expect(flexiTarget.accountId).toBe(1); // Highest rate
+    });
+
+    it('all flexi strategies (including hybrids) beat baseline', () => {
+      const snapshot = createSnapshotWithFavorableRateDifferential();
+      const baseline = baselineStrategy.calculate(snapshot);
+
+      const flexiStrategies = [
+        { strategy: flexiChunkingStrategy, name: 'Flexi Chunking' },
+        { strategy: aggressiveFlexiStrategy, name: 'Aggressive Flexi' },
+        { strategy: velocityBankingStrategy, name: 'Velocity Banking' },
+        { strategy: hybridSnowballStrategy, name: 'Hybrid Snowball' },
+        { strategy: hybridAvalancheStrategy, name: 'Hybrid Avalanche' },
+      ];
+
+      for (const { strategy, name } of flexiStrategies) {
+        const result = strategy.calculate(snapshot, undefined, baseline);
+
+        expect(result).not.toBeNull();
+        if (result === null) continue;
+
+        // All flexi strategies should perform at least as well as baseline
+        expect(result.debtFreeMonth).toBeLessThanOrEqual(baseline.debtFreeMonth);
+
+        console.log(
+          `${name}: ${result.debtFreeMonth} months, R${result.totalInterestPaid.toFixed(2)} interest, saves R${result.interestSaved.toFixed(2)}`
+        );
+      }
+    });
+
+    it('both hybrid strategies return null without flexi facility', () => {
+      const snapshot = createSnapshotWithoutFlexi();
+
+      expect(hybridSnowballStrategy.calculate(snapshot)).toBeNull();
+      expect(hybridAvalancheStrategy.calculate(snapshot)).toBeNull();
+    });
+
+    it('hybrid strategies have medium effort level', () => {
+      expect(hybridSnowballStrategy.effortLevel).toBe('medium');
+      expect(hybridAvalancheStrategy.effortLevel).toBe('medium');
+    });
+
+    it('hybrid strategies require flexi', () => {
+      expect(hybridSnowballStrategy.requiresFlexi).toBe(true);
+      expect(hybridAvalancheStrategy.requiresFlexi).toBe(true);
+    });
+
+    it('compare all 5 flexi strategies on tech spec snapshot', () => {
+      const snapshot = createTechSpecSnapshot();
+      const baseline = baselineStrategy.calculate(snapshot);
+
+      const flexiStrategies = [
+        { strategy: flexiChunkingStrategy, name: 'Flexi Chunking' },
+        { strategy: aggressiveFlexiStrategy, name: 'Aggressive Flexi' },
+        { strategy: velocityBankingStrategy, name: 'Velocity Banking' },
+        { strategy: hybridSnowballStrategy, name: 'Hybrid Snowball' },
+        { strategy: hybridAvalancheStrategy, name: 'Hybrid Avalanche' },
+      ];
+
+      console.log('\n=== All Flexi Strategies Comparison (Tech Spec Snapshot) ===');
+      console.log(`Baseline: ${baseline.debtFreeMonth} months, R${baseline.totalInterestPaid.toFixed(2)} interest`);
+
+      for (const { strategy, name } of flexiStrategies) {
+        const result = strategy.calculate(snapshot, undefined, baseline);
+
+        expect(result).not.toBeNull();
+        if (result === null) continue;
+
+        console.log(
+          `${name}: ${result.debtFreeMonth} months, R${result.totalInterestPaid.toFixed(2)} interest, saves R${result.interestSaved.toFixed(2)}`
+        );
+      }
     });
   });
 });

@@ -196,16 +196,18 @@ describe('Strategy Comparison Tests - AC-4.3.7', () => {
   });
 
   describe('Strategy Registry', () => {
-    it('getAllStrategies returns all six strategies', () => {
+    it('getAllStrategies returns all eight strategies', () => {
       const strategies = getAllStrategies();
 
-      expect(strategies.length).toBe(6);
+      expect(strategies.length).toBe(8);
       expect(strategies.map((s) => s.id)).toContain('baseline');
       expect(strategies.map((s) => s.id)).toContain('snowball');
       expect(strategies.map((s) => s.id)).toContain('avalanche');
       expect(strategies.map((s) => s.id)).toContain('flexi-chunking');
       expect(strategies.map((s) => s.id)).toContain('aggressive-flexi');
       expect(strategies.map((s) => s.id)).toContain('velocity-banking');
+      expect(strategies.map((s) => s.id)).toContain('hybrid-flexi-snowball');
+      expect(strategies.map((s) => s.id)).toContain('hybrid-flexi-avalanche');
     });
 
     it('getStrategyById returns correct strategy', () => {
