@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import Big from 'big.js';
 import { flexiChunkingStrategy } from '@/lib/calculations/strategies/flexi-chunking';
 import { aggressiveFlexiStrategy } from '@/lib/calculations/strategies/aggressive-flexi';
+import { velocityBankingStrategy } from '@/lib/calculations/strategies/velocity-banking';
 import { baselineStrategy } from '@/lib/calculations/strategies/baseline';
 import { avalancheStrategy } from '@/lib/calculations/strategies/avalanche';
 import { snowballStrategy } from '@/lib/calculations/strategies/snowball';
@@ -77,6 +78,43 @@ describe('Flexi Strategy Comparisons (AC-4.4.9)', () => {
     monthlyIncome: '85000',
     monthlyExpenses: '45000',
     availableSurplus: '36450',
+    snapshotDate: '2024-01-01',
+  });
+
+  /**
+   * Test snapshot from tech spec - exact values from tech-spec-epic-4.md
+   */
+  const createTechSpecSnapshot = (): FinancialSnapshot => ({
+    accounts: [
+      {
+        id: 1,
+        balance: '1500000',
+        interestRate: '0.115',
+        minimumPayment: '15000',
+        interestType: 'monthly',
+      },
+      {
+        id: 2,
+        balance: '250000',
+        interestRate: '0.13',
+        minimumPayment: '5500',
+        interestType: 'monthly',
+      },
+      {
+        id: 3,
+        balance: '50000',
+        interestRate: '0.20',
+        minimumPayment: '1500',
+        interestType: 'monthly',
+      },
+    ],
+    flexiFacility: {
+      currentBalance: '100000',
+      interestRate: '0.1375',
+    },
+    monthlyIncome: '85000',
+    monthlyExpenses: '45000',
+    availableSurplus: '18000', // 85000 - 45000 - 22000 min payments
     snapshotDate: '2024-01-01',
   });
 
@@ -287,44 +325,6 @@ describe('Flexi Strategy Comparisons (AC-4.4.9)', () => {
   });
 
   describe('Test snapshot from tech spec', () => {
-    /**
-     * This test uses the exact snapshot from the tech spec to validate
-     * the flexi strategies perform as expected
-     */
-    const createTechSpecSnapshot = (): FinancialSnapshot => ({
-      accounts: [
-        {
-          id: 1,
-          balance: '1500000',
-          interestRate: '0.115',
-          minimumPayment: '15000',
-          interestType: 'monthly',
-        },
-        {
-          id: 2,
-          balance: '250000',
-          interestRate: '0.13',
-          minimumPayment: '5500',
-          interestType: 'monthly',
-        },
-        {
-          id: 3,
-          balance: '50000',
-          interestRate: '0.20',
-          minimumPayment: '1500',
-          interestType: 'monthly',
-        },
-      ],
-      flexiFacility: {
-        currentBalance: '100000',
-        interestRate: '0.1375',
-      },
-      monthlyIncome: '85000',
-      monthlyExpenses: '45000',
-      availableSurplus: '18000', // 85000 - 45000 - 22000 min payments
-      snapshotDate: '2024-01-01',
-    });
-
     it('flexi chunking targets credit card (highest rate at 20%)', () => {
       const snapshot = createTechSpecSnapshot();
       const result = flexiChunkingStrategy.calculate(snapshot);
@@ -409,6 +409,169 @@ describe('Flexi Strategy Comparisons (AC-4.4.9)', () => {
           `${name}: ${result.debtFreeMonth} months, R${result.totalInterestPaid.toFixed(2)} interest`
         );
       }
+    });
+  });
+
+  describe('Velocity Banking Strategy Comparisons (AC-4.5.11)', () => {
+    it('velocity banking saves interest vs baseline', () => {
+      const snapshot = createSnapshotWithFavorableRateDifferential();
+
+      const baseline = baselineStrategy.calculate(snapshot);
+      const velocityBanking = velocityBankingStrategy.calculate(snapshot, undefined, baseline);
+
+      expect(velocityBanking).not.toBeNull();
+      if (velocityBanking === null) return;
+
+      // Velocity banking should save interest
+      expect(velocityBanking.totalInterestPaid.lt(baseline.totalInterestPaid)).toBe(true);
+      expect(velocityBanking.interestSaved.gt(0)).toBe(true);
+
+      console.log(
+        `Velocity Banking saves R${velocityBanking.interestSaved.toFixed(2)} interest vs baseline`
+      );
+    });
+
+    it('velocity banking returns null without flexi facility', () => {
+      const snapshot = createSnapshotWithoutFlexi();
+      const result = velocityBankingStrategy.calculate(snapshot);
+
+      expect(result).toBeNull();
+    });
+
+    it('velocity banking has high effort level', () => {
+      expect(velocityBankingStrategy.effortLevel).toBe('high');
+    });
+
+    it('velocity banking requires flexi', () => {
+      expect(velocityBankingStrategy.requiresFlexi).toBe(true);
+    });
+
+    it('velocity banking beats baseline with tech spec snapshot', () => {
+      const snapshot = createTechSpecSnapshot();
+
+      const baseline = baselineStrategy.calculate(snapshot);
+      const velocityBanking = velocityBankingStrategy.calculate(snapshot, undefined, baseline);
+
+      expect(velocityBanking).not.toBeNull();
+      if (velocityBanking === null) return;
+
+      // Velocity banking should perform at least as well as baseline
+      expect(velocityBanking.debtFreeMonth).toBeLessThanOrEqual(baseline.debtFreeMonth);
+      expect(velocityBanking.totalInterestPaid.lte(baseline.totalInterestPaid)).toBe(true);
+
+      console.log(
+        `Velocity Banking (tech spec): ${velocityBanking.debtFreeMonth} months, R${velocityBanking.totalInterestPaid.toFixed(2)} interest`
+      );
+    });
+
+    it('velocity banking targets highest-rate debt (credit card at 20%)', () => {
+      const snapshot = createTechSpecSnapshot();
+      const result = velocityBankingStrategy.calculate(snapshot);
+
+      expect(result).not.toBeNull();
+      if (result === null) return;
+
+      // First month should show credit card (id=3) receiving extra payments
+      const month1 = result.monthlyProjections[0];
+      const creditCard = month1.accounts.find((a) => a.accountId === 3);
+
+      // Credit card should get payment above minimum (1500)
+      expect(creditCard?.paymentApplied.gt(new Big('1500'))).toBe(true);
+    });
+  });
+
+  describe('All flexi strategies comparison', () => {
+    it('all flexi strategies beat baseline with favorable rate differential', () => {
+      const snapshot = createSnapshotWithFavorableRateDifferential();
+      const baseline = baselineStrategy.calculate(snapshot);
+
+      const flexiStrategies = [
+        { strategy: flexiChunkingStrategy, name: 'Flexi Chunking' },
+        { strategy: aggressiveFlexiStrategy, name: 'Aggressive Flexi' },
+        { strategy: velocityBankingStrategy, name: 'Velocity Banking' },
+      ];
+
+      for (const { strategy, name } of flexiStrategies) {
+        const result = strategy.calculate(snapshot, undefined, baseline);
+
+        expect(result).not.toBeNull();
+        if (result === null) continue;
+
+        // All flexi strategies should perform at least as well as baseline
+        expect(result.debtFreeMonth).toBeLessThanOrEqual(baseline.debtFreeMonth);
+
+        console.log(
+          `${name}: ${result.debtFreeMonth} months, R${result.totalInterestPaid.toFixed(2)} interest, saves R${result.interestSaved.toFixed(2)}`
+        );
+      }
+    });
+
+    it('all flexi strategies return null without flexi facility', () => {
+      const snapshot = createSnapshotWithoutFlexi();
+
+      expect(flexiChunkingStrategy.calculate(snapshot)).toBeNull();
+      expect(aggressiveFlexiStrategy.calculate(snapshot)).toBeNull();
+      expect(velocityBankingStrategy.calculate(snapshot)).toBeNull();
+    });
+
+    it('effort levels are correctly ordered', () => {
+      // Flexi chunking: medium (periodic lump sums)
+      // Aggressive flexi: high (more aggressive management)
+      // Velocity banking: high (all cash flow through flexi)
+      expect(flexiChunkingStrategy.effortLevel).toBe('medium');
+      expect(aggressiveFlexiStrategy.effortLevel).toBe('high');
+      expect(velocityBankingStrategy.effortLevel).toBe('high');
+    });
+
+    it('all flexi strategies require flexi', () => {
+      expect(flexiChunkingStrategy.requiresFlexi).toBe(true);
+      expect(aggressiveFlexiStrategy.requiresFlexi).toBe(true);
+      expect(velocityBankingStrategy.requiresFlexi).toBe(true);
+    });
+  });
+
+  describe('Interest arbitrage with favorable rate differential', () => {
+    it('6.25% rate differential creates savings opportunity for velocity banking', () => {
+      const snapshot = createTechSpecSnapshot();
+
+      // Flexi rate: 13.75%
+      // Credit card rate: 20%
+      // Differential: 6.25% = arbitrage opportunity
+
+      const baseline = baselineStrategy.calculate(snapshot);
+      const velocityBanking = velocityBankingStrategy.calculate(snapshot, undefined, baseline);
+
+      expect(velocityBanking).not.toBeNull();
+      if (velocityBanking === null) return;
+
+      // With the rate differential, velocity banking strategy should save interest
+      expect(velocityBanking.totalInterestPaid.lt(baseline.totalInterestPaid)).toBe(true);
+    });
+
+    it('velocity banking vs flexi chunking with consistent surplus', () => {
+      const snapshot = createSnapshotWithFavorableRateDifferential();
+
+      const baseline = baselineStrategy.calculate(snapshot);
+      const flexiChunking = flexiChunkingStrategy.calculate(snapshot, undefined, baseline);
+      const velocityBanking = velocityBankingStrategy.calculate(snapshot, undefined, baseline);
+
+      expect(flexiChunking).not.toBeNull();
+      expect(velocityBanking).not.toBeNull();
+      if (flexiChunking === null || velocityBanking === null) return;
+
+      // Both strategies use avalanche targeting (highest rate first)
+      // With the same allocation logic, they should have similar performance
+      // Velocity banking may have slight edge due to income parking effect
+      console.log(
+        `Flexi Chunking: ${flexiChunking.debtFreeMonth} months, R${flexiChunking.totalInterestPaid.toFixed(2)} interest`
+      );
+      console.log(
+        `Velocity Banking: ${velocityBanking.debtFreeMonth} months, R${velocityBanking.totalInterestPaid.toFixed(2)} interest`
+      );
+
+      // Both should beat baseline
+      expect(flexiChunking.totalInterestPaid.lt(baseline.totalInterestPaid)).toBe(true);
+      expect(velocityBanking.totalInterestPaid.lt(baseline.totalInterestPaid)).toBe(true);
     });
   });
 });
