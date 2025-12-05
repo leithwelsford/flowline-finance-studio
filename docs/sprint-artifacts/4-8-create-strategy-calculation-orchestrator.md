@@ -1,6 +1,6 @@
 # Story 4.8: Create Strategy Calculation Orchestrator
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -52,84 +52,84 @@ so that **I can compare all 8 strategies side-by-side without manually triggerin
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create calculationStore (Zustand) (AC: 6)
-  - [ ] Create `src/store/calculationStore.ts`
-  - [ ] Define state: `results`, `baseline`, `isCalculating`, `lastCalculated`, `error`
-  - [ ] Implement actions: `setResults()`, `setBaseline()`, `setCalculating()`, `setError()`, `clearResults()`
-  - [ ] Export from `src/store/index.ts`
+- [x] Task 1: Create calculationStore (Zustand) (AC: 6)
+  - [x] Create `src/store/calculationStore.ts`
+  - [x] Define state: `results`, `baseline`, `isCalculating`, `lastCalculated`, `error`
+  - [x] Implement actions: `setResults()`, `setBaseline()`, `setCalculating()`, `setError()`, `clearResults()`
+  - [x] Export from `src/store/index.ts`
 
-- [ ] Task 2: Create FinancialSnapshot builder (AC: 1)
-  - [ ] Create `src/lib/calculations/snapshot.ts`
-  - [ ] Implement `buildFinancialSnapshot(accounts, flexiFacility, income, expenses)` function
-  - [ ] Calculate `availableSurplus` = income - expenses - sum(minimumPayments)
-  - [ ] Use big.js for all calculations
-  - [ ] Return properly typed `FinancialSnapshot` object
+- [x] Task 2: Create FinancialSnapshot builder (AC: 1)
+  - [x] Create `src/lib/calculations/snapshot.ts`
+  - [x] Implement `buildFinancialSnapshot(accounts, flexiFacility, income, expenses)` function
+  - [x] Calculate `availableSurplus` = income - expenses - sum(minimumPayments)
+  - [x] Use big.js for all calculations
+  - [x] Return properly typed `FinancialSnapshot` object
 
-- [ ] Task 3: Create strategy calculation orchestrator (AC: 1, 2, 3, 4, 8)
-  - [ ] Create `src/lib/calculations/engine.ts`
-  - [ ] Import all strategies from `strategies/index.ts`
-  - [ ] Implement `calculateAllStrategies(snapshot, config?)`:
+- [x] Task 3: Create strategy calculation orchestrator (AC: 1, 2, 3, 4, 8)
+  - [x] Create `src/lib/calculations/engine.ts`
+  - [x] Import all strategies from `strategies/index.ts`
+  - [x] Implement `calculateAllStrategies(snapshot, config?)`:
     - Calculate baseline first
     - Loop through all strategies, passing baseline for comparison metrics
     - Filter null results (flexi strategies without flexi)
     - Return array of `StrategyProjection`
-  - [ ] Pass user config to all strategy calculate() calls
-  - [ ] Handle edge case: no accounts or zero balance (return empty array)
+  - [x] Pass user config to all strategy calculate() calls
+  - [x] Handle edge case: no accounts or zero balance (return empty array)
 
-- [ ] Task 4: Create useStrategies hook (AC: 7, 9)
-  - [ ] Create `src/hooks/useStrategies.ts`
-  - [ ] Use `useLiveQuery` for accounts, flexiFacility, income, expenses
-  - [ ] Use `useStrategyConfig` for user configuration
-  - [ ] Implement `calculateStrategies()` that:
+- [x] Task 4: Create useStrategies hook (AC: 7, 9)
+  - [x] Create `src/hooks/useStrategies.ts`
+  - [x] Use `useLiveQuery` for accounts, flexiFacility, income, expenses
+  - [x] Use `useStrategyConfig` for user configuration
+  - [x] Implement `calculateStrategies()` that:
     - Sets isCalculating = true
     - Builds snapshot from current data
     - Calls orchestrator
     - Stores results in calculationStore
     - Sets isCalculating = false
-  - [ ] Compute `bestStrategy` as strategy with highest `interestSaved`
-  - [ ] Return `{ strategies, baseline, isCalculating, calculateStrategies, bestStrategy }`
+  - [x] Compute `bestStrategy` as strategy with highest `interestSaved`
+  - [x] Return `{ strategies, baseline, isCalculating, calculateStrategies, bestStrategy }`
 
-- [ ] Task 5: Implement results sorting (AC: 10)
-  - [ ] Sort results by `interestSaved` descending (highest savings first)
-  - [ ] Baseline always included but may be last (zero savings)
-  - [ ] Sorting happens in orchestrator before returning
+- [x] Task 5: Implement results sorting (AC: 10)
+  - [x] Sort results by `interestSaved` descending (highest savings first)
+  - [x] Baseline always included but may be last (zero savings)
+  - [x] Sorting happens in orchestrator before returning
 
-- [ ] Task 6: Add loading state indicator component (AC: 9)
-  - [ ] Create `src/components/strategies/CalculationLoading.tsx`
-  - [ ] Use shadcn/ui Skeleton for loading states
-  - [ ] Show "Calculating strategies..." message
-  - [ ] Animate with subtle pulse
+- [x] Task 6: Add loading state indicator component (AC: 9)
+  - [x] Create `src/components/strategies/CalculationLoading.tsx`
+  - [x] Use shadcn/ui Skeleton for loading states
+  - [x] Show "Calculating strategies..." message
+  - [x] Animate with subtle pulse
 
-- [ ] Task 7: Write unit tests for orchestrator (AC: 11, 5)
-  - [ ] Create `tests/lib/calculations/engine.test.ts`
-  - [ ] Test: Snapshot built correctly from data
-  - [ ] Test: Baseline calculated first
-  - [ ] Test: All 8 strategies invoked
-  - [ ] Test: Null strategies filtered (flexi without flexi facility)
-  - [ ] Test: Results sorted by interest saved
-  - [ ] Test: Empty results when no accounts
-  - [ ] Test: Performance < 3 seconds for typical scenario
+- [x] Task 7: Write unit tests for orchestrator (AC: 11, 5)
+  - [x] Create `tests/lib/calculations/engine.test.ts`
+  - [x] Test: Snapshot built correctly from data
+  - [x] Test: Baseline calculated first
+  - [x] Test: All 8 strategies invoked
+  - [x] Test: Null strategies filtered (flexi without flexi facility)
+  - [x] Test: Results sorted by interest saved
+  - [x] Test: Empty results when no accounts
+  - [x] Test: Performance < 3 seconds for typical scenario
 
-- [ ] Task 8: Write unit tests for useStrategies hook (AC: 11)
-  - [ ] Create `tests/hooks/useStrategies.test.ts`
-  - [ ] Test: Loading state management
-  - [ ] Test: bestStrategy computed correctly
-  - [ ] Test: calculateStrategies triggers full calculation
+- [x] Task 8: Write unit tests for useStrategies hook (AC: 11)
+  - [x] Create `tests/hooks/useStrategies.test.ts`
+  - [x] Test: Loading state management
+  - [x] Test: bestStrategy computed correctly
+  - [x] Test: calculateStrategies triggers full calculation
 
-- [ ] Task 9: Integration test with real data flow (AC: 1-12)
-  - [ ] Test: Full flow from DB data to calculated results
-  - [ ] Test: Config passed through correctly
-  - [ ] Test: Store updated with results
+- [x] Task 9: Integration test with real data flow (AC: 1-12)
+  - [x] Test: Full flow from DB data to calculated results
+  - [x] Test: Config passed through correctly
+  - [x] Test: Store updated with results
 
-- [ ] Task 10: Update barrel exports (AC: all)
-  - [ ] Update `src/lib/calculations/index.ts` with engine exports
-  - [ ] Update `src/store/index.ts` with calculationStore
-  - [ ] Update `src/hooks/index.ts` with useStrategies
+- [x] Task 10: Update barrel exports (AC: all)
+  - [x] Update `src/lib/calculations/index.ts` with engine exports
+  - [x] Update `src/store/index.ts` with calculationStore
+  - [x] Update `src/hooks/index.ts` with useStrategies
 
-- [ ] Task 11: Verify build and all tests pass (AC: all)
-  - [ ] Run `npm run test` and ensure all tests pass
-  - [ ] Run `npm run build` and ensure no type errors
-  - [ ] Verify performance target (< 3 seconds)
+- [x] Task 11: Verify build and all tests pass (AC: all)
+  - [x] Run `npm run test` and ensure all tests pass
+  - [x] Run `npm run build` and ensure no type errors
+  - [x] Verify performance target (< 3 seconds)
 
 ## Dev Notes
 
@@ -364,16 +364,43 @@ This orchestrator provides the data layer for Epic 5 (Strategy Comparison):
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- All 11 tasks completed
+- 1306 tests passing (55 new tests added)
+- Build succeeds (641KB bundle)
+- Performance verified: <82ms for 10 account scenario (well under 3 second target)
+- All 8 strategies correctly calculated when flexi facility exists
+- 3 strategies returned when no flexi facility (baseline, snowball, avalanche)
+- Results sorted by interestSaved descending
+- Empty results returned gracefully for no accounts or zero balance scenarios
+
 ### File List
+
+**Created:**
+- `src/store/calculationStore.ts` - Zustand store for calculation results
+- `src/lib/calculations/engine.ts` - Strategy calculation orchestrator
+- `src/lib/calculations/snapshot.ts` - FinancialSnapshot builder
+- `src/hooks/useStrategies.ts` - React hook for strategy access
+- `src/components/strategies/CalculationLoading.tsx` - Loading indicator component
+- `tests/lib/calculations/engine.test.ts` - Orchestrator unit tests (19 tests)
+- `tests/lib/calculations/snapshot.test.ts` - Snapshot builder tests (10 tests)
+- `tests/lib/calculations/integration.test.ts` - Integration tests (6 tests)
+- `tests/hooks/useStrategies.test.ts` - Hook and store tests (20 tests)
+
+**Modified:**
+- `src/store/index.ts` - Export calculationStore
+- `src/lib/calculations/index.ts` - Export engine and snapshot functions
+- `src/hooks/index.ts` - Export useStrategies
+- `src/components/strategies/index.ts` - Export CalculationLoading
 
 ## Change Log
 
 | Date | Change | Author |
 |------|--------|--------|
 | 2025-12-05 | Story drafted with full context from Epic 4 (FR23), PRD, Architecture, and Story 4.7 learnings | SM Agent (Bob) |
+| 2025-12-05 | Implementation complete - all tasks done, all ACs satisfied, 1306 tests passing | Dev Agent (Amelia) |
