@@ -1,6 +1,6 @@
 # Story 4.2: Implement Projection Generator
 
-Status: review
+Status: done
 
 ## Story
 
@@ -318,3 +318,118 @@ Claude Opus 4.5 (claude-opus-4-5-20251101)
 |------|--------|--------|
 | 2025-12-05 | Story drafted with full context from Epic 4 tech spec, PRD (FR22-23), Architecture (Projection Generator), and Story 4.1 learnings | SM Agent (Bob) |
 | 2025-12-05 | Implementation complete: projection generator with all types, core functions, and 25 tests | Dev Agent (Amelia) |
+| 2025-12-05 | Senior Developer Review: APPROVED | SM Agent (Leith) |
+
+## Senior Developer Review (AI)
+
+### Reviewer
+Leith
+
+### Date
+2025-12-05
+
+### Outcome
+**APPROVE** ✅
+
+All 8 acceptance criteria fully implemented, all 12 tasks verified complete, build passes, 923/923 tests passing.
+
+### Summary
+
+Story 4.2 implements a comprehensive projection generator for month-by-month debt payoff simulation. The implementation is clean, well-tested, and aligns with the architecture. The code follows established patterns from Story 4.1 and is ready to be consumed by strategy implementations in subsequent stories.
+
+### Key Findings
+
+#### HIGH Severity
+None.
+
+#### MEDIUM Severity
+None.
+
+#### LOW Severity
+- [Low] ESLint: `let remainingSurplus` should be `const remainingSurplus` at [projections.ts:131](src/lib/calculations/projections.ts#L131) (auto-fixable)
+- [Low] ESLint: Unused import `PaymentAllocation` in [projections.test.ts:13](tests/lib/calculations/projections.test.ts#L13)
+
+### Acceptance Criteria Coverage
+
+| AC# | Description | Status | Evidence |
+|-----|-------------|--------|----------|
+| AC-4.2.1 | Month-by-month calculation (startBalance, interest, payment, principal, endBalance, totalDebt) | IMPLEMENTED | [projections.ts:127-271](src/lib/calculations/projections.ts#L127-L271) |
+| AC-4.2.2 | Terminates at debt=0 OR 360 months max | IMPLEMENTED | [projections.ts:97-99](src/lib/calculations/projections.ts#L97-L99), [projections.ts:73](src/lib/calculations/projections.ts#L73) |
+| AC-4.2.3 | Skips zero-balance accounts | IMPLEMENTED | [projections.ts:138-148](src/lib/calculations/projections.ts#L138-L148) |
+| AC-4.2.4 | Caps payment at balance (no overpayment) | IMPLEMENTED | [projections.ts:161-163](src/lib/calculations/projections.ts#L161-L163), [projections.ts:218-219](src/lib/calculations/projections.ts#L218-L219) |
+| AC-4.2.5 | Output is MonthlyProjection[] array | IMPLEMENTED | [projections.ts:41](src/lib/calculations/projections.ts#L41) |
+| AC-4.2.6 | big.js precision with 2 decimal places | IMPLEMENTED | [projections.ts:155](src/lib/calculations/projections.ts#L155), [projections.ts:185-189](src/lib/calculations/projections.ts#L185-L189) |
+| AC-4.2.7 | Accepts PaymentAllocator function | IMPLEMENTED | [projections.ts:39](src/lib/calculations/projections.ts#L39), [types.ts:134-138](src/lib/calculations/types.ts#L134-L138) |
+| AC-4.2.8 | Unit tests verify against spreadsheet calculations | IMPLEMENTED | [projections.test.ts:698-779](tests/lib/calculations/projections.test.ts#L698-L779) |
+
+**Summary: 8 of 8 acceptance criteria fully implemented**
+
+### Task Completion Validation
+
+| Task | Marked As | Verified As | Evidence |
+|------|-----------|-------------|----------|
+| Task 1: Define projection-related types | [x] | VERIFIED | [types.ts:52-166](src/lib/calculations/types.ts#L52-L166) |
+| Task 2: Create projection generator core function | [x] | VERIFIED | [projections.ts:37-103](src/lib/calculations/projections.ts#L37-L103) |
+| Task 3: Implement per-month calculation logic | [x] | VERIFIED | [projections.ts:117-272](src/lib/calculations/projections.ts#L117-L272) |
+| Task 4: Handle paid-off accounts | [x] | VERIFIED | [projections.ts:138-148](src/lib/calculations/projections.ts#L138-L148), [projections.ts:161-163](src/lib/calculations/projections.ts#L161-L163) |
+| Task 5: Implement early termination logic | [x] | VERIFIED | [projections.ts:97-99](src/lib/calculations/projections.ts#L97-L99) |
+| Task 6: Create default payment allocator | [x] | VERIFIED | [projections.ts:283-285](src/lib/calculations/projections.ts#L283-L285) |
+| Task 7: Create helper to build FinancialSnapshot | [x] | VERIFIED | [projections.ts:296-330](src/lib/calculations/projections.ts#L296-L330) |
+| Task 8: Add barrel export | [x] | VERIFIED | [index.ts:21-44](src/lib/calculations/index.ts#L21-L44) |
+| Task 9: Write unit tests for basic projection | [x] | VERIFIED | [projections.test.ts:17-169](tests/lib/calculations/projections.test.ts#L17-L169) |
+| Task 10: Write unit tests for 2-account scenarios | [x] | VERIFIED | [projections.test.ts:172-267](tests/lib/calculations/projections.test.ts#L172-L267) |
+| Task 11: Write unit tests for edge cases | [x] | VERIFIED | [projections.test.ts:269-428](tests/lib/calculations/projections.test.ts#L269-L428) |
+| Task 12: Verify build and all tests pass | [x] | VERIFIED | Build passes, 923/923 tests pass |
+
+**Summary: 12 of 12 completed tasks verified, 0 questionable, 0 falsely marked complete**
+
+### Test Coverage and Gaps
+
+**Tests Added:** 25 new unit tests in `projections.test.ts`
+
+**Coverage by AC:**
+- AC-4.2.1: 4 tests (month-by-month calculations)
+- AC-4.2.2: 3 tests (termination conditions)
+- AC-4.2.3: 3 tests (zero-balance handling)
+- AC-4.2.4: 2 tests (payment capping)
+- AC-4.2.5: 1 test (output structure)
+- AC-4.2.6: 2 tests (precision)
+- AC-4.2.7: 2 tests (allocator function)
+- AC-4.2.8: 2 tests (spreadsheet verification)
+- buildSnapshot: 4 tests
+- createBaselineAllocator: 3 tests
+
+**Test Quality:** Good. Tests include spreadsheet-verified calculations, edge cases, and clear AC references in describe blocks.
+
+**Gaps:** None identified.
+
+### Architectural Alignment
+
+- ✅ All calculations use big.js (ADR-003)
+- ✅ Strategy Pattern ready via PaymentAllocator function (ADR-004)
+- ✅ Framework-agnostic code in `src/lib/calculations/`
+- ✅ Follows established patterns from Story 4.1
+- ✅ Barrel exports updated correctly
+
+### Security Notes
+
+No security concerns. This is a pure calculation module with:
+- No external I/O or network calls
+- No user input handling (already validated before reaching this layer)
+- No sensitive data logging
+
+### Best-Practices and References
+
+- [big.js documentation](https://github.com/MikeMcl/big.js) - Arbitrary precision decimal arithmetic
+- [date-fns](https://date-fns.org/) - Date manipulation (addMonths, format)
+- [Vitest](https://vitest.dev/) - Testing framework
+
+### Action Items
+
+**Code Changes Required:**
+- [ ] [Low] Change `let remainingSurplus` to `const remainingSurplus` [file: src/lib/calculations/projections.ts:131]
+- [ ] [Low] Remove unused import `PaymentAllocation` [file: tests/lib/calculations/projections.test.ts:13]
+
+**Advisory Notes:**
+- Note: Known limitation documented - `debtFreeMonth` metadata field uses array length instead of explicit field (acceptable design choice)
+- Note: 923/923 tests passing - no regressions introduced
