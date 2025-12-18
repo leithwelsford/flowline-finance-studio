@@ -1,6 +1,6 @@
 # Story 5.4: Implement Interest Comparison Bar Chart
 
-Status: in-progress
+Status: review
 
 ## Story
 
@@ -30,87 +30,87 @@ so that **I can clearly see the cost difference between strategies and quickly i
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create InterestComparisonChart component structure (AC: 1, 7)
-  - [ ] Create `src/components/charts/InterestComparisonChart.tsx`
-  - [ ] Define props interface: `strategies: StrategyProjection[]`, `baselineId: string`, `isLoading?: boolean`
-  - [ ] Set up Recharts BarChart with ResponsiveContainer wrapper and layout="vertical"
-  - [ ] Add export to `src/components/charts/index.ts`
+- [x] Task 1: Create InterestComparisonChart component structure (AC: 1, 7)
+  - [x] Create `src/components/charts/InterestComparisonChart.tsx`
+  - [x] Define props interface: `strategies: StrategyProjection[]`, `baselineId: string`, `isLoading?: boolean`
+  - [x] Set up Recharts BarChart with ResponsiveContainer wrapper and layout="vertical"
+  - [x] Add export to `src/components/charts/index.ts`
 
-- [ ] Task 2: Transform strategy data for chart consumption (AC: 1, 2)
-  - [ ] Extract `totalInterestPaid` from each StrategyProjection
-  - [ ] Transform to chart data format: `{ strategyName: string, interestPaid: number, strategyId: string, isBaseline: boolean }[]`
-  - [ ] Sort data by interestPaid ascending (best/lowest at top)
-  - [ ] Use memoization (useMemo) to prevent unnecessary recalculations
-  - [ ] Convert Big.js values to numbers for Recharts
+- [x] Task 2: Transform strategy data for chart consumption (AC: 1, 2)
+  - [x] Extract `totalInterestPaid` from each StrategyProjection
+  - [x] Transform to chart data format: `{ strategyName: string, interestPaid: number, strategyId: string, isBaseline: boolean }[]`
+  - [x] Sort data by interestPaid ascending (best/lowest at top)
+  - [x] Use memoization (useMemo) to prevent unnecessary recalculations
+  - [x] Convert Big.js values to numbers for Recharts
 
-- [ ] Task 3: Configure chart axes and layout (AC: 1)
-  - [ ] Y-axis: strategy names (CategoryAxis)
-  - [ ] X-axis: total interest in ZAR (NumberAxis with tick formatter)
-  - [ ] Set appropriate height based on number of strategies (e.g., 50px per strategy + padding)
-  - [ ] Configure margins for label visibility
+- [x] Task 3: Configure chart axes and layout (AC: 1)
+  - [x] Y-axis: strategy names (CategoryAxis)
+  - [x] X-axis: total interest in ZAR (NumberAxis with tick formatter)
+  - [x] Set appropriate height based on number of strategies (e.g., 50px per strategy + padding)
+  - [x] Configure margins for label visibility
 
-- [ ] Task 4: Implement bar coloring logic (AC: 4)
-  - [ ] Define color scheme: teal-600 for top performers, gray-400 for baseline
-  - [ ] Use Cell component from Recharts for per-bar coloring
-  - [ ] Identify baseline strategy by `baselineId` prop
-  - [ ] Apply gradient or solid teal for strategies beating baseline
+- [x] Task 4: Implement bar coloring logic (AC: 4)
+  - [x] Define color scheme: teal-600 for top performers, gray-400 for baseline
+  - [x] Use Cell component from Recharts for per-bar coloring
+  - [x] Identify baseline strategy by `baselineId` prop
+  - [x] Apply gradient or solid teal for strategies beating baseline
 
-- [ ] Task 5: Add ZAR labels at bar ends (AC: 3)
-  - [ ] Create custom LabelList or use Recharts label prop
-  - [ ] Format values using `formatCurrency` utility from `src/lib/format/currency.ts`
-  - [ ] Position labels at end of bars with appropriate offset
-  - [ ] Ensure labels don't overlap with axis
+- [x] Task 5: Add ZAR labels at bar ends (AC: 3)
+  - [x] Create custom LabelList or use Recharts label prop
+  - [x] Format values using `formatCurrency` utility from `src/lib/format/currency.ts`
+  - [x] Position labels at end of bars with appropriate offset
+  - [x] Ensure labels don't overlap with axis
 
-- [ ] Task 6: Implement savings annotation (AC: 5)
-  - [ ] Calculate savings vs baseline: `baseline.totalInterestPaid - strategy.totalInterestPaid`
-  - [ ] Display "Saves R X,XXX" text for strategies that save money
-  - [ ] Use custom tooltip or secondary label for annotations
-  - [ ] Style annotations with green color for positive savings
+- [x] Task 6: Implement savings annotation (AC: 5)
+  - [x] Calculate savings vs baseline: `baseline.totalInterestPaid - strategy.totalInterestPaid`
+  - [x] Display "Saves R X,XXX" text for strategies that save money
+  - [x] Use custom tooltip or secondary label for annotations
+  - [x] Style annotations with green color for positive savings
 
-- [ ] Task 7: Implement loading skeleton state (AC: 6)
-  - [ ] Create ChartSkeleton sub-component (reuse pattern from DebtReductionChart)
-  - [ ] Use shadcn/ui Skeleton with chart-like proportions
-  - [ ] Show skeleton when `isLoading` prop is true
-  - [ ] Add proper aria-busy attribute
+- [x] Task 7: Implement loading skeleton state (AC: 6)
+  - [x] Create ChartSkeleton sub-component (reuse pattern from DebtReductionChart)
+  - [x] Use shadcn/ui Skeleton with chart-like proportions
+  - [x] Show skeleton when `isLoading` prop is true
+  - [x] Add proper aria-busy attribute
 
-- [ ] Task 8: Implement empty state (AC: 7)
-  - [ ] Check if strategies array is empty
-  - [ ] Display empty state card with message: "No strategies calculated yet"
-  - [ ] Include action suggestion to calculate strategies
+- [x] Task 8: Implement empty state (AC: 7)
+  - [x] Check if strategies array is empty
+  - [x] Display empty state card with message: "No strategies calculated yet"
+  - [x] Include action suggestion to calculate strategies
 
-- [ ] Task 9: Implement responsive layout (AC: 8)
-  - [ ] Detect mobile viewport using Tailwind breakpoints or window width
-  - [ ] On mobile: adjust font sizes, abbreviate strategy names if needed
-  - [ ] Ensure touch targets meet minimum 44x44px
-  - [ ] Test at various screen widths
+- [x] Task 9: Implement responsive layout (AC: 8)
+  - [x] Detect mobile viewport using Tailwind breakpoints or window width
+  - [x] On mobile: adjust font sizes, abbreviate strategy names if needed
+  - [x] Ensure touch targets meet minimum 44x44px
+  - [x] Test at various screen widths
 
-- [ ] Task 10: Add accessibility features (AC: 9)
-  - [ ] Add visually hidden table with same data for screen readers
-  - [ ] Use sr-only class from Tailwind for hidden table
-  - [ ] Include proper table semantics: thead, tbody, th, td
-  - [ ] Add aria-label to chart container
+- [x] Task 10: Add accessibility features (AC: 9)
+  - [x] Add visually hidden table with same data for screen readers
+  - [x] Use sr-only class from Tailwind for hidden table
+  - [x] Include proper table semantics: thead, tbody, th, td
+  - [x] Add aria-label to chart container
 
-- [ ] Task 11: Write unit tests for InterestComparisonChart
-  - [ ] Test: Renders BarChart with correct number of bars (AC-5.4.1)
-  - [ ] Test: Bars are sorted by interest (lowest first) (AC-5.4.2)
-  - [ ] Test: Labels show formatted ZAR amounts (AC-5.4.3)
-  - [ ] Test: Baseline bar has gray color (AC-5.4.4)
-  - [ ] Test: Savings annotations displayed for outperformers (AC-5.4.5)
-  - [ ] Test: Loading state shows skeleton (AC-5.4.6)
-  - [ ] Test: Empty state renders when no strategies (AC-5.4.7)
-  - [ ] Test: Hidden data table exists for accessibility (AC-5.4.9)
+- [x] Task 11: Write unit tests for InterestComparisonChart
+  - [x] Test: Renders BarChart with correct number of bars (AC-5.4.1)
+  - [x] Test: Bars are sorted by interest (lowest first) (AC-5.4.2)
+  - [x] Test: Labels show formatted ZAR amounts (AC-5.4.3)
+  - [x] Test: Baseline bar has gray color (AC-5.4.4)
+  - [x] Test: Savings annotations displayed for outperformers (AC-5.4.5)
+  - [x] Test: Loading state shows skeleton (AC-5.4.6)
+  - [x] Test: Empty state renders when no strategies (AC-5.4.7)
+  - [x] Test: Hidden data table exists for accessibility (AC-5.4.9)
 
-- [ ] Task 12: Integrate with ComparePage (AC: 1)
-  - [ ] Import InterestComparisonChart into `src/pages/ComparePage.tsx`
-  - [ ] Pass strategies from `useStrategies` hook
-  - [ ] Pass baseline.strategyId as baselineId
-  - [ ] Position below DebtReductionChart component (or alongside in grid layout)
+- [x] Task 12: Integrate with ComparePage (AC: 1)
+  - [x] Import InterestComparisonChart into `src/pages/ComparePage.tsx`
+  - [x] Pass strategies from `useStrategies` hook
+  - [x] Pass baseline.strategyId as baselineId
+  - [x] Position below DebtReductionChart component (or alongside in grid layout)
 
-- [ ] Task 13: Verify build and all tests pass (AC: all)
-  - [ ] Run `npm run test` - verify all new tests pass
-  - [ ] Run `npm run build` - verify no type errors
-  - [ ] Manual test: chart renders with real strategy data
-  - [ ] Verify visual appearance matches spec
+- [x] Task 13: Verify build and all tests pass (AC: all)
+  - [x] Run `npm run test` - verify all new tests pass
+  - [x] Run `npm run build` - verify no type errors
+  - [x] Manual test: chart renders with real strategy data
+  - [x] Verify visual appearance matches spec
 
 ## Dev Notes
 
@@ -299,13 +299,35 @@ const getBarColor = (isBaseline: boolean, savings: number): string => {
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
 ### Completion Notes List
 
+- Implemented InterestComparisonChart component following DebtReductionChart patterns
+- Used Recharts BarChart with layout="vertical" for horizontal bars
+- Data transformation with useMemo: extracts totalInterestPaid, sorts ascending, calculates savings vs baseline
+- Color scheme: teal-600 (#0d9488) for performers, gray-400 (#9ca3af) for baseline
+- Custom LabelList component for ZAR labels at bar ends using formatCurrency
+- Savings annotations shown below chart for top 3 performers
+- ChartSkeleton with aria-busy="true" for loading state
+- EmptyState with BarChart2 icon for empty strategies array
+- Dynamic chart height based on strategy count (50px per strategy + padding)
+- Hidden sr-only table for screen reader accessibility with full data
+- 29 unit tests covering all acceptance criteria
+- All 1446 tests pass, build succeeds
+
 ### File List
+
+**Created:**
+- src/components/charts/InterestComparisonChart.tsx
+- tests/components/charts/InterestComparisonChart.test.tsx
+
+**Modified:**
+- src/components/charts/index.ts (added export)
+- src/pages/ComparePage.tsx (integrated component)
+- docs/sprint-artifacts/sprint-status.yaml (status updates)
 
 ## Change Log
 
@@ -313,3 +335,4 @@ const getBarColor = (isBaseline: boolean, savings: number): string => {
 |------|--------|--------|
 | 2025-12-18 | Story drafted with full context from Epic 5 tech-spec, PRD (FR27, FR44), Architecture, and Story 5.3 learnings | SM Agent (Bob) |
 | 2025-12-18 | Story context XML generated, status changed to ready-for-dev | SM Agent (Bob) |
+| 2025-12-18 | Implementation complete: InterestComparisonChart component with 29 tests, all ACs satisfied, status changed to review | Dev Agent (Amelia) |
