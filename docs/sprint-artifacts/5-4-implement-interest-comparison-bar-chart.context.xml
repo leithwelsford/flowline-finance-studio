@@ -1,0 +1,209 @@
+<story-context id="5-4-implement-interest-comparison-bar-chart" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>4</storyId>
+    <title>Implement Interest Comparison Bar Chart</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-12-18</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-4-implement-interest-comparison-bar-chart.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to see a horizontal bar chart comparing total interest paid across all strategies</iWant>
+    <soThat>I can clearly see the cost difference between strategies and quickly identify which saves the most money</soThat>
+    <tasks>
+      <task id="1" ac="1,7">Create InterestComparisonChart component structure
+        <subtask>Create src/components/charts/InterestComparisonChart.tsx</subtask>
+        <subtask>Define props interface: strategies, baselineId, isLoading</subtask>
+        <subtask>Set up Recharts BarChart with ResponsiveContainer and layout="vertical"</subtask>
+        <subtask>Add export to src/components/charts/index.ts</subtask>
+      </task>
+      <task id="2" ac="1,2">Transform strategy data for chart consumption
+        <subtask>Extract totalInterestPaid from each StrategyProjection</subtask>
+        <subtask>Transform to chart data format with strategyName, interestPaid, isBaseline, savings</subtask>
+        <subtask>Sort by interestPaid ascending (lowest/best at top)</subtask>
+        <subtask>Use useMemo for memoization</subtask>
+        <subtask>Convert Big.js values to numbers for Recharts</subtask>
+      </task>
+      <task id="3" ac="1">Configure chart axes and layout
+        <subtask>Y-axis: strategy names (CategoryAxis)</subtask>
+        <subtask>X-axis: total interest in ZAR (NumberAxis with tick formatter)</subtask>
+        <subtask>Set height based on strategy count (~50px per strategy)</subtask>
+        <subtask>Configure margins for label visibility</subtask>
+      </task>
+      <task id="4" ac="4">Implement bar coloring logic
+        <subtask>Define color scheme: teal-600 for performers, gray-400 for baseline</subtask>
+        <subtask>Use Recharts Cell component for per-bar coloring</subtask>
+        <subtask>Identify baseline by baselineId prop</subtask>
+      </task>
+      <task id="5" ac="3">Add ZAR labels at bar ends
+        <subtask>Use Recharts LabelList or label prop</subtask>
+        <subtask>Format with formatCurrency utility</subtask>
+        <subtask>Position at bar end with appropriate offset</subtask>
+      </task>
+      <task id="6" ac="5">Implement savings annotation
+        <subtask>Calculate savings: baseline.totalInterestPaid - strategy.totalInterestPaid</subtask>
+        <subtask>Display "Saves R X,XXX" for strategies beating baseline</subtask>
+        <subtask>Style annotations with green color</subtask>
+      </task>
+      <task id="7" ac="6">Implement loading skeleton state
+        <subtask>Reuse ChartSkeleton pattern from DebtReductionChart</subtask>
+        <subtask>Use shadcn/ui Skeleton component</subtask>
+        <subtask>Add aria-busy attribute</subtask>
+      </task>
+      <task id="8" ac="7">Implement empty state
+        <subtask>Check if strategies array is empty</subtask>
+        <subtask>Display empty state Card with message</subtask>
+      </task>
+      <task id="9" ac="8">Implement responsive layout
+        <subtask>Adjust font sizes on mobile</subtask>
+        <subtask>Ensure 44x44px touch targets</subtask>
+      </task>
+      <task id="10" ac="9">Add accessibility features
+        <subtask>Add visually hidden table with sr-only class</subtask>
+        <subtask>Include proper table semantics</subtask>
+        <subtask>Add aria-label to chart container</subtask>
+      </task>
+      <task id="11" ac="1-9">Write unit tests for InterestComparisonChart
+        <subtask>Test: Renders BarChart with correct number of bars</subtask>
+        <subtask>Test: Bars sorted by interest (lowest first)</subtask>
+        <subtask>Test: Labels show formatted ZAR amounts</subtask>
+        <subtask>Test: Baseline bar has gray color</subtask>
+        <subtask>Test: Savings annotations displayed</subtask>
+        <subtask>Test: Loading state shows skeleton</subtask>
+        <subtask>Test: Empty state renders</subtask>
+        <subtask>Test: Hidden data table exists</subtask>
+      </task>
+      <task id="12" ac="1">Integrate with ComparePage
+        <subtask>Import InterestComparisonChart</subtask>
+        <subtask>Pass strategies, baseline.strategyId, isCalculating</subtask>
+        <subtask>Position below DebtReductionChart</subtask>
+      </task>
+      <task id="13" ac="all">Verify build and all tests pass
+        <subtask>Run npm run test</subtask>
+        <subtask>Run npm run build</subtask>
+        <subtask>Manual visual verification</subtask>
+      </task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-5.4.1">Given strategies have been calculated, when I view the Compare page, then I see a Recharts horizontal bar chart (layout="vertical") with Y-axis = strategy names and X-axis = total interest paid (ZAR).</criterion>
+    <criterion id="AC-5.4.2">Bars are sorted by total interest paid (lowest/best at top), making it immediately clear which strategy costs the least.</criterion>
+    <criterion id="AC-5.4.3">Each bar displays the ZAR amount at the end of the bar using formatCurrency utility for proper South African formatting.</criterion>
+    <criterion id="AC-5.4.4">Top performers (strategies with interest below baseline) use teal gradient coloring, while the baseline strategy bar is rendered in gray.</criterion>
+    <criterion id="AC-5.4.5">Savings vs baseline is shown as an annotation (e.g., "Saves R X,XXX") for strategies that outperform baseline.</criterion>
+    <criterion id="AC-5.4.6">Component shows skeleton loading state while isCalculating is true from calculation store.</criterion>
+    <criterion id="AC-5.4.7">If no strategies are calculated (empty results), show an appropriate empty state message.</criterion>
+    <criterion id="AC-5.4.8">Chart is responsive: on mobile (&lt;640px), adapts to smaller viewport with readable labels.</criterion>
+    <criterion id="AC-5.4.9">Accessibility: Include a hidden data table alternative for screen readers with the same information.</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/epics.md" title="Epic Breakdown" section="Story 5.4" snippet="Horizontal bar chart comparing total interest paid across strategies, sorted by interest (lowest/best at top)" />
+      <doc path="docs/sprint-artifacts/tech-spec-epic-5.md" title="Epic 5 Tech Spec" section="Story 5.4 Acceptance Criteria" snippet="AC-5.4.1 through AC-5.4.5: Horizontal bar chart, sorted bars, ZAR labels, teal/gray coloring, savings annotation" />
+      <doc path="docs/architecture.md" title="Architecture" section="Project Structure" snippet="Charts in src/components/charts/, Recharts for visualization, big.js for precision" />
+      <doc path="docs/prd.md" title="PRD" section="FR27" snippet="System generates visual comparison of total interest paid across all strategies (bar chart)" />
+      <doc path="docs/prd.md" title="PRD" section="FR44" snippet="System generates interest payment comparison visualizations across strategies" />
+      <doc path="docs/sprint-artifacts/5-3-implement-debt-reduction-curve-chart.md" title="Story 5.3" section="Dev Agent Record" snippet="DebtReductionChart patterns: ResponsiveContainer, STRATEGY_COLORS, ChartSkeleton, EmptyState, useMemo for data transformation" />
+    </docs>
+    <code>
+      <file path="src/components/charts/DebtReductionChart.tsx" kind="component" lines="1-447" reason="Reference implementation for chart component patterns: props interface, ChartSkeleton, EmptyState, STRATEGY_COLORS, data transformation with useMemo, ResponsiveContainer usage" />
+      <file path="src/components/charts/index.ts" kind="barrel" lines="1-3" reason="MODIFY: Add InterestComparisonChart export" />
+      <file path="src/pages/ComparePage.tsx" kind="page" lines="1-103" reason="MODIFY: Add InterestComparisonChart integration, follow existing pattern for DebtReductionChart" />
+      <file path="src/hooks/useStrategies.ts" kind="hook" lines="1-183" reason="Provides strategies, baseline, bestStrategy, isCalculating - use same pattern as existing chart integrations" />
+      <file path="src/lib/calculations/types.ts" kind="types" lines="209-230" reason="StrategyProjection interface: strategyId, strategyName, totalInterestPaid (Big), effortLevel" />
+      <file path="src/lib/format/currency.ts" kind="utility" lines="1-88" reason="formatCurrency function for ZAR formatting - use for bar labels and savings annotations" />
+      <file path="tests/components/charts/DebtReductionChart.test.tsx" kind="test" lines="1-150" reason="Test patterns: createMockStrategy helper, createMockProjections, ResizeObserver mock, describe blocks by AC" />
+    </code>
+    <dependencies>
+      <npm>
+        <package name="recharts" version="^3.5.1" usage="BarChart, Bar, XAxis, YAxis, Cell, LabelList, ResponsiveContainer, Tooltip" />
+        <package name="big.js" version="^7.0.1" usage="Convert totalInterestPaid Big to number for Recharts" />
+        <package name="lucide-react" version="^0.555.0" usage="Icons for empty state (e.g., BarChart2, TrendingDown)" />
+        <package name="vitest" version="^4.0.14" usage="Unit testing framework" />
+        <package name="@testing-library/react" version="^16.3.0" usage="Component testing utilities" />
+      </npm>
+      <internal>
+        <module name="@/components/ui/card" usage="Card, CardContent, CardHeader, CardTitle for container" />
+        <module name="@/components/ui/skeleton" usage="Skeleton for loading state" />
+        <module name="@/lib/format/currency" usage="formatCurrency for ZAR formatting" />
+        <module name="@/lib/utils" usage="cn for className merging" />
+      </internal>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint type="architecture">Client-side only - all comparison logic runs in browser</constraint>
+    <constraint type="architecture">Use Recharts library for all charts (already installed)</constraint>
+    <constraint type="architecture">Use Zustand for UI state, Dexie for persistent data</constraint>
+    <constraint type="architecture">Use big.js for any derived metrics calculations</constraint>
+    <constraint type="architecture">Use shadcn/ui components (Card, Skeleton)</constraint>
+    <constraint type="performance">Chart rendering must complete within 2 seconds (NFR-P3)</constraint>
+    <constraint type="style">Follow Balanced Teal theme: teal-600 (#0d9488) for top performers, gray-400 (#9ca3af) for baseline</constraint>
+    <constraint type="accessibility">Include hidden data table for screen readers (sr-only class)</constraint>
+    <constraint type="accessibility">Ensure WCAG AA color contrast compliance</constraint>
+    <constraint type="testing">Follow test patterns from DebtReductionChart.test.tsx - organize by AC</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="InterestComparisonChartProps" kind="component-props" path="src/components/charts/InterestComparisonChart.tsx">
+      <signature>
+interface InterestComparisonChartProps {
+  strategies: StrategyProjection[]
+  baselineId: string
+  isLoading?: boolean
+}
+      </signature>
+    </interface>
+    <interface name="useStrategies" kind="hook-return" path="src/hooks/useStrategies.ts">
+      <signature>
+{
+  strategies: StrategyProjection[]
+  baseline: StrategyProjection | null
+  isCalculating: boolean
+  bestStrategy: StrategyProjection | null
+}
+      </signature>
+    </interface>
+    <interface name="StrategyProjection" kind="type" path="src/lib/calculations/types.ts">
+      <signature>
+interface StrategyProjection {
+  strategyId: string
+  strategyName: string
+  effortLevel: 'low' | 'medium' | 'high'
+  totalInterestPaid: Big
+  interestSaved: Big
+  // ... other fields
+}
+      </signature>
+    </interface>
+    <interface name="formatCurrency" kind="function" path="src/lib/format/currency.ts">
+      <signature>function formatCurrency(amount: string): string</signature>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Vitest with React Testing Library. Tests organized by acceptance criteria in describe blocks.
+      Mock ResizeObserver for Recharts ResponsiveContainer. Use createMockStrategy helper for test data.
+      Follow patterns from tests/components/charts/DebtReductionChart.test.tsx.
+    </standards>
+    <locations>
+      <location>tests/components/charts/InterestComparisonChart.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-5.4.1">Test renders BarChart with correct number of bars matching strategies length</idea>
+      <idea ac="AC-5.4.2">Test bars are sorted by interestPaid ascending (lowest at top)</idea>
+      <idea ac="AC-5.4.3">Test labels display formatCurrency formatted ZAR amounts</idea>
+      <idea ac="AC-5.4.4">Test baseline bar uses gray-400 color, other bars use teal-600</idea>
+      <idea ac="AC-5.4.5">Test savings annotations appear for strategies beating baseline</idea>
+      <idea ac="AC-5.4.6">Test skeleton with aria-label="loading" appears when isLoading=true</idea>
+      <idea ac="AC-5.4.7">Test empty state renders message when strategies array is empty</idea>
+      <idea ac="AC-5.4.9">Test sr-only table element exists with proper structure</idea>
+    </ideas>
+  </tests>
+</story-context>
