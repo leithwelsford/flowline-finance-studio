@@ -1,0 +1,272 @@
+<story-context id="bmad/bmm/workflows/4-implementation/story-context/template" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>3</storyId>
+    <title>Implement Debt Reduction Curve Chart</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-12-18</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-3-implement-debt-reduction-curve-chart.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to see a line chart visualizing how my total debt decreases over time for each strategy</iWant>
+    <soThat>I can visually compare strategy trajectories and understand the path to becoming debt-free</soThat>
+    <tasks>
+      <task id="1" ac="1,10">Create DebtReductionChart component structure with Recharts LineChart and ResponsiveContainer</task>
+      <task id="2" ac="1,2">Transform strategy monthlyProjections data for chart consumption with memoization</task>
+      <task id="3" ac="1">Configure chart axes: X-axis (months), Y-axis (total debt ZAR)</task>
+      <task id="4" ac="2,3,4">Define color palette and line styles (baseline dashed gray, recommended solid teal)</task>
+      <task id="5" ac="5">Implement interactive Recharts tooltip with formatCurrency</task>
+      <task id="6" ac="6">Implement legend with toggle functionality for strategy visibility</task>
+      <task id="7" ac="7">Optimize performance for large datasets (sample every 3rd point for >120 months)</task>
+      <task id="8" ac="8">Implement responsive mobile layout with simplified view</task>
+      <task id="9" ac="9">Implement loading skeleton state</task>
+      <task id="10" ac="10">Implement empty state for no calculated strategies</task>
+      <task id="11">Write unit tests covering all acceptance criteria</task>
+      <task id="12" ac="1">Integrate with ComparePage below ComparisonTable</task>
+      <task id="13">Verify build and all tests pass</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-5.3.1">Given strategies have been calculated, when I view the Compare page, then I see a Recharts line chart with X-axis = months (0 to debt-free) and Y-axis = total debt (ZAR)</criterion>
+    <criterion id="AC-5.3.2">Each strategy is represented by a distinct line with a unique color from the defined color palette</criterion>
+    <criterion id="AC-5.3.3">The baseline strategy line is rendered as a dashed gray line (strokeDasharray) to visually distinguish it from optimized strategies</criterion>
+    <criterion id="AC-5.3.4">The recommended strategy (highest interestSaved) is rendered as a solid teal line (teal-600) for visual emphasis</criterion>
+    <criterion id="AC-5.3.5">Hovering over any data point shows a Recharts tooltip displaying: month number, strategy name, and exact debt value (ZAR formatted)</criterion>
+    <criterion id="AC-5.3.6">A clickable legend allows users to toggle individual strategy lines on/off to reduce visual clutter</criterion>
+    <criterion id="AC-5.3.7">Chart renders in under 2 seconds for projections up to 360 months (NFR-P3 performance requirement)</criterion>
+    <criterion id="AC-5.3.8">On mobile (&lt;640px), the chart simplifies: reduced legend visibility, larger touch targets, sampled data points</criterion>
+    <criterion id="AC-5.3.9">Component shows skeleton loading state while isCalculating is true from calculation store</criterion>
+    <criterion id="AC-5.3.10">If no strategies are calculated (empty results), show an appropriate empty state message</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/prd.md" title="Product Requirements Document" section="FR26, FR43">
+        <snippet>FR26: System generates visual comparison charts showing debt reduction curves over time for all strategies. FR43: System generates interactive debt reduction curve charts showing balance over time.</snippet>
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture" section="Project Structure, Technology Stack">
+        <snippet>Charts component folder at src/components/charts/. Uses Recharts (^3.5.1) for React-native charts. DebtReductionChart.tsx handles debt reduction curves with line chart visualization.</snippet>
+      </doc>
+      <doc path="docs/ux-design-specification.md" title="UX Design Specification" section="2.2 Novel UX Patterns, 2.3 Best Practices">
+        <snippet>Visual hierarchy: Debt reduction curves (all strategies overlaid on one chart). Interactive Charts: Line charts for trends. 2025 best practices: Charts should be interactive with hover tooltips.</snippet>
+      </doc>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-5.md" title="Epic 5 Technical Specification" section="Story 5.3">
+        <snippet>AC-5.3.1 through AC-5.3.7 defined. Performance risk: Chart with 360 months may be slow - mitigation: sample every 3rd data point for long projections.</snippet>
+      </doc>
+      <doc path="docs/epics.md" title="Epic Breakdown" section="Story 5.3">
+        <snippet>Implement Debt Reduction Curve Chart. Use Recharts LineChart component. Colors from UX spec: teal for recommended, varied for others. Limit data points if > 360 months (sample every 3rd month).</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file path="src/hooks/useStrategies.ts" kind="hook" symbol="useStrategies" reason="Primary data source - provides strategies array, baseline, bestStrategy, isCalculating for chart">
+        <interface>
+          <![CDATA[
+interface UseStrategiesReturn {
+  strategies: StrategyProjection[]
+  baseline: StrategyProjection | null
+  isCalculating: boolean
+  calculateStrategies: () => Promise<void>
+  bestStrategy: StrategyProjection | null
+  emptyMessage: string | null
+  lastCalculated: string | null
+  error: string | null
+  isDataLoading: boolean
+}
+          ]]>
+        </interface>
+      </file>
+      <file path="src/lib/calculations/types.ts" kind="types" symbol="StrategyProjection, MonthlyProjection" reason="Core data types - monthlyProjections array contains totalDebt per month for chart data">
+        <interface>
+          <![CDATA[
+interface MonthlyProjection {
+  month: number;
+  date: string;
+  accounts: AccountSnapshot[];
+  flexiBalance?: Big;
+  totalDebt: Big;
+  totalInterestPaid: Big;
+  totalPrincipalPaid: Big;
+}
+
+interface StrategyProjection {
+  strategyId: string;
+  strategyName: string;
+  effortLevel: EffortLevel;
+  debtFreeMonth: number;
+  debtFreeDate: string;
+  totalInterestPaid: Big;
+  totalPrincipalPaid: Big;
+  monthsSaved: number;
+  interestSaved: Big;
+  monthlyProjections: MonthlyProjection[];
+}
+          ]]>
+        </interface>
+      </file>
+      <file path="src/pages/ComparePage.tsx" kind="page" symbol="ComparePage" lines="1-94" reason="Integration point - add DebtReductionChart below ComparisonTable component">
+        <interface>
+          <![CDATA[
+// Current structure:
+<WinnersPodium strategies={strategies} recommendedId={bestStrategy?.strategyId} ... />
+<ComparisonTable strategies={strategies} baselineId={baseline?.strategyId ?? ''} ... />
+// ADD: <DebtReductionChart strategies={strategies} baselineId={...} recommendedId={...} isLoading={...} />
+          ]]>
+        </interface>
+      </file>
+      <file path="src/lib/format/currency.ts" kind="utility" symbol="formatCurrency" reason="ZAR formatting for tooltip values">
+        <interface>
+          <![CDATA[
+function formatCurrency(amount: string): string
+// Returns: "R 1 234,56" format
+          ]]>
+        </interface>
+      </file>
+      <file path="src/components/strategies/WinnersPodium.tsx" kind="component" symbol="WinnersPodium" reason="Pattern reference - same props pattern, loading skeleton, empty state handling">
+        <interface>
+          <![CDATA[
+interface WinnersPodiumProps {
+  strategies: StrategyProjection[]
+  recommendedId?: string
+  onPositionClick?: (strategyId: string) => void
+  isLoading?: boolean
+}
+          ]]>
+        </interface>
+      </file>
+      <file path="src/components/strategies/ComparisonTable.tsx" kind="component" symbol="ComparisonTable" reason="Pattern reference - same props pattern for baselineId, recommendedId, isLoading">
+        <interface>
+          <![CDATA[
+interface ComparisonTableProps {
+  strategies: StrategyProjection[]
+  baselineId: string
+  recommendedId?: string
+  isLoading?: boolean
+  onSelectStrategy?: (strategyId: string) => void
+}
+          ]]>
+        </interface>
+      </file>
+      <file path="src/components/ui/skeleton.tsx" kind="component" symbol="Skeleton" reason="Use for loading state skeleton">
+        <interface>
+          <![CDATA[
+function Skeleton({ className, ...props }: React.HTMLAttributes<HTMLDivElement>)
+// Returns: <div className="animate-pulse rounded-md bg-slate-100" />
+          ]]>
+        </interface>
+      </file>
+      <file path="tests/components/strategies/WinnersPodium.test.tsx" kind="test" symbol="WinnersPodium tests" reason="Testing pattern reference - describe blocks per AC, createMockStrategy factory">
+        <interface>
+          <![CDATA[
+// Pattern: describe blocks for each AC
+describe('WinnersPodium', () => {
+  describe('rendering - AC-5.1.1', () => { ... })
+  describe('display content - AC-5.1.2', () => { ... })
+})
+
+// Mock factory pattern:
+function createMockStrategy(id, name, interestSaved, debtFreeDate): StrategyProjection
+          ]]>
+        </interface>
+      </file>
+    </code>
+
+    <dependencies>
+      <node>
+        <package name="recharts" version="^3.5.1" purpose="LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer" />
+        <package name="big.js" version="^7.0.1" purpose="Precision arithmetic for monetary values (totalDebt in MonthlyProjection is Big)" />
+        <package name="react" version="^19.2.0" purpose="useState, useMemo for component state and memoization" />
+        <package name="lucide-react" version="^0.555.0" purpose="Icons if needed for empty state" />
+        <package name="vitest" version="^4.0.14" purpose="Test framework" />
+        <package name="@testing-library/react" version="^16.3.0" purpose="Component testing" />
+        <package name="@testing-library/jest-dom" version="^6.9.1" purpose="DOM matchers" />
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="architecture.md">Use Recharts (not Chart.js) for all charting - already installed and documented</constraint>
+    <constraint source="architecture.md">All monetary values use big.js for precision - convert Big to number for chart</constraint>
+    <constraint source="architecture.md">Client-side only - no external API calls</constraint>
+    <constraint source="ux-design-specification.md">Balanced Teal theme: teal-600 (#0d9488) for recommended/primary</constraint>
+    <constraint source="ux-design-specification.md">WCAG AA accessibility - keyboard navigation, screen reader support</constraint>
+    <constraint source="tech-spec-epic-5.md">Chart renders in under 2 seconds (NFR-P3) - sample data for long projections</constraint>
+    <constraint source="tech-spec-epic-5.md">Color-blind accessibility: use distinct line styles (solid, dashed, dotted) not just colors</constraint>
+    <constraint source="architecture.md">Component location: src/components/charts/DebtReductionChart.tsx</constraint>
+    <constraint source="architecture.md">Exports via src/components/charts/index.ts (create if not exists)</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="DebtReductionChartProps" kind="component-props" path="src/components/charts/DebtReductionChart.tsx">
+      <![CDATA[
+interface DebtReductionChartProps {
+  /** Array of calculated strategy projections */
+  strategies: StrategyProjection[]
+  /** Strategy ID for baseline (renders as dashed gray) */
+  baselineId: string
+  /** Strategy ID for recommended (renders as solid teal) */
+  recommendedId?: string
+  /** Whether calculation is in progress (show skeleton) */
+  isLoading?: boolean
+}
+      ]]>
+    </interface>
+    <interface name="ChartDataPoint" kind="internal-type" path="src/components/charts/DebtReductionChart.tsx">
+      <![CDATA[
+// Data format for Recharts LineChart
+interface ChartDataPoint {
+  month: number;
+  [strategyId: string]: number; // totalDebt value per strategy
+}
+
+// Transform: strategies[].monthlyProjections[] -> ChartDataPoint[]
+      ]]>
+    </interface>
+    <interface name="STRATEGY_COLORS" kind="constant" path="src/components/charts/DebtReductionChart.tsx">
+      <![CDATA[
+const STRATEGY_COLORS: Record<string, string> = {
+  'baseline': '#9ca3af',        // gray-400
+  'snowball': '#3b82f6',        // blue-500
+  'avalanche': '#8b5cf6',       // violet-500
+  'flexi-chunking': '#f97316',  // orange-500
+  'aggressive-flexi': '#ec4899', // pink-500
+  'velocity-banking': '#0d9488', // teal-600
+  'hybrid-snowball': '#06b6d4', // cyan-500
+  'hybrid-avalanche': '#f59e0b', // amber-500
+};
+      ]]>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      <![CDATA[
+Testing framework: Vitest with React Testing Library
+Pattern: Organize tests by acceptance criteria (describe blocks per AC)
+Mock data: Use createMockStrategy factory function to generate test data with monthlyProjections
+Assertions: Use @testing-library/jest-dom matchers (toBeInTheDocument, toHaveClass, etc.)
+Coverage: Each AC should have at least one dedicated test
+Recharts testing: Use screen queries for rendered SVG elements, check for data-testid attributes
+      ]]>
+    </standards>
+    <locations>
+      <location>tests/components/charts/DebtReductionChart.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-5.3.1">Test that LineChart renders with correct number of Line components matching strategies.length</idea>
+      <idea ac="AC-5.3.2">Test each strategy line has a unique stroke color from STRATEGY_COLORS</idea>
+      <idea ac="AC-5.3.3">Test baseline line has strokeDasharray="5 5" attribute</idea>
+      <idea ac="AC-5.3.4">Test recommended strategy line has teal-600 color and solid stroke</idea>
+      <idea ac="AC-5.3.5">Test tooltip content includes strategy name and formatted ZAR value when hovering (may need userEvent)</idea>
+      <idea ac="AC-5.3.6">Test legend click toggles line visibility (check Line component opacity or visibility)</idea>
+      <idea ac="AC-5.3.7">Test data sampling - if monthlyProjections.length > 120, verify sampled data has fewer points</idea>
+      <idea ac="AC-5.3.8">Test mobile responsive classes are applied (use media query mocking or check for responsive Tailwind classes)</idea>
+      <idea ac="AC-5.3.9">Test skeleton state renders when isLoading=true</idea>
+      <idea ac="AC-5.3.10">Test empty state message renders when strategies array is empty</idea>
+    </ideas>
+  </tests>
+</story-context>
