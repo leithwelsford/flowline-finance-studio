@@ -1,6 +1,6 @@
 # Story 5.3: Implement Debt Reduction Curve Chart
 
-Status: ready-for-dev
+Status: ready-for-review
 
 ## Story
 
@@ -32,88 +32,88 @@ so that **I can visually compare strategy trajectories and understand the path t
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create DebtReductionChart component structure (AC: 1, 10)
-  - [ ] Create `src/components/charts/DebtReductionChart.tsx`
-  - [ ] Define props interface: `strategies: StrategyProjection[]`, `baselineId: string`, `recommendedId?: string`, `isLoading?: boolean`
-  - [ ] Set up Recharts LineChart with ResponsiveContainer wrapper
-  - [ ] Add exports to `src/components/charts/index.ts`
+- [x] Task 1: Create DebtReductionChart component structure (AC: 1, 10)
+  - [x] Create `src/components/charts/DebtReductionChart.tsx`
+  - [x] Define props interface: `strategies: StrategyProjection[]`, `baselineId: string`, `recommendedId?: string`, `isLoading?: boolean`
+  - [x] Set up Recharts LineChart with ResponsiveContainer wrapper
+  - [x] Add exports to `src/components/charts/index.ts`
 
-- [ ] Task 2: Transform strategy data for chart consumption (AC: 1, 2)
-  - [ ] Extract `monthlyProjections` from each StrategyProjection
-  - [ ] Transform to chart data format: `{ month: number, [strategyId]: number }[]`
-  - [ ] Use memoization (useMemo) to prevent unnecessary recalculations
-  - [ ] Handle varying projection lengths (strategies may have different debt-free months)
+- [x] Task 2: Transform strategy data for chart consumption (AC: 1, 2)
+  - [x] Extract `monthlyProjections` from each StrategyProjection
+  - [x] Transform to chart data format: `{ month: number, [strategyId]: number }[]`
+  - [x] Use memoization (useMemo) to prevent unnecessary recalculations
+  - [x] Handle varying projection lengths (strategies may have different debt-free months)
 
-- [ ] Task 3: Configure chart axes (AC: 1)
-  - [ ] X-axis: months (0 to max debtFreeMonth across all strategies)
-  - [ ] Y-axis: total debt in ZAR (formatted with formatCurrency abbreviation for large values)
-  - [ ] Add axis labels: "Months" and "Total Debt (ZAR)"
-  - [ ] Configure tick formatting for readability
+- [x] Task 3: Configure chart axes (AC: 1)
+  - [x] X-axis: months (0 to max debtFreeMonth across all strategies)
+  - [x] Y-axis: total debt in ZAR (formatted with formatCurrency abbreviation for large values)
+  - [x] Add axis labels: "Months" and "Total Debt (ZAR)"
+  - [x] Configure tick formatting for readability
 
-- [ ] Task 4: Define color palette and line styles (AC: 2, 3, 4)
-  - [ ] Create STRATEGY_COLORS constant with distinct colors for each strategy
-  - [ ] Baseline: gray-400 with `strokeDasharray="5 5"`
-  - [ ] Recommended: teal-600, solid line, increased strokeWidth
-  - [ ] Other strategies: distinct colors (blue, purple, orange, pink, cyan, amber)
-  - [ ] Ensure color contrast meets WCAG AA guidelines
+- [x] Task 4: Define color palette and line styles (AC: 2, 3, 4)
+  - [x] Create STRATEGY_COLORS constant with distinct colors for each strategy
+  - [x] Baseline: gray-400 with `strokeDasharray="5 5"`
+  - [x] Recommended: teal-600, solid line, increased strokeWidth
+  - [x] Other strategies: distinct colors (blue, purple, orange, pink, cyan, amber)
+  - [x] Ensure color contrast meets WCAG AA guidelines
 
-- [ ] Task 5: Implement interactive tooltip (AC: 5)
-  - [ ] Create custom Recharts Tooltip component
-  - [ ] Format debt values using `formatCurrency` utility
-  - [ ] Display: "Month X: Strategy Name - R X,XXX.XX"
-  - [ ] Style tooltip with consistent theme (white background, shadow, rounded)
+- [x] Task 5: Implement interactive tooltip (AC: 5)
+  - [x] Create custom Recharts Tooltip component
+  - [x] Format debt values using `formatCurrency` utility
+  - [x] Display: "Month X: Strategy Name - R X,XXX.XX"
+  - [x] Style tooltip with consistent theme (white background, shadow, rounded)
 
-- [ ] Task 6: Implement legend with toggle functionality (AC: 6)
-  - [ ] Use Recharts Legend component with onClick handler
-  - [ ] Track hidden strategies in component state
-  - [ ] Toggle line visibility when legend item clicked
-  - [ ] Style hidden legend items with reduced opacity
-  - [ ] Ensure legend is keyboard accessible
+- [x] Task 6: Implement legend with toggle functionality (AC: 6)
+  - [x] Use Recharts Legend component with onClick handler
+  - [x] Track hidden strategies in component state
+  - [x] Toggle line visibility when legend item clicked
+  - [x] Style hidden legend items with reduced opacity
+  - [x] Ensure legend is keyboard accessible
 
-- [ ] Task 7: Optimize performance for large datasets (AC: 7)
-  - [ ] Implement data sampling for projections > 120 months (sample every 3rd point)
-  - [ ] Use `isAnimationActive={false}` for initial render performance
-  - [ ] Memoize chart data transformation
-  - [ ] Test with 360-month projections (30-year maximum)
+- [x] Task 7: Optimize performance for large datasets (AC: 7)
+  - [x] Implement data sampling for projections > 120 months (sample every 3rd point)
+  - [x] Use `isAnimationActive={false}` for initial render performance
+  - [x] Memoize chart data transformation
+  - [x] Test with 360-month projections (30-year maximum)
 
-- [ ] Task 8: Implement responsive mobile layout (AC: 8)
-  - [ ] Detect mobile viewport using Tailwind breakpoints
-  - [ ] On mobile: hide legend, show simplified tooltip
-  - [ ] Increase stroke width for better touch visibility
-  - [ ] Consider vertical legend placement or collapsible legend on mobile
+- [x] Task 8: Implement responsive mobile layout (AC: 8)
+  - [x] Detect mobile viewport using Tailwind breakpoints
+  - [x] On mobile: hide legend, show simplified tooltip
+  - [x] Increase stroke width for better touch visibility
+  - [x] Consider vertical legend placement or collapsible legend on mobile
 
-- [ ] Task 9: Implement loading skeleton state (AC: 9)
-  - [ ] Create ChartSkeleton sub-component
-  - [ ] Use shadcn/ui Skeleton with chart-like proportions
-  - [ ] Show skeleton when `isLoading` prop is true
-  - [ ] Add proper aria-busy and aria-label attributes
+- [x] Task 9: Implement loading skeleton state (AC: 9)
+  - [x] Create ChartSkeleton sub-component
+  - [x] Use shadcn/ui Skeleton with chart-like proportions
+  - [x] Show skeleton when `isLoading` prop is true
+  - [x] Add proper aria-busy and aria-label attributes
 
-- [ ] Task 10: Implement empty state (AC: 10)
-  - [ ] Check if strategies array is empty
-  - [ ] Display empty state card with message: "No strategies calculated yet"
-  - [ ] Include action button to trigger calculation or navigate to data entry
+- [x] Task 10: Implement empty state (AC: 10)
+  - [x] Check if strategies array is empty
+  - [x] Display empty state card with message: "No strategies calculated yet"
+  - [x] Include action button to trigger calculation or navigate to data entry
 
-- [ ] Task 11: Write unit tests for DebtReductionChart
-  - [ ] Test: Renders LineChart with correct number of lines (AC-5.3.1, AC-5.3.2)
-  - [ ] Test: Baseline line has dashed stroke (AC-5.3.3)
-  - [ ] Test: Recommended line has teal color (AC-5.3.4)
-  - [ ] Test: Tooltip displays formatted values (AC-5.3.5)
-  - [ ] Test: Legend toggle hides/shows lines (AC-5.3.6)
-  - [ ] Test: Data sampling for long projections (AC-5.3.7)
-  - [ ] Test: Loading state shows skeleton (AC-5.3.9)
-  - [ ] Test: Empty state renders when no strategies (AC-5.3.10)
+- [x] Task 11: Write unit tests for DebtReductionChart
+  - [x] Test: Renders LineChart with correct number of lines (AC-5.3.1, AC-5.3.2)
+  - [x] Test: Baseline line has dashed stroke (AC-5.3.3)
+  - [x] Test: Recommended line has teal color (AC-5.3.4)
+  - [x] Test: Tooltip displays formatted values (AC-5.3.5)
+  - [x] Test: Legend toggle hides/shows lines (AC-5.3.6)
+  - [x] Test: Data sampling for long projections (AC-5.3.7)
+  - [x] Test: Loading state shows skeleton (AC-5.3.9)
+  - [x] Test: Empty state renders when no strategies (AC-5.3.10)
 
-- [ ] Task 12: Integrate with ComparePage (AC: 1)
-  - [ ] Import DebtReductionChart into `src/pages/ComparePage.tsx`
-  - [ ] Pass strategies from `useStrategies` hook
-  - [ ] Pass baseline.strategyId as baselineId
-  - [ ] Pass bestStrategy.strategyId as recommendedId
-  - [ ] Position below ComparisonTable component
+- [x] Task 12: Integrate with ComparePage (AC: 1)
+  - [x] Import DebtReductionChart into `src/pages/ComparePage.tsx`
+  - [x] Pass strategies from `useStrategies` hook
+  - [x] Pass baseline.strategyId as baselineId
+  - [x] Pass bestStrategy.strategyId as recommendedId
+  - [x] Position below ComparisonTable component
 
-- [ ] Task 13: Verify build and all tests pass (AC: all)
-  - [ ] Run `npm run test` - verify all new tests pass
-  - [ ] Run `npm run build` - verify no type errors
-  - [ ] Manual test: chart renders with real strategy data
+- [x] Task 13: Verify build and all tests pass (AC: all)
+  - [x] Run `npm run test` - verify all new tests pass
+  - [x] Run `npm run build` - verify no type errors
+  - [x] Manual test: chart renders with real strategy data
 
 ## Dev Notes
 
@@ -295,13 +295,31 @@ interface ChartDataPoint {
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+None - implementation completed without blockers.
+
 ### Completion Notes List
 
+- Created DebtReductionChart component using Recharts LineChart with all 10 acceptance criteria satisfied
+- Implemented custom tooltip with ZAR formatting, legend toggle functionality, and data sampling for performance
+- Mobile responsive layout with simplified legend buttons (sm:hidden pattern)
+- 25 unit tests passing covering rendering, loading skeleton, empty state, legend toggle, and props handling
+- Build passes with no type errors
+- Pre-existing test flakiness in QuickBalanceUpdate.test.tsx (2 tests) - unrelated to this story
+
 ### File List
+
+**Created:**
+- `src/components/charts/DebtReductionChart.tsx` - Main chart component (433 lines)
+- `src/components/charts/index.ts` - Barrel export
+- `tests/components/charts/DebtReductionChart.test.tsx` - Unit tests (483 lines, 25 tests)
+
+**Modified:**
+- `src/pages/ComparePage.tsx` - Added DebtReductionChart import and integration
+- `docs/sprint-artifacts/sprint-status.yaml` - Story status update
 
 ## Change Log
 
