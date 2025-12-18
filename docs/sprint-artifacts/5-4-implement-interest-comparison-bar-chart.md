@@ -1,6 +1,6 @@
 # Story 5.4: Implement Interest Comparison Bar Chart
 
-Status: ready-for-dev
+Status: in-progress
 
 ## Story
 
