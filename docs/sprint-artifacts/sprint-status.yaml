@@ -78,7 +78,7 @@ development_status:
   epic-5: contexted
   5-1-implement-winners-podium-component: done
   5-2-implement-strategy-comparison-table: done
-  5-3-implement-debt-reduction-curve-chart: backlog
+  5-3-implement-debt-reduction-curve-chart: ready-for-dev
   5-4-implement-interest-comparison-bar-chart: backlog
   5-5-implement-recommendation-engine: backlog
   5-6-implement-strategy-selection-and-filter: backlog
