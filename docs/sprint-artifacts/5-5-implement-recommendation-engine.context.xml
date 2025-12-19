@@ -1,0 +1,277 @@
+<story-context id="5-5-implement-recommendation-engine" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>5</storyId>
+    <title>Implement Recommendation Engine</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-12-19</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-5-implement-recommendation-engine.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>the system to recommend an optimal debt payoff strategy</iWant>
+    <soThat>I have data-driven guidance on which approach to follow based on my financial situation</soThat>
+    <tasks>
+      <task id="1" ac="1,2,3,4,6">Create recommendation algorithm module
+        <subtask>Create src/lib/calculations/recommendation.ts</subtask>
+        <subtask>Define RecommendationResult interface</subtask>
+        <subtask>Define RecommendationOptions interface</subtask>
+        <subtask>Implement scoring formula: score = interestSaved - effortPenalty - riskPenalty</subtask>
+        <subtask>Implement effort penalty mapping: high=-5000, medium=-2000, low=0</subtask>
+        <subtask>Implement risk penalty: flexi-required=-1000</subtask>
+        <subtask>Filter flexi strategies when hasFlexiFacility=false</subtask>
+        <subtask>Return highest-scoring strategy</subtask>
+        <subtask>Generate rationale string</subtask>
+      </task>
+      <task id="2" ac="4,6">Identify flexi-required strategies
+        <subtask>Create FLEXI_REQUIRED_STRATEGY_IDS constant</subtask>
+        <subtask>Use for risk penalty and exclusion logic</subtask>
+        <subtask>Never exclude baseline/traditional strategies</subtask>
+      </task>
+      <task id="3" ac="5,7,8,9">Create RecommendationCard component structure
+        <subtask>Create src/components/strategies/RecommendationCard.tsx</subtask>
+        <subtask>Define props interface</subtask>
+        <subtask>Import recommendation algorithm</subtask>
+        <subtask>Add export to src/components/strategies/index.ts</subtask>
+      </task>
+      <task id="4" ac="5,9">Implement recommendation card UI
+        <subtask>Use shadcn/ui Card with teal accent styling</subtask>
+        <subtask>Add "Recommended for You" header with Trophy icon</subtask>
+        <subtask>Display strategy name, key metrics, rationale</subtask>
+        <subtask>Add "Select This Strategy" button</subtask>
+      </task>
+      <task id="5" ac="5">Implement effort level badge</task>
+      <task id="6" ac="7">Implement loading skeleton state</task>
+      <task id="7" ac="8">Implement empty state</task>
+      <task id="8" ac="5">Implement strategy selection from card</task>
+      <task id="9" ac="1,2,3,4,5,6">Write unit tests for recommendation algorithm</task>
+      <task id="10" ac="5,7,8,9">Write component tests for RecommendationCard</task>
+      <task id="11" ac="9">Integrate with ComparePage</task>
+      <task id="12">Update useStrategies hook (if needed)</task>
+      <task id="13">Verify build and all tests pass</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-5.5.1">Given strategies have been calculated, when I view recommendations, then the algorithm scores strategies based on: interest savings (primary weight), effort level (secondary), and risk profile (tertiary).</criterion>
+    <criterion id="AC-5.5.2">The scoring formula is: score = interestSaved - effortPenalty - riskPenalty, where higher scores indicate better recommendations.</criterion>
+    <criterion id="AC-5.5.3">Effort penalties are applied as follows: high effort = -5000, medium effort = -2000, low effort = 0.</criterion>
+    <criterion id="AC-5.5.4">Risk penalties are applied as follows: strategies requiring flexi facility = -1000, strategies not requiring flexi = 0.</criterion>
+    <criterion id="AC-5.5.5">The recommendation displays as a highlighted card showing: "Recommended for You" header, strategy name, key metrics (interest saved, debt-free date, effort level), and rationale explaining why this strategy was chosen.</criterion>
+    <criterion id="AC-5.5.6">If the user has no flexi facility configured, all flexi-based strategies (Flexi Chunking, Aggressive Flexi, Velocity Banking, Hybrid Snowball, Hybrid Avalanche) are excluded from the recommendation algorithm.</criterion>
+    <criterion id="AC-5.5.7">Component shows skeleton loading state while isCalculating is true from calculation store.</criterion>
+    <criterion id="AC-5.5.8">If no strategies are calculated (empty results), show an appropriate empty state message prompting user to calculate strategies.</criterion>
+    <criterion id="AC-5.5.9">The recommendation card is visually prominent with teal accent color and positioned at the top of the Compare page.</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/prd.md" title="Product Requirements Document" section="FR29">
+        <snippet>System provides recommendation identifying optimal strategy based on: best interest savings, acceptable effort level, lowest risk profile</snippet>
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture" section="Strategy Comparison Engine">
+        <snippet>Novel Pattern - Strategy comparison engine that models 8 debt acceleration strategies with SA-specific calculations</snippet>
+      </doc>
+      <doc path="docs/ux-design-specification.md" title="UX Design" section="4. Recommendation System">
+        <snippet>Algorithm highlights optimal strategy based on: best interest savings + acceptable effort + lowest risk. User can override and select any strategy. Rationale provided for recommendation.</snippet>
+      </doc>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-5.md" title="Epic 5 Tech Spec" section="Story 5.5 Acceptance Criteria">
+        <snippet>AC-5.5.1 through AC-5.5.6 define scoring formula, penalties, and recommendation card requirements. Authoritative source for implementation.</snippet>
+      </doc>
+      <doc path="docs/epics.md" title="Epics" section="Story 5.5">
+        <snippet>Create src/lib/calculations/recommendation.ts with scoring algorithm: score = interestSaved - effortPenalty - riskPenalty. Display in RecommendationCard.tsx component.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file path="src/lib/calculations/types.ts" kind="types" symbol="StrategyProjection, EffortLevel, DebtStrategy" lines="177-292" reason="Core types for strategy projections including EffortLevel ('low' | 'medium' | 'high') and StrategyProjection with interestSaved, effortLevel fields needed for scoring">
+        <key-interfaces>
+          <interface name="StrategyProjection">
+            strategyId: string
+            strategyName: string
+            effortLevel: EffortLevel
+            debtFreeMonth: number
+            debtFreeDate: string
+            totalInterestPaid: Big
+            interestSaved: Big
+            monthlyProjections: MonthlyProjection[]
+          </interface>
+          <interface name="DebtStrategy">
+            id: string
+            name: string
+            effortLevel: EffortLevel
+            requiresFlexi: boolean
+          </interface>
+        </key-interfaces>
+      </file>
+
+      <file path="src/hooks/useStrategies.ts" kind="hook" symbol="useStrategies, UseStrategiesReturn" lines="1-183" reason="Primary hook for strategy data - provides strategies array, baseline, isCalculating, bestStrategy. Recommendation algorithm should use these values.">
+        <key-returns>
+          strategies: StrategyProjection[]
+          baseline: StrategyProjection | null
+          isCalculating: boolean
+          bestStrategy: StrategyProjection | null
+          calculateStrategies: () => Promise&lt;void&gt;
+        </key-returns>
+      </file>
+
+      <file path="src/hooks/useFlexiFacility.ts" kind="hook" symbol="useFlexiFacility, UseFlexiFacilityReturn" lines="1-169" reason="Provides hasExistingFacility boolean needed for AC-5.5.6 to filter flexi strategies when no facility exists">
+        <key-returns>
+          facility: FlexiFacility | null
+          hasExistingFacility: boolean
+          isLoading: boolean
+        </key-returns>
+      </file>
+
+      <file path="src/store/uiStore.ts" kind="store" symbol="useUIStore" lines="1-22" reason="Contains selectedStrategyId state for persisting strategy selection (Task 8)">
+        <key-state>
+          selectedStrategyId: string | null
+          setSelectedStrategy: (id: string | null) => void
+        </key-state>
+      </file>
+
+      <file path="src/lib/calculations/strategies/index.ts" kind="registry" symbol="getAllStrategies, getFlexiStrategies" lines="1-94" reason="Strategy registry with getFlexiStrategies() helper that returns strategies with requiresFlexi=true. Use for FLEXI_REQUIRED_STRATEGY_IDS constant.">
+        <key-exports>
+          getAllStrategies(): DebtStrategy[]
+          getFlexiStrategies(): DebtStrategy[]
+          getStrategyById(id: string): DebtStrategy | undefined
+        </key-exports>
+        <flexi-strategies>
+          flexiChunkingStrategy (id: 'flexi-chunking')
+          aggressiveFlexiStrategy (id: 'aggressive-flexi')
+          velocityBankingStrategy (id: 'velocity-banking')
+          hybridSnowballStrategy (id: 'hybrid-snowball')
+          hybridAvalancheStrategy (id: 'hybrid-avalanche')
+        </flexi-strategies>
+      </file>
+
+      <file path="src/components/strategies/ComparisonTable.tsx" kind="component" symbol="ComparisonTable, EffortBadge, EFFORT_COLORS" lines="1-150" reason="Reference for effort badge styling pattern (green=low, amber=medium, red=high) and skeleton loading pattern">
+        <reusable-patterns>
+          <pattern name="EFFORT_COLORS">
+            low: 'bg-green-100 text-green-800 border-green-300'
+            medium: 'bg-amber-100 text-amber-800 border-amber-300'
+            high: 'bg-red-100 text-red-800 border-red-300'
+          </pattern>
+          <pattern name="TableSkeleton">Skeleton loading for tables with aria-busy</pattern>
+          <pattern name="StrategyCard">Card with teal accent: border-l-4 border-teal-600 bg-teal-50</pattern>
+        </reusable-patterns>
+      </file>
+
+      <file path="src/components/strategies/index.ts" kind="barrel" lines="1-7" reason="MODIFY: Add RecommendationCard export">
+        <current-exports>
+          StrategyConfigForm
+          CalculationLoading
+          WinnersPodium
+          ComparisonTable
+        </current-exports>
+      </file>
+
+      <file path="src/pages/ComparePage.tsx" kind="page" symbol="ComparePage" lines="1-100" reason="MODIFY: Integrate RecommendationCard at top of page, before WinnersPodium">
+        <integration-point>
+          <location>After h1 heading, before WinnersPodium</location>
+          <props>
+            strategies={strategies}
+            baseline={baseline}
+            hasFlexiFacility={facility !== null}
+            isLoading={isCalculating}
+          </props>
+        </integration-point>
+      </file>
+
+      <file path="src/lib/format/currency.ts" kind="utility" symbol="formatCurrency" reason="ZAR currency formatting utility for displaying interest saved amounts">
+        <signature>formatCurrency(value: Big | string | number): string</signature>
+      </file>
+
+      <file path="src/lib/format/date.ts" kind="utility" symbol="formatDate" reason="Date formatting utility for displaying debt-free date">
+        <signature>formatDate(isoString: string): string</signature>
+      </file>
+    </code>
+
+    <dependencies>
+      <npm>
+        <package name="big.js" version="^7.0.1" usage="Precise decimal arithmetic for scoring calculations"/>
+        <package name="lucide-react" version="^0.555.0" usage="Trophy icon for recommendation header, Calculator icon for empty state"/>
+        <package name="recharts" version="^3.5.1" usage="Chart library (not directly used but for consistency)"/>
+        <package name="sonner" version="^2.0.7" usage="Toast notifications for strategy selection feedback"/>
+        <package name="zustand" version="^5.0.8" usage="UI store for selectedStrategyId persistence"/>
+        <package name="vitest" version="^4.0.14" usage="Test framework for unit and component tests"/>
+        <package name="@testing-library/react" version="^16.3.0" usage="Component testing utilities"/>
+      </npm>
+      <shadcn>
+        <component name="Card" usage="Recommendation card container with teal accent"/>
+        <component name="Badge" usage="Effort level badge (reuse EFFORT_COLORS pattern)"/>
+        <component name="Button" usage="Select This Strategy button"/>
+        <component name="Skeleton" usage="Loading state"/>
+      </shadcn>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="architecture">Use Strategy Pattern for calculation modules (ADR-004)</constraint>
+    <constraint source="architecture">All monetary values use Big.js for precision (ADR-003)</constraint>
+    <constraint source="architecture">Component in src/components/strategies/, algorithm in src/lib/calculations/</constraint>
+    <constraint source="prd">Client-side only - no server dependencies</constraint>
+    <constraint source="ux">Teal accent colors for recommendations (teal-600, teal-50, bg-teal-50)</constraint>
+    <constraint source="nfr">Calculation performance &lt; 3 seconds for 8 strategies</constraint>
+    <constraint source="testing">Vitest for unit tests, Testing Library for components</constraint>
+    <constraint source="typescript">Strict TypeScript - no any types</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface name="RecommendationResult" kind="type" path="src/lib/calculations/recommendation.ts">
+      interface RecommendationResult {
+        recommendedStrategyId: string;
+        recommendedStrategy: StrategyProjection;
+        score: number;
+        rationale: string;
+      }
+    </interface>
+    <interface name="RecommendationCardProps" kind="type" path="src/components/strategies/RecommendationCard.tsx">
+      interface RecommendationCardProps {
+        strategies: StrategyProjection[];
+        baseline: StrategyProjection | null;
+        hasFlexiFacility: boolean;
+        isLoading?: boolean;
+        onSelectStrategy?: (strategyId: string) => void;
+      }
+    </interface>
+    <interface name="calculateRecommendation" kind="function" path="src/lib/calculations/recommendation.ts">
+      function calculateRecommendation(
+        strategies: StrategyProjection[],
+        baseline: StrategyProjection,
+        hasFlexiFacility: boolean
+      ): RecommendationResult | null
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Vitest for unit testing with TypeScript support.
+      @testing-library/react for component tests.
+      Tests located in tests/ directory mirroring src/ structure.
+      Use fake-indexeddb for Dexie mocking in integration tests.
+      Prefer describe/it blocks with clear test descriptions.
+      Mock Big.js values using Big constructor in test data.
+    </standards>
+    <locations>
+      tests/lib/calculations/recommendation.test.ts
+      tests/components/strategies/RecommendationCard.test.tsx
+    </locations>
+    <ideas>
+      <idea ac="AC-5.5.1">Test scoring prioritizes interest savings over effort/risk</idea>
+      <idea ac="AC-5.5.2">Test score = interestSaved - effortPenalty - riskPenalty with known values</idea>
+      <idea ac="AC-5.5.3">Test effort penalties: high=-5000 gives lower score than medium=-2000</idea>
+      <idea ac="AC-5.5.4">Test flexi strategy gets -1000 risk penalty vs non-flexi</idea>
+      <idea ac="AC-5.5.5">Test RecommendationCard renders strategy name, metrics, rationale</idea>
+      <idea ac="AC-5.5.6">Test flexi strategies excluded when hasFlexiFacility=false</idea>
+      <idea ac="AC-5.5.7">Test skeleton loading state when isLoading=true</idea>
+      <idea ac="AC-5.5.8">Test empty state when strategies array is empty</idea>
+      <idea ac="AC-5.5.9">Test card has teal accent styling classes</idea>
+      <idea>Test returns null when no applicable strategies</idea>
+      <idea>Test rationale string format matches expected pattern</idea>
+      <idea>Test Select button calls onSelectStrategy callback</idea>
+    </ideas>
+  </tests>
+</story-context>
