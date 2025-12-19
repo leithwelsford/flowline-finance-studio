@@ -1,0 +1,159 @@
+<story-context id="6-1-implement-balance-logging" v="1.0">
+  <metadata>
+    <epicId>6</epicId>
+    <storyId>1</storyId>
+    <title>Implement Balance Logging</title>
+    <status>ready-for-dev</status>
+    <generatedAt>2025-12-19</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/6-1-implement-balance-logging.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to log my actual account balances over time</iWant>
+    <soThat>I can track real progress against my chosen strategy projections</soThat>
+    <tasks>
+      <task id="1" acs="1,2,3">Create BalanceLogger component structure</task>
+      <task id="2" acs="1">Implement date selector with today default</task>
+      <task id="3" acs="2,3">Implement account balance input list</task>
+      <task id="4" acs="6">Implement notes field for variance explanation</task>
+      <task id="5" acs="4,5">Implement save snapshot functionality</task>
+      <task id="6" acs="7">Implement balance validation</task>
+      <task id="7" acs="8">Create recent snapshots list component</task>
+      <task id="8" acs="9">Implement snapshot edit functionality</task>
+      <task id="9" acs="10">Implement snapshot delete functionality</task>
+      <task id="10" acs="all">Assemble Track page with BalanceLogger</task>
+      <task id="11">Write unit tests for useProgress hook</task>
+      <task id="12">Write component tests for BalanceLogger</task>
+      <task id="13">Write integration tests for snapshot flow</task>
+      <task id="14">Verify build and all tests pass</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-6.1.1">Given I have accounts and a selected strategy, when I navigate to the Track page, then I see a "Log Balances" section with a date selector that defaults to today.</criterion>
+    <criterion id="AC-6.1.2">Given I'm on the Track page, when I view the Log Balances section, then I see a list of all my debt accounts with current balance input fields pre-populated with their last known balances.</criterion>
+    <criterion id="AC-6.1.3">Given I'm on the Track page, when I view the Log Balances section, then I see my flexi facility (if exists) with a balance input field.</criterion>
+    <criterion id="AC-6.1.4">Given I have entered balances, when I click "Save Snapshot", then a BalanceSnapshot record is created in Dexie for each account with the selected date.</criterion>
+    <criterion id="AC-6.1.5">Given I save a snapshot, when the save completes, then a success toast confirms "Balances logged for [date]" with SA date format (DD/MM/YYYY).</criterion>
+    <criterion id="AC-6.1.6">Given I want to document variances, when I'm logging balances, then I can add an optional notes field explaining variances (e.g., "Unexpected car repair").</criterion>
+    <criterion id="AC-6.1.7">Given I enter an invalid balance (negative number), when I try to save, then validation prevents save and shows error message.</criterion>
+    <criterion id="AC-6.1.8">Given I have previously logged snapshots, when I navigate to the Track page, then I can see a list of recent snapshots with dates and total debt amounts.</criterion>
+    <criterion id="AC-6.1.9">Given I want to edit a snapshot, when I click on a recent snapshot, then I can modify the balances or notes and save the update.</criterion>
+    <criterion id="AC-6.1.10">Given I want to delete a snapshot, when I click delete on a snapshot, then a confirmation dialog appears, and upon confirmation the snapshot is removed.</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc path="docs/sprint-artifacts/tech-spec-epic-6.md" title="Epic 6 Technical Specification" section="Overview, Detailed Design, Data Models">
+        Defines BalanceSnapshot interface, UseProgressReturn hook interface, Balance Logging Flow (10 steps), and variance calculation logic. Key performance target: snapshot save &lt; 200ms.
+      </doc>
+      <doc path="docs/architecture.md" title="Architecture" section="Data Architecture, Implementation Patterns">
+        Defines Dexie schema with balanceSnapshots table, project structure, naming conventions, error handling pattern (Result type + Toast), and logging strategy.
+      </doc>
+      <doc path="docs/prd.md" title="Product Requirements Document" section="FR32">
+        FR32: "User can log actual debt account balances on weekly or monthly basis" - Core requirement for this story.
+      </doc>
+      <doc path="docs/ux-design-specification.md" title="UX Design Specification" section="Flow 4: Progress Validation">
+        Defines UX flow for progress tracking. Uses shadcn/ui Card, date picker with SA format, currency input with ZAR formatting, toast notifications for feedback.
+      </doc>
+    </docs>
+
+    <code>
+      <file path="src/pages/TrackPage.tsx" kind="page" symbol="TrackPage" lines="1-7" reason="Target page for BalanceLogger component - currently placeholder, needs full implementation"/>
+      <file path="src/types/balance-snapshot.ts" kind="type" symbol="BalanceSnapshot" lines="1-21" reason="Type definition already exists - use directly for snapshot records"/>
+      <file path="src/lib/db/schema.ts" kind="database" symbol="FlowlineDB" lines="35-59" reason="Dexie schema with balanceSnapshots table already defined - ready for use"/>
+      <file path="src/lib/db/index.ts" kind="database" symbol="db" reason="Database instance export - import as 'import { db } from @/lib/db'"/>
+      <file path="src/hooks/useAccounts.ts" kind="hook" symbol="useAccounts" lines="1-141" reason="Pattern reference for creating useProgress hook - useLiveQuery, Result type, big.js calculations"/>
+      <file path="src/hooks/useFlexiFacility.ts" kind="hook" symbol="useFlexiFacility" lines="1-169" reason="Pattern reference for flexi facility queries - useMemo for computed values"/>
+      <file path="src/lib/format/currency.ts" kind="utility" symbol="formatCurrency, parseCurrencyInput" lines="1-87" reason="Currency formatting utilities - use for ZAR display and input parsing"/>
+      <file path="src/lib/format/date.ts" kind="utility" symbol="formatDate" lines="1-17" reason="SA date formatting (DD/MM/YYYY) - use for snapshot date display"/>
+      <file path="src/lib/utils/result.ts" kind="utility" symbol="Result, ok, err" reason="Result type for error handling - use for hook return types"/>
+      <file path="src/lib/utils/toast.ts" kind="utility" symbol="showToast" reason="Toast notification helper - use for success/error feedback"/>
+      <file path="src/components/ui/alert-dialog.tsx" kind="component" symbol="AlertDialog" reason="Confirmation dialog - use for delete confirmation"/>
+      <file path="src/components/ui/card.tsx" kind="component" symbol="Card" reason="Card component - use for Log Balances section"/>
+      <file path="src/components/ui/input.tsx" kind="component" symbol="Input" reason="Input component - use for balance inputs"/>
+      <file path="src/components/ui/form.tsx" kind="component" symbol="Form" reason="Form components - use with React Hook Form"/>
+      <file path="src/components/ui/button.tsx" kind="component" symbol="Button" reason="Button component - use for Save Snapshot action"/>
+      <file path="src/components/accounts/DeleteConfirmDialog.tsx" kind="component" symbol="DeleteConfirmDialog" reason="Pattern reference for delete confirmation dialog"/>
+    </code>
+
+    <dependencies>
+      <npm>
+        <package name="dexie" version="^4.2.1" purpose="IndexedDB persistence for snapshots"/>
+        <package name="dexie-react-hooks" version="^4.2.0" purpose="useLiveQuery for reactive queries"/>
+        <package name="big.js" version="^7.0.1" purpose="Precision balance calculations"/>
+        <package name="date-fns" version="^4.1.0" purpose="Date parsing and formatting"/>
+        <package name="react-hook-form" version="^7.66.1" purpose="Form state management"/>
+        <package name="zod" version="^4.1.13" purpose="Input validation schemas"/>
+        <package name="@hookform/resolvers" version="^5.2.2" purpose="Zod resolver for RHF"/>
+        <package name="sonner" version="^2.0.7" purpose="Toast notifications"/>
+        <package name="lucide-react" version="^0.555.0" purpose="Icons (Calendar, Save, Trash, etc.)"/>
+      </npm>
+    </dependencies>
+  </artifacts>
+
+  <interfaces>
+    <interface name="BalanceSnapshot" kind="type" path="src/types/balance-snapshot.ts">
+      <signature>interface BalanceSnapshot { id?: number; accountId: number; date: string; balance: string; notes?: string; createdAt: string; }</signature>
+    </interface>
+    <interface name="db.balanceSnapshots" kind="dexie-table" path="src/lib/db/schema.ts">
+      <signature>db.balanceSnapshots: Table&lt;BalanceSnapshot, number&gt; with indexes: '++id, accountId, date'</signature>
+    </interface>
+    <interface name="useAccounts" kind="hook" path="src/hooks/useAccounts.ts">
+      <signature>function useAccounts(): { accounts: DebtAccount[]; isLoading: boolean; totalDebt: string; ... }</signature>
+    </interface>
+    <interface name="useFlexiFacility" kind="hook" path="src/hooks/useFlexiFacility.ts">
+      <signature>function useFlexiFacility(): { facility: FlexiFacility | null; isLoading: boolean; ... }</signature>
+    </interface>
+    <interface name="formatCurrency" kind="function" path="src/lib/format/currency.ts">
+      <signature>function formatCurrency(amount: string): string // Returns "R 1 234,56" format</signature>
+    </interface>
+    <interface name="formatDate" kind="function" path="src/lib/format/date.ts">
+      <signature>function formatDate(date: Date): string // Returns "DD/MM/YYYY" format</signature>
+    </interface>
+    <interface name="Result" kind="type" path="src/lib/utils/result.ts">
+      <signature>type Result&lt;T, E = Error&gt; = { success: true; data: T } | { success: false; error: E }</signature>
+    </interface>
+  </interfaces>
+
+  <constraints>
+    <constraint source="architecture">All calculations client-side using big.js for precision - no floating-point math</constraint>
+    <constraint source="architecture">Store monetary values as strings (e.g., "1234.56") for big.js compatibility</constraint>
+    <constraint source="architecture">Store dates as ISO strings (YYYY-MM-DD) for Dexie indexing</constraint>
+    <constraint source="ux-design">Display dates in SA format (DD/MM/YYYY) using formatDate utility</constraint>
+    <constraint source="ux-design">Display currency in ZAR format (R 1 234,56) using formatCurrency utility</constraint>
+    <constraint source="architecture">Use React Hook Form + Zod for form validation</constraint>
+    <constraint source="architecture">Use Result type for hook error handling, toast for user feedback</constraint>
+    <constraint source="tech-spec">Snapshot save must complete in &lt; 200ms (async Dexie writes)</constraint>
+    <constraint source="tech-spec">Use Dexie transaction for atomic multi-account saves</constraint>
+    <constraint source="tech-spec">Input validation: balance must be non-negative (Zod schema)</constraint>
+    <constraint source="tech-spec">Notes field: max 500 characters, sanitize HTML for XSS prevention</constraint>
+    <constraint source="architecture">Components in src/components/tracking/, hook in src/hooks/useProgress.ts</constraint>
+    <constraint source="architecture">Types in src/types/tracking.ts (may need to create)</constraint>
+  </constraints>
+
+  <tests>
+    <standards>
+      Vitest for unit and integration tests. React Testing Library for component tests. Follow existing patterns from tests/ folder. Use fake-indexeddb for Dexie mocking. Test coverage should include happy path, validation errors, edge cases (no accounts, empty balances). Mock date-fns for deterministic date testing.
+    </standards>
+    <locations>
+      <location>tests/hooks/useProgress.test.ts</location>
+      <location>tests/components/tracking/BalanceLogger.test.tsx</location>
+      <location>tests/components/tracking/SnapshotList.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea ac="AC-6.1.1">Test: Date picker renders with today's date as default</idea>
+      <idea ac="AC-6.1.2">Test: All accounts from useAccounts hook are rendered with input fields</idea>
+      <idea ac="AC-6.1.3">Test: Flexi facility renders in separate section when exists</idea>
+      <idea ac="AC-6.1.4">Test: logBalances creates BalanceSnapshot records with correct date and accountId</idea>
+      <idea ac="AC-6.1.5">Test: Success toast shows SA-formatted date after save</idea>
+      <idea ac="AC-6.1.6">Test: Notes textarea accepts input up to 500 chars</idea>
+      <idea ac="AC-6.1.7">Test: Zod validation rejects negative balance values</idea>
+      <idea ac="AC-6.1.8">Test: SnapshotList queries recent snapshots and displays total debt</idea>
+      <idea ac="AC-6.1.9">Test: Edit mode loads existing snapshot data into form</idea>
+      <idea ac="AC-6.1.10">Test: Delete confirmation dialog appears and deletes on confirm</idea>
+    </ideas>
+  </tests>
+</story-context>

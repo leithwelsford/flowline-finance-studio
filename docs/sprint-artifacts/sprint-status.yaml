@@ -85,8 +85,8 @@ development_status:
   epic-5-retrospective: optional
 
   # Epic 6: Progress Tracking & Validation
-  epic-6: backlog
-  6-1-implement-balance-logging: backlog
+  epic-6: contexted
+  6-1-implement-balance-logging: ready-for-dev
   6-2-implement-actual-vs-projected-comparison: backlog
   6-3-implement-variance-calculation-and-display: backlog
   6-4-implement-historical-progress-timeline: backlog
