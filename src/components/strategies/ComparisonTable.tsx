@@ -14,7 +14,7 @@ import { Card, CardContent } from '@/components/ui/card'
 import { formatCurrency } from '@/lib/format/currency'
 import { formatDate } from '@/lib/format/date'
 import type { StrategyProjection, EffortLevel } from '@/lib/calculations/types'
-import { ArrowUpDown, ArrowUp, ArrowDown, Star } from 'lucide-react'
+import { ArrowUpDown, ArrowUp, ArrowDown, Star, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 /**
@@ -27,9 +27,11 @@ export interface ComparisonTableProps {
   baselineId: string
   /** Strategy ID to highlight as recommended */
   recommendedId?: string
+  /** Currently selected strategy ID - AC-5.6.4 */
+  selectedId?: string
   /** Show loading skeleton while calculating */
   isLoading?: boolean
-  /** Callback when Select button is clicked (placeholder for Story 5.6) */
+  /** Callback when Select button is clicked - AC-5.6.4 */
   onSelectStrategy?: (strategyId: string) => void
 }
 
@@ -125,16 +127,19 @@ function TableSkeleton() {
 
 /**
  * Mobile card layout for a single strategy
+ * @see AC-5.6.4, AC-5.6.9
  */
 function StrategyCard({
   strategy,
   isBaseline,
   isRecommended,
+  isSelected,
   onSelect,
 }: {
   strategy: StrategyProjection
   isBaseline: boolean
   isRecommended: boolean
+  isSelected: boolean
   onSelect?: () => void
 }) {
   return (
@@ -142,16 +147,26 @@ function StrategyCard({
       className={cn(
         'animate-in fade-in duration-300',
         isBaseline && 'bg-slate-100 text-muted-foreground',
-        isRecommended && !isBaseline && 'border-l-4 border-teal-600 bg-teal-50'
+        // Selected takes priority over recommended - AC-5.6.4
+        isSelected && !isBaseline && 'border-2 border-teal-600 bg-teal-50 ring-2 ring-teal-200',
+        isRecommended && !isBaseline && !isSelected && 'border-l-4 border-teal-600 bg-teal-50'
       )}
     >
       <CardContent className="pt-4">
         <div className="flex items-start justify-between mb-3">
           <div className="flex items-center gap-2">
-            {isRecommended && !isBaseline && (
+            {isSelected && !isBaseline && (
+              <Check className="w-4 h-4 text-teal-600" aria-label="Selected" />
+            )}
+            {isRecommended && !isBaseline && !isSelected && (
               <Star className="w-4 h-4 text-teal-600 fill-teal-600" />
             )}
             <h3 className="font-semibold">{strategy.strategyName}</h3>
+            {isSelected && (
+              <Badge variant="secondary" className="text-xs bg-teal-100 text-teal-800 border-teal-300">
+                Selected
+              </Badge>
+            )}
           </div>
           <EffortBadge level={strategy.effortLevel} />
         </div>
@@ -178,13 +193,16 @@ function StrategyCard({
         </div>
 
         <Button
-          variant="outline"
+          variant={isSelected ? 'default' : 'outline'}
           size="sm"
-          className="mt-4 w-full"
+          className={cn(
+            'mt-4 w-full',
+            isSelected && 'bg-teal-600 hover:bg-teal-700'
+          )}
           onClick={onSelect}
           disabled={!onSelect}
         >
-          Select
+          {isSelected ? 'Selected' : 'Select'}
         </Button>
       </CardContent>
     </Card>
@@ -213,6 +231,7 @@ export function ComparisonTable({
   strategies,
   baselineId,
   recommendedId,
+  selectedId,
   isLoading = false,
   onSelectStrategy,
 }: ComparisonTableProps) {
@@ -317,6 +336,7 @@ export function ComparisonTable({
             {sortedStrategies.map((strategy) => {
               const isBaseline = strategy.strategyId === baselineId
               const isRecommended = strategy.strategyId === recommendedId
+              const isSelected = strategy.strategyId === selectedId
 
               return (
                 <TableRow
@@ -325,14 +345,22 @@ export function ComparisonTable({
                     'transition-colors',
                     // AC-5.2.4: Baseline row muted/gray styling
                     isBaseline && 'bg-slate-100 text-muted-foreground',
-                    // AC-5.2.5: Recommended row teal highlight (not if baseline)
-                    isRecommended && !isBaseline && 'bg-teal-50 border-l-4 border-teal-600'
+                    // AC-5.6.4: Selected row styling takes priority
+                    isSelected && !isBaseline && 'bg-teal-50 border-l-4 border-teal-600 ring-1 ring-teal-200',
+                    // AC-5.2.5: Recommended row teal highlight (not if baseline or selected)
+                    isRecommended && !isBaseline && !isSelected && 'bg-teal-50/50 border-l-4 border-teal-400'
                   )}
                 >
                   {/* Strategy Name - sticky on mobile scroll */}
                   <TableCell className="sticky left-0 bg-inherit z-10 font-medium whitespace-nowrap">
                     <div className="flex items-center gap-2">
-                      {isRecommended && !isBaseline && (
+                      {isSelected && !isBaseline && (
+                        <Check
+                          className="w-4 h-4 text-teal-600"
+                          aria-label="Selected"
+                        />
+                      )}
+                      {isRecommended && !isBaseline && !isSelected && (
                         <Star
                           className="w-4 h-4 text-teal-600 fill-teal-600"
                           aria-label="Recommended"
@@ -342,6 +370,11 @@ export function ComparisonTable({
                       {isBaseline && (
                         <Badge variant="secondary" className="text-xs">
                           Baseline
+                        </Badge>
+                      )}
+                      {isSelected && !isBaseline && (
+                        <Badge variant="secondary" className="text-xs bg-teal-100 text-teal-800 border-teal-300">
+                          Selected
                         </Badge>
                       )}
                     </div>
@@ -375,15 +408,16 @@ export function ComparisonTable({
                     <EffortBadge level={strategy.effortLevel} />
                   </TableCell>
 
-                  {/* Select button (AC-5.2.9) */}
+                  {/* Select button (AC-5.6.4) */}
                   <TableCell>
                     <Button
-                      variant="outline"
+                      variant={isSelected ? 'default' : 'outline'}
                       size="sm"
+                      className={cn(isSelected && 'bg-teal-600 hover:bg-teal-700')}
                       onClick={() => onSelectStrategy?.(strategy.strategyId)}
                       disabled={!onSelectStrategy}
                     >
-                      Select
+                      {isSelected ? 'Selected' : 'Select'}
                     </Button>
                   </TableCell>
                 </TableRow>
@@ -401,6 +435,7 @@ export function ComparisonTable({
             strategy={strategy}
             isBaseline={strategy.strategyId === baselineId}
             isRecommended={strategy.strategyId === recommendedId}
+            isSelected={strategy.strategyId === selectedId}
             onSelect={onSelectStrategy ? () => onSelectStrategy(strategy.strategyId) : undefined}
           />
         ))}

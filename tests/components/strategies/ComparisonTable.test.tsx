@@ -336,9 +336,10 @@ describe('ComparisonTable', () => {
       const table = getDesktopTable(container)
       const tableScope = within(table)
       const recommendedRow = tableScope.getByText('Velocity Banking').closest('tr')
-      expect(recommendedRow).toHaveClass('bg-teal-50')
+      // Recommended rows get lighter teal (bg-teal-50/50) to differentiate from selected rows
+      expect(recommendedRow).toHaveClass('bg-teal-50/50')
       expect(recommendedRow).toHaveClass('border-l-4')
-      expect(recommendedRow).toHaveClass('border-teal-600')
+      expect(recommendedRow).toHaveClass('border-teal-400')
     })
 
     it('shows star icon on recommended row', () => {

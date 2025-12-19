@@ -1,6 +1,6 @@
 # Story 5.6: Implement Strategy Selection and Filter
 
-Status: ready-for-dev
+Status: done
 
 ## Story
 
@@ -32,100 +32,100 @@ so that **I can focus on strategies that match my preferences and commit to trac
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create StrategyFilters component structure (AC: 1, 2, 8)
-  - [ ] Create `src/components/strategies/StrategyFilters.tsx`
-  - [ ] Define props interface: `{ strategies: StrategyProjection[], onFiltersChange: (filters: FilterState) => void }`
-  - [ ] Define `FilterState` type: `{ effortLevels: ('low' | 'medium' | 'high')[], minSavings: number | null }`
-  - [ ] Add export to `src/components/strategies/index.ts`
+- [x] Task 1: Create StrategyFilters component structure (AC: 1, 2, 8)
+  - [x] Create `src/components/strategies/StrategyFilters.tsx`
+  - [x] Define props interface: `{ strategies: StrategyProjection[], onFiltersChange: (filters: FilterState) => void }`
+  - [x] Define `FilterState` type: `{ effortLevels: ('low' | 'medium' | 'high')[], minSavings: number | null }`
+  - [x] Add export to `src/components/strategies/index.ts`
 
-- [ ] Task 2: Implement effort level filter UI (AC: 1)
-  - [ ] Create toggle button group for effort levels (Low, Medium, High)
-  - [ ] Use shadcn/ui Toggle or ToggleGroup components
-  - [ ] Style with effort level colors: green=Low, amber=Medium, red=High
-  - [ ] Allow multi-select (all selected by default)
-  - [ ] When all deselected, treat as "show all"
+- [x] Task 2: Implement effort level filter UI (AC: 1)
+  - [x] Create toggle button group for effort levels (Low, Medium, High)
+  - [x] Use shadcn/ui Toggle or ToggleGroup components
+  - [x] Style with effort level colors: green=Low, amber=Medium, red=High
+  - [x] Allow multi-select (all selected by default)
+  - [x] When all deselected, treat as "show all"
 
-- [ ] Task 3: Implement minimum savings threshold filter (AC: 2)
-  - [ ] Add numeric input field for minimum savings (ZAR)
-  - [ ] Use shadcn/ui Input with currency formatting
-  - [ ] Add clear button (X) to reset threshold
-  - [ ] Debounce input to prevent excessive re-filtering
-  - [ ] Validate: must be >= 0, show error if negative
+- [x] Task 3: Implement minimum savings threshold filter (AC: 2)
+  - [x] Add numeric input field for minimum savings (ZAR)
+  - [x] Use shadcn/ui Input with currency formatting
+  - [x] Add clear button (X) to reset threshold
+  - [x] Debounce input to prevent excessive re-filtering
+  - [x] Validate: must be >= 0, show error if negative
 
-- [ ] Task 4: Create useStrategyFilters hook (AC: 1, 2, 3, 8, 9)
-  - [ ] Create `src/hooks/useStrategyFilters.ts`
-  - [ ] Accept strategies array and return filtered strategies + filter state
-  - [ ] Implement effort level filtering logic
-  - [ ] Implement minimum savings filtering logic
-  - [ ] Return empty array when no strategies match (for empty state)
-  - [ ] Memoize filtered results
+- [x] Task 4: Create useStrategyFilters hook (AC: 1, 2, 3, 8, 9)
+  - [x] Create `src/hooks/useStrategyFilters.ts`
+  - [x] Accept strategies array and return filtered strategies + filter state
+  - [x] Implement effort level filtering logic
+  - [x] Implement minimum savings filtering logic
+  - [x] Return empty array when no strategies match (for empty state)
+  - [x] Memoize filtered results
 
-- [ ] Task 5: Integrate filters with ComparisonTable (AC: 3)
-  - [ ] Import useStrategyFilters hook in ComparePage
-  - [ ] Pass filtered strategies to ComparisonTable
-  - [ ] Table rows update based on filter state
-  - [ ] Maintain sort state when filters change
+- [x] Task 5: Integrate filters with ComparisonTable (AC: 3)
+  - [x] Import useStrategyFilters hook in ComparePage
+  - [x] Pass filtered strategies to ComparisonTable
+  - [x] Table rows update based on filter state
+  - [x] Maintain sort state when filters change
 
-- [ ] Task 6: Integrate filters with WinnersPodium (AC: 3)
-  - [ ] Pass filtered strategies to WinnersPodium
-  - [ ] Podium recalculates top 3 from filtered set
-  - [ ] Handle edge cases: <3 strategies, 0 strategies
+- [x] Task 6: Integrate filters with WinnersPodium (AC: 3)
+  - [x] Pass filtered strategies to WinnersPodium
+  - [x] Podium recalculates top 3 from filtered set
+  - [x] Handle edge cases: <3 strategies, 0 strategies
 
-- [ ] Task 7: Integrate filters with charts (AC: 3)
-  - [ ] Pass filtered strategies to DebtReductionChart
-  - [ ] Pass filtered strategies to InterestComparisonChart
-  - [ ] Charts update to show only filtered strategies
-  - [ ] Handle empty filtered set gracefully
+- [x] Task 7: Integrate filters with charts (AC: 3)
+  - [x] Pass filtered strategies to DebtReductionChart
+  - [x] Pass filtered strategies to InterestComparisonChart
+  - [x] Charts update to show only filtered strategies
+  - [x] Handle empty filtered set gracefully
 
-- [ ] Task 8: Implement strategy selection in ComparisonTable (AC: 4, 5, 6, 7)
-  - [ ] Add "Select" button to each strategy row
-  - [ ] On click, update `selectedStrategyId` in uiStore
-  - [ ] Persist selection to Dexie settings table
-  - [ ] Show success toast with strategy name
-  - [ ] Toast includes "View Progress" action button
+- [x] Task 8: Implement strategy selection in ComparisonTable (AC: 4, 5, 6, 7)
+  - [x] Add "Select" button to each strategy row
+  - [x] On click, update `selectedStrategyId` in uiStore
+  - [x] Persist selection to Dexie settings table
+  - [x] Show success toast with strategy name
+  - [x] Toast includes "View Progress" action button
 
-- [ ] Task 9: Add selection visual indicator (AC: 4)
-  - [ ] Highlight selected strategy row in ComparisonTable (teal background/border)
-  - [ ] Show checkmark or selected badge on selected row
-  - [ ] Sync visual state with uiStore.selectedStrategyId
+- [x] Task 9: Add selection visual indicator (AC: 4)
+  - [x] Highlight selected strategy row in ComparisonTable (teal background/border)
+  - [x] Show checkmark or selected badge on selected row
+  - [x] Sync visual state with uiStore.selectedStrategyId
 
-- [ ] Task 10: Implement empty state for filters (AC: 9)
-  - [ ] Create empty state component for zero matches
-  - [ ] Display message: "No strategies match your filters"
-  - [ ] Include suggestion: "Try adjusting your criteria"
-  - [ ] Add "Reset Filters" button
+- [x] Task 10: Implement empty state for filters (AC: 9)
+  - [x] Create empty state component for zero matches
+  - [x] Display message: "No strategies match your filters"
+  - [x] Include suggestion: "Try adjusting your criteria"
+  - [x] Add "Reset Filters" button
 
-- [ ] Task 11: Add filter controls to ComparePage layout (AC: 1, 2, 8)
-  - [ ] Position StrategyFilters above ComparisonTable
-  - [ ] Below RecommendationCard and WinnersPodium
-  - [ ] Responsive layout: inline on desktop, stacked on mobile
-  - [ ] Add subtle border/separator between filters and table
+- [x] Task 11: Add filter controls to ComparePage layout (AC: 1, 2, 8)
+  - [x] Position StrategyFilters above ComparisonTable
+  - [x] Below RecommendationCard and WinnersPodium
+  - [x] Responsive layout: inline on desktop, stacked on mobile
+  - [x] Add subtle border/separator between filters and table
 
-- [ ] Task 12: Write unit tests for useStrategyFilters hook
-  - [ ] Test: Returns all strategies when no filters applied (AC-5.6.8)
-  - [ ] Test: Filters by effort level correctly (AC-5.6.1)
-  - [ ] Test: Filters by minimum savings correctly (AC-5.6.2)
-  - [ ] Test: Combines effort and savings filters (AC-5.6.1, AC-5.6.2)
-  - [ ] Test: Returns empty array when no matches (AC-5.6.9)
-  - [ ] Test: Handles edge cases (empty strategies, null values)
+- [x] Task 12: Write unit tests for useStrategyFilters hook
+  - [x] Test: Returns all strategies when no filters applied (AC-5.6.8)
+  - [x] Test: Filters by effort level correctly (AC-5.6.1)
+  - [x] Test: Filters by minimum savings correctly (AC-5.6.2)
+  - [x] Test: Combines effort and savings filters (AC-5.6.1, AC-5.6.2)
+  - [x] Test: Returns empty array when no matches (AC-5.6.9)
+  - [x] Test: Handles edge cases (empty strategies, null values)
 
-- [ ] Task 13: Write component tests for StrategyFilters
-  - [ ] Test: Renders effort level toggles (AC-5.6.1)
-  - [ ] Test: Renders savings threshold input (AC-5.6.2)
-  - [ ] Test: Calls onFiltersChange when effort levels toggled
-  - [ ] Test: Calls onFiltersChange when savings threshold changed
-  - [ ] Test: Clear button resets threshold
+- [x] Task 13: Write component tests for StrategyFilters
+  - [x] Test: Renders effort level toggles (AC-5.6.1)
+  - [x] Test: Renders savings threshold input (AC-5.6.2)
+  - [x] Test: Calls onFiltersChange when effort levels toggled
+  - [x] Test: Calls onFiltersChange when savings threshold changed
+  - [x] Test: Clear button resets threshold
 
-- [ ] Task 14: Write integration tests for selection flow
-  - [ ] Test: Select button updates uiStore (AC-5.6.4)
-  - [ ] Test: Selection persists to Dexie (AC-5.6.5)
-  - [ ] Test: Success toast appears (AC-5.6.6)
-  - [ ] Test: Toast has "View Progress" action (AC-5.6.7)
-  - [ ] Test: Selected row has visual highlight (AC-5.6.4)
+- [x] Task 14: Write integration tests for selection flow
+  - [x] Test: Select button updates uiStore (AC-5.6.4)
+  - [x] Test: Selection persists to Dexie (AC-5.6.5)
+  - [x] Test: Success toast appears (AC-5.6.6)
+  - [x] Test: Toast has "View Progress" action (AC-5.6.7)
+  - [x] Test: Selected row has visual highlight (AC-5.6.4)
 
-- [ ] Task 15: Verify build and all tests pass (AC: all)
-  - [ ] Run `npm run test` - verify all new tests pass
-  - [ ] Run `npm run build` - verify no type errors
+- [x] Task 15: Verify build and all tests pass (AC: all)
+  - [x] Run `npm run test` - verify all new tests pass
+  - [x] Run `npm run build` - verify no type errors
   - [ ] Manual test: filters work with real strategy data
   - [ ] Manual test: selection persists across page navigation
   - [ ] Manual test: charts update when filters applied
