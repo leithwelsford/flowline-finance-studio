@@ -1,7 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useStrategies } from '@/hooks/useStrategies'
 import { WinnersPodium, ComparisonTable } from '@/components/strategies'
-import { DebtReductionChart } from '@/components/charts'
+import { DebtReductionChart, InterestComparisonChart } from '@/components/charts'
 
 export function ComparePage() {
   const {
@@ -94,6 +94,13 @@ export function ComparePage() {
           strategies={strategies}
           baselineId={baseline?.strategyId ?? ''}
           recommendedId={bestStrategy?.strategyId}
+          isLoading={isCalculating}
+        />
+
+        {/* Interest Comparison Chart */}
+        <InterestComparisonChart
+          strategies={strategies}
+          baselineId={baseline?.strategyId ?? ''}
           isLoading={isCalculating}
         />
       </div>
