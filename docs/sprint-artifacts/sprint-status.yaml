@@ -81,7 +81,7 @@ development_status:
   5-3-implement-debt-reduction-curve-chart: done
   5-4-implement-interest-comparison-bar-chart: done
   5-5-implement-recommendation-engine: done
-  5-6-implement-strategy-selection-and-filter: backlog
+  5-6-implement-strategy-selection-and-filter: done
   epic-5-retrospective: optional
 
   # Epic 6: Progress Tracking & Validation

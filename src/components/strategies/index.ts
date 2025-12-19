@@ -6,3 +6,5 @@ export { ComparisonTable } from './ComparisonTable';
 export type { ComparisonTableProps } from './ComparisonTable';
 export { RecommendationCard } from './RecommendationCard';
 export type { RecommendationCardProps } from './RecommendationCard';
+export { StrategyFilters } from './StrategyFilters';
+export type { StrategyFiltersProps } from './StrategyFilters';

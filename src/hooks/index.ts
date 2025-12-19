@@ -13,3 +13,9 @@ export { useTrueCost, type UseTrueCostReturn } from './useTrueCost';
 export { useDebouncedSave } from './useDebouncedSave';
 export { useStrategyConfig, type UseStrategyConfigReturn } from './useStrategyConfig';
 export { useStrategies, type UseStrategiesReturn } from './useStrategies';
+export {
+  useStrategyFilters,
+  type UseStrategyFiltersReturn,
+  type FilterState,
+  DEFAULT_FILTER_STATE,
+} from './useStrategyFilters';

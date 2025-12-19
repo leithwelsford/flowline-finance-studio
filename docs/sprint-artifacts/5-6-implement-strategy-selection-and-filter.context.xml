@@ -1,0 +1,273 @@
+<story-context id="5-6-implement-strategy-selection-and-filter" v="1.0">
+  <metadata>
+    <epicId>5</epicId>
+    <storyId>6</storyId>
+    <title>Implement Strategy Selection and Filter</title>
+    <status>drafted</status>
+    <generatedAt>2025-12-19</generatedAt>
+    <generator>BMAD Story Context Workflow</generator>
+    <sourceStoryPath>docs/sprint-artifacts/5-6-implement-strategy-selection-and-filter.md</sourceStoryPath>
+  </metadata>
+
+  <story>
+    <asA>user</asA>
+    <iWant>to filter strategies and select one to track</iWant>
+    <soThat>I can focus on strategies that match my preferences and commit to tracking my chosen approach</soThat>
+    <tasks>
+      <task id="1">Create StrategyFilters component structure (AC: 1, 2, 8)</task>
+      <task id="2">Implement effort level filter UI (AC: 1)</task>
+      <task id="3">Implement minimum savings threshold filter (AC: 2)</task>
+      <task id="4">Create useStrategyFilters hook (AC: 1, 2, 3, 8, 9)</task>
+      <task id="5">Integrate filters with ComparisonTable (AC: 3)</task>
+      <task id="6">Integrate filters with WinnersPodium (AC: 3)</task>
+      <task id="7">Integrate filters with charts (AC: 3)</task>
+      <task id="8">Implement strategy selection in ComparisonTable (AC: 4, 5, 6, 7)</task>
+      <task id="9">Add selection visual indicator (AC: 4)</task>
+      <task id="10">Implement empty state for filters (AC: 9)</task>
+      <task id="11">Add filter controls to ComparePage layout (AC: 1, 2, 8)</task>
+      <task id="12">Write unit tests for useStrategyFilters hook</task>
+      <task id="13">Write component tests for StrategyFilters</task>
+      <task id="14">Write integration tests for selection flow</task>
+      <task id="15">Verify build and all tests pass (AC: all)</task>
+    </tasks>
+  </story>
+
+  <acceptanceCriteria>
+    <criterion id="AC-5.6.1">Given I'm viewing strategy comparison, when I use effort level filters, then I can filter to show only strategies with Low, Medium, or High effort levels (multi-select or single-select toggle).</criterion>
+    <criterion id="AC-5.6.2">Given I'm viewing strategy comparison, when I set a minimum savings threshold (e.g., R5,000), then only strategies saving at least that amount vs baseline are displayed.</criterion>
+    <criterion id="AC-5.6.3">Given I apply filters, when the comparison table updates, then the WinnersPodium, DebtReductionChart, and InterestComparisonChart also update to show only filtered strategies.</criterion>
+    <criterion id="AC-5.6.4">Given I've decided on a strategy, when I click "Select Strategy" on any strategy row/card, then that strategy is saved as my "tracked strategy" in the uiStore.</criterion>
+    <criterion id="AC-5.6.5">Given I select a strategy, when the selection is saved, then the selection is persisted to Dexie settings table (`{ key: 'selectedStrategy', value: strategyId }`).</criterion>
+    <criterion id="AC-5.6.6">Given I select a strategy, when the action completes, then a success toast appears: "Strategy selected: [strategy name]".</criterion>
+    <criterion id="AC-5.6.7">Given I select a strategy, when the toast is shown, then I'm offered an option to navigate to the Track page (via toast action or modal).</criterion>
+    <criterion id="AC-5.6.8">Given no filters are applied (default state), when I view the Compare page, then all calculated strategies are displayed.</criterion>
+    <criterion id="AC-5.6.9">Given filters result in zero matching strategies, when the table updates, then an empty state message is shown: "No strategies match your filters. Try adjusting your criteria."</criterion>
+    <criterion id="AC-5.6.10">Given I reload the page, when filters were previously applied, then filter state should reset to default (no persistence required for filters).</criterion>
+  </acceptanceCriteria>
+
+  <artifacts>
+    <docs>
+      <doc>
+        <path>docs/prd.md</path>
+        <title>Product Requirements Document</title>
+        <section>Strategy Comparison and Recommendations (FR30-FR31)</section>
+        <snippet>FR30: User can filter comparison view to show only strategies meeting selected criteria (effort level, minimum savings threshold). FR31: User can select preferred strategy to track for validation.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>Implementation Patterns - Zustand State Management</section>
+        <snippet>Use Zustand for UI state (selectedStrategy, filters). Pattern: useUIStore for component state, Dexie for persistent data. Selector-based re-renders for performance.</snippet>
+      </doc>
+      <doc>
+        <path>docs/architecture.md</path>
+        <title>System Architecture</title>
+        <section>Project Structure - Components</section>
+        <snippet>Strategy components in src/components/strategies/. Hooks in src/hooks/. Store in src/store/. Charts in src/components/charts/.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Section 7.1 - Consistency Rules</section>
+        <snippet>Status Indicators: Green=Healthy/On-track, Amber=Warning/Caution, Red=Unhealthy/Critical. Effort badge colors: green=Low, amber=Medium, red=High. Always paired with icon for accessibility.</snippet>
+      </doc>
+      <doc>
+        <path>docs/ux-design-specification.md</path>
+        <title>UX Design Specification</title>
+        <section>Section 2.2 - Novel UX Patterns</section>
+        <snippet>Simplified Comparison pattern: Limit initial view to top 3-5 strategies. Highlight key differences. Filter/sort options for personalization.</snippet>
+      </doc>
+      <doc>
+        <path>docs/sprint-artifacts/tech-spec-epic-5.md</path>
+        <title>Epic 5 Technical Specification</title>
+        <section>Story 5.6: Strategy Selection and Filter</section>
+        <snippet>AC-5.6.1-10 defined. FilterState type: effortLevels array, minSavings number|null. Selection saves to uiStore + Dexie settings.</snippet>
+      </doc>
+    </docs>
+
+    <code>
+      <file>
+        <path>src/components/strategies/RecommendationCard.tsx</path>
+        <kind>component</kind>
+        <symbol>RecommendationCard</symbol>
+        <lines>151-261</lines>
+        <reason>Contains selection pattern to REUSE: handleSelectStrategy updates uiStore, shows toast with strategy name. Pattern at lines 169-183.</reason>
+      </file>
+      <file>
+        <path>src/store/uiStore.ts</path>
+        <kind>store</kind>
+        <symbol>useUIStore</symbol>
+        <lines>1-22</lines>
+        <reason>Zustand store with selectedStrategyId state and setSelectedStrategy action. Integration target for selection.</reason>
+      </file>
+      <file>
+        <path>src/pages/ComparePage.tsx</path>
+        <kind>page</kind>
+        <symbol>ComparePage</symbol>
+        <lines>1-121</lines>
+        <reason>Main integration target. Filter component should be added between RecommendationCard/WinnersPodium and ComparisonTable. Pass filtered strategies to all child components.</reason>
+      </file>
+      <file>
+        <path>src/components/strategies/ComparisonTable.tsx</path>
+        <kind>component</kind>
+        <symbol>ComparisonTable</symbol>
+        <lines>1-411</lines>
+        <reason>Already has onSelectStrategy prop (line 33) but currently disabled. Need to implement handler and add visual highlight for selected row.</reason>
+      </file>
+      <file>
+        <path>src/components/strategies/WinnersPodium.tsx</path>
+        <kind>component</kind>
+        <symbol>WinnersPodium</symbol>
+        <lines>all</lines>
+        <reason>Needs to receive filtered strategies - will recalculate top 3 from filtered set.</reason>
+      </file>
+      <file>
+        <path>src/components/charts/DebtReductionChart.tsx</path>
+        <kind>component</kind>
+        <symbol>DebtReductionChart</symbol>
+        <lines>all</lines>
+        <reason>Needs to receive filtered strategies for chart update.</reason>
+      </file>
+      <file>
+        <path>src/components/charts/InterestComparisonChart.tsx</path>
+        <kind>component</kind>
+        <symbol>InterestComparisonChart</symbol>
+        <lines>all</lines>
+        <reason>Needs to receive filtered strategies for chart update.</reason>
+      </file>
+      <file>
+        <path>src/lib/db/index.ts</path>
+        <kind>database</kind>
+        <symbol>db.settings</symbol>
+        <lines>all</lines>
+        <reason>Dexie settings table for persisting selectedStrategy. Use db.settings.put({ key: 'selectedStrategy', value: strategyId }).</reason>
+      </file>
+      <file>
+        <path>src/lib/calculations/types.ts</path>
+        <kind>types</kind>
+        <symbol>StrategyProjection, EffortLevel</symbol>
+        <lines>all</lines>
+        <reason>Core types for strategy data. EffortLevel: 'low' | 'medium' | 'high'. StrategyProjection includes interestSaved for filtering.</reason>
+      </file>
+      <file>
+        <path>src/hooks/useStrategies.ts</path>
+        <kind>hook</kind>
+        <symbol>useStrategies</symbol>
+        <lines>all</lines>
+        <reason>Provides strategies array. New useStrategyFilters hook will consume this output.</reason>
+      </file>
+      <file>
+        <path>src/components/strategies/index.ts</path>
+        <kind>barrel</kind>
+        <symbol>exports</symbol>
+        <lines>all</lines>
+        <reason>Add StrategyFilters export after creating component.</reason>
+      </file>
+    </code>
+
+    <dependencies>
+      <node>
+        <package>zustand</package>
+        <version>^5.0.8</version>
+        <usage>UI state management for selectedStrategyId and filter state</usage>
+      </node>
+      <node>
+        <package>dexie</package>
+        <version>^4.2.1</version>
+        <usage>IndexedDB persistence for selectedStrategy setting</usage>
+      </node>
+      <node>
+        <package>sonner</package>
+        <version>^2.0.7</version>
+        <usage>Toast notifications for selection confirmation</usage>
+      </node>
+      <node>
+        <package>lucide-react</package>
+        <version>^0.555.0</version>
+        <usage>Icons for filter controls (Filter, X, Check)</usage>
+      </node>
+      <node>
+        <package>big.js</package>
+        <version>^7.0.1</version>
+        <usage>Precision comparison for minimum savings filter</usage>
+      </node>
+      <node>
+        <package>recharts</package>
+        <version>^3.5.1</version>
+        <usage>Charts that need to update with filtered data</usage>
+      </node>
+    </dependencies>
+  </artifacts>
+
+  <constraints>
+    <constraint source="Architecture">Use Zustand for filter state (not persisted across page reload per AC-5.6.10)</constraint>
+    <constraint source="Architecture">Use Dexie db.settings table for selectedStrategy persistence (AC-5.6.5)</constraint>
+    <constraint source="Architecture">Use big.js for savings threshold comparison to avoid floating point errors</constraint>
+    <constraint source="UX Design">Effort badge colors: green=Low (#10b981), amber=Medium (#f59e0b), red=High (#ef4444)</constraint>
+    <constraint source="UX Design">Filter controls should be visually subtle, not compete with charts</constraint>
+    <constraint source="UX Design">Responsive: inline filter controls on desktop, stacked on mobile</constraint>
+    <constraint source="Dev Notes">Selection pattern from RecommendationCard: update uiStore, persist to Dexie, show toast with action</constraint>
+    <constraint source="Dev Notes">When all effort levels deselected, treat as "show all"</constraint>
+    <constraint source="Dev Notes">Selected row highlight: teal background/border matching recommended row style</constraint>
+    <constraint source="Architecture">Component naming: PascalCase for components, camelCase for hooks (useStrategyFilters)</constraint>
+    <constraint source="Architecture">Use shadcn/ui ToggleGroup for effort filter, Input for savings threshold</constraint>
+  </constraints>
+
+  <interfaces>
+    <interface>
+      <name>FilterState</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface FilterState { effortLevels: ('low' | 'medium' | 'high')[]; minSavings: number | null; }</signature>
+      <path>src/hooks/useStrategyFilters.ts</path>
+    </interface>
+    <interface>
+      <name>useStrategyFilters</name>
+      <kind>React hook</kind>
+      <signature>function useStrategyFilters(strategies: StrategyProjection[]): { filteredStrategies: StrategyProjection[]; filters: FilterState; setFilters: (filters: FilterState) => void; }</signature>
+      <path>src/hooks/useStrategyFilters.ts</path>
+    </interface>
+    <interface>
+      <name>StrategyFiltersProps</name>
+      <kind>TypeScript interface</kind>
+      <signature>interface StrategyFiltersProps { strategies: StrategyProjection[]; onFiltersChange: (filters: FilterState) => void; }</signature>
+      <path>src/components/strategies/StrategyFilters.tsx</path>
+    </interface>
+    <interface>
+      <name>db.settings.put</name>
+      <kind>Dexie method</kind>
+      <signature>db.settings.put({ key: 'selectedStrategy', value: string }): Promise&lt;void&gt;</signature>
+      <path>src/lib/db/index.ts</path>
+    </interface>
+    <interface>
+      <name>toast.success with action</name>
+      <kind>Sonner toast</kind>
+      <signature>toast.success(message, { action: { label: string, onClick: () => void } })</signature>
+      <path>sonner library</path>
+    </interface>
+  </interfaces>
+
+  <tests>
+    <standards>
+      Use Vitest for all tests. Component tests use @testing-library/react with jsdom. Mock Dexie with fake-indexeddb. Follow AAA pattern (Arrange, Act, Assert). Co-locate tests in __tests__ folders or *.test.ts files.
+    </standards>
+    <locations>
+      <location>tests/hooks/useStrategyFilters.test.ts</location>
+      <location>tests/components/StrategyFilters.test.tsx</location>
+      <location>tests/components/ComparisonTable.test.tsx</location>
+      <location>tests/integration/selection-flow.test.tsx</location>
+    </locations>
+    <ideas>
+      <idea acRef="AC-5.6.1">Test: Filtering by single effort level returns only matching strategies</idea>
+      <idea acRef="AC-5.6.1">Test: Multi-select effort levels returns union of matching strategies</idea>
+      <idea acRef="AC-5.6.2">Test: Minimum savings threshold filters strategies below threshold</idea>
+      <idea acRef="AC-5.6.3">Test: Filter state change triggers re-render of all comparison components</idea>
+      <idea acRef="AC-5.6.4">Test: Click Select button updates uiStore.selectedStrategyId</idea>
+      <idea acRef="AC-5.6.5">Test: Selection persists to Dexie settings table</idea>
+      <idea acRef="AC-5.6.6">Test: Toast appears with correct strategy name on selection</idea>
+      <idea acRef="AC-5.6.7">Test: Toast action navigates to Track page</idea>
+      <idea acRef="AC-5.6.8">Test: Default state (no filters) shows all strategies</idea>
+      <idea acRef="AC-5.6.9">Test: Empty filter result shows "No strategies match" message</idea>
+      <idea acRef="AC-5.6.10">Test: Page reload resets filter state to defaults</idea>
+    </ideas>
+  </tests>
+</story-context>

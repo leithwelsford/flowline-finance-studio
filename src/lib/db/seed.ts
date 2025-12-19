@@ -26,12 +26,16 @@ export async function seedDatabase(): Promise<void> {
   await db.balanceSnapshots.clear();
 
   // === DEBT ACCOUNTS ===
+  // Designed so snowball (smallest balance) and avalanche (highest rate) target DIFFERENT accounts
+  // This demonstrates distinct strategy behaviors:
+  // - Snowball targets: Credit Card (R28k smallest) → Personal Loan → BMW → Home Loan
+  // - Avalanche targets: BMW (18.5% highest) → Personal Loan → Credit Card → Home Loan
   const accounts: Omit<DebtAccount, 'id'>[] = [
     {
       name: 'Home Loan - ABSA',
       type: 'home_loan',
       balance: '1850000.00',
-      interestRate: '0.1175', // 11.75%
+      interestRate: '0.1175', // 11.75% - largest balance, lowest rate
       minimumPayment: '19500.00',
       lender: 'ABSA Bank',
       interestType: 'monthly',
@@ -42,7 +46,7 @@ export async function seedDatabase(): Promise<void> {
       name: 'BMW X3 Finance',
       type: 'vehicle_finance',
       balance: '420000.00',
-      interestRate: '0.1325', // 13.25%
+      interestRate: '0.1850', // 18.5% - HIGHEST RATE (avalanche targets first)
       minimumPayment: '9800.00',
       lender: 'BMW Financial Services',
       interestType: 'monthly',
@@ -53,7 +57,7 @@ export async function seedDatabase(): Promise<void> {
       name: 'Personal Loan - Nedbank',
       type: 'personal_loan',
       balance: '85000.00',
-      interestRate: '0.1850', // 18.5%
+      interestRate: '0.1550', // 15.5% - medium rate
       minimumPayment: '3200.00',
       lender: 'Nedbank',
       interestType: 'monthly',
@@ -63,9 +67,9 @@ export async function seedDatabase(): Promise<void> {
     {
       name: 'FNB Credit Card',
       type: 'credit_card',
-      balance: '45000.00',
-      interestRate: '0.2150', // 21.5%
-      minimumPayment: '1800.00',
+      balance: '28000.00',
+      interestRate: '0.1325', // 13.25% - SMALLEST BALANCE (snowball targets first), lower rate
+      minimumPayment: '1400.00',
       lender: 'FNB',
       interestType: 'daily',
       createdAt: now,
@@ -174,11 +178,14 @@ export async function seedDatabase(): Promise<void> {
   });
 
   console.log('[SEED] Database populated with complex SA scenario');
-  console.log('[SEED] Total debt: R2,400,000');
+  console.log('[SEED] Accounts designed for strategy differentiation:');
+  console.log('[SEED]   - Snowball targets: Credit Card (R28k) → Personal Loan → BMW → Home Loan');
+  console.log('[SEED]   - Avalanche targets: BMW (18.5%) → Personal Loan → Credit Card → Home Loan');
+  console.log('[SEED] Total debt: R2,383,000');
   console.log('[SEED] Monthly income: R99,500');
   console.log('[SEED] Monthly expenses: R34,700 (excluding debt payments)');
-  console.log('[SEED] Debt payments: R34,300');
-  console.log('[SEED] Available surplus: ~R30,500');
+  console.log('[SEED] Debt payments: R33,900');
+  console.log('[SEED] Available surplus: ~R30,900');
   console.log('[SEED] Flexi facility: R150,000 limit, R25,000 used');
 }
 
