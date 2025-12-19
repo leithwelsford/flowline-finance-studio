@@ -1,6 +1,7 @@
 import { useEffect, useRef } from 'react'
 import { useStrategies } from '@/hooks/useStrategies'
-import { WinnersPodium, ComparisonTable } from '@/components/strategies'
+import { useFlexiFacility } from '@/hooks/useFlexiFacility'
+import { RecommendationCard, WinnersPodium, ComparisonTable } from '@/components/strategies'
 import { DebtReductionChart, InterestComparisonChart } from '@/components/charts'
 
 export function ComparePage() {
@@ -14,6 +15,8 @@ export function ComparePage() {
     emptyMessage,
     error,
   } = useStrategies()
+
+  const { hasExistingFacility } = useFlexiFacility()
 
   const comparisonTableRef = useRef<HTMLDivElement>(null)
 
@@ -71,6 +74,14 @@ export function ComparePage() {
       <h1 className="text-2xl font-bold mb-6">Compare</h1>
 
       <div className="space-y-8">
+        {/* Recommendation Card - AC-5.5.9: positioned at top of Compare page */}
+        <RecommendationCard
+          strategies={strategies}
+          baseline={baseline}
+          hasFlexiFacility={hasExistingFacility}
+          isLoading={isCalculating}
+        />
+
         {/* Winner's Podium */}
         <WinnersPodium
           strategies={strategies}

@@ -1,6 +1,6 @@
 # Story 5.5: Implement Recommendation Engine
 
-Status: ready-for-dev
+Status: review
 
 ## Story
 
@@ -30,94 +30,94 @@ so that **I have data-driven guidance on which approach to follow based on my fi
 
 ## Tasks / Subtasks
 
-- [ ] Task 1: Create recommendation algorithm module (AC: 1, 2, 3, 4, 6)
-  - [ ] Create `src/lib/calculations/recommendation.ts`
-  - [ ] Define `RecommendationResult` interface: `{ recommendedStrategyId: string, score: number, rationale: string }`
-  - [ ] Define `RecommendationOptions` interface with optional `hasFlexiFacility: boolean`
-  - [ ] Implement scoring formula: `score = interestSaved.toNumber() - effortPenalty - riskPenalty`
-  - [ ] Implement effort penalty mapping: `{ high: -5000, medium: -2000, low: 0 }`
-  - [ ] Implement risk penalty: flexi-required strategies get -1000
-  - [ ] Filter out flexi strategies when `hasFlexiFacility === false`
-  - [ ] Return strategy with highest score as recommendation
-  - [ ] Generate rationale string: "Saves R[X] vs baseline with [effort] effort"
+- [x] Task 1: Create recommendation algorithm module (AC: 1, 2, 3, 4, 6)
+  - [x] Create `src/lib/calculations/recommendation.ts`
+  - [x] Define `RecommendationResult` interface: `{ recommendedStrategyId: string, score: number, rationale: string }`
+  - [x] Define `RecommendationOptions` interface with optional `hasFlexiFacility: boolean`
+  - [x] Implement scoring formula: `score = interestSaved.toNumber() - effortPenalty - riskPenalty`
+  - [x] Implement effort penalty mapping: `{ high: -5000, medium: -2000, low: 0 }`
+  - [x] Implement risk penalty: flexi-required strategies get -1000
+  - [x] Filter out flexi strategies when `hasFlexiFacility === false`
+  - [x] Return strategy with highest score as recommendation
+  - [x] Generate rationale string: "Saves R[X] vs baseline with [effort] effort"
 
-- [ ] Task 2: Identify flexi-required strategies (AC: 4, 6)
-  - [ ] Create constant `FLEXI_REQUIRED_STRATEGY_IDS` listing: 'flexi-chunking', 'aggressive-flexi', 'velocity-banking', 'hybrid-snowball', 'hybrid-avalanche'
-  - [ ] Use this list for both risk penalty and exclusion logic
-  - [ ] Ensure baseline and traditional strategies (snowball, avalanche) are never excluded
+- [x] Task 2: Identify flexi-required strategies (AC: 4, 6)
+  - [x] Create constant `FLEXI_REQUIRED_STRATEGY_IDS` listing: 'flexi-chunking', 'aggressive-flexi', 'velocity-banking', 'hybrid-snowball', 'hybrid-avalanche'
+  - [x] Use this list for both risk penalty and exclusion logic
+  - [x] Ensure baseline and traditional strategies (snowball, avalanche) are never excluded
 
-- [ ] Task 3: Create RecommendationCard component structure (AC: 5, 7, 8, 9)
-  - [ ] Create `src/components/strategies/RecommendationCard.tsx`
-  - [ ] Define props interface: `{ strategies: StrategyProjection[], baseline: StrategyProjection, hasFlexiFacility: boolean, isLoading?: boolean }`
-  - [ ] Import recommendation algorithm from `src/lib/calculations/recommendation.ts`
-  - [ ] Add export to `src/components/strategies/index.ts`
+- [x] Task 3: Create RecommendationCard component structure (AC: 5, 7, 8, 9)
+  - [x] Create `src/components/strategies/RecommendationCard.tsx`
+  - [x] Define props interface: `{ strategies: StrategyProjection[], baseline: StrategyProjection, hasFlexiFacility: boolean, isLoading?: boolean }`
+  - [x] Import recommendation algorithm from `src/lib/calculations/recommendation.ts`
+  - [x] Add export to `src/components/strategies/index.ts`
 
-- [ ] Task 4: Implement recommendation card UI (AC: 5, 9)
-  - [ ] Use shadcn/ui Card with teal accent styling (`border-teal-600`, `bg-teal-50`)
-  - [ ] Add header: "Recommended for You" with Trophy icon from lucide-react
-  - [ ] Display strategy name prominently
-  - [ ] Show key metrics: Interest Saved (ZAR), Debt-Free Date, Effort Level badge
-  - [ ] Display rationale text explaining the recommendation
-  - [ ] Add "Select This Strategy" button
+- [x] Task 4: Implement recommendation card UI (AC: 5, 9)
+  - [x] Use shadcn/ui Card with teal accent styling (`border-teal-600`, `bg-teal-50`)
+  - [x] Add header: "Recommended for You" with Trophy icon from lucide-react
+  - [x] Display strategy name prominently
+  - [x] Show key metrics: Interest Saved (ZAR), Debt-Free Date, Effort Level badge
+  - [x] Display rationale text explaining the recommendation
+  - [x] Add "Select This Strategy" button
 
-- [ ] Task 5: Implement effort level badge (AC: 5)
-  - [ ] Reuse Badge component pattern from ComparisonTable
-  - [ ] Colors: green for Low, amber for Medium, red for High
-  - [ ] Display effort text: "Low Effort", "Medium Effort", "High Effort"
+- [x] Task 5: Implement effort level badge (AC: 5)
+  - [x] Reuse Badge component pattern from ComparisonTable
+  - [x] Colors: green for Low, amber for Medium, red for High
+  - [x] Display effort text: "Low Effort", "Medium Effort", "High Effort"
 
-- [ ] Task 6: Implement loading skeleton state (AC: 7)
-  - [ ] Create skeleton matching card layout
-  - [ ] Use shadcn/ui Skeleton components
-  - [ ] Show skeleton when `isLoading` prop is true
-  - [ ] Add proper aria-busy attribute
+- [x] Task 6: Implement loading skeleton state (AC: 7)
+  - [x] Create skeleton matching card layout
+  - [x] Use shadcn/ui Skeleton components
+  - [x] Show skeleton when `isLoading` prop is true
+  - [x] Add proper aria-busy attribute
 
-- [ ] Task 7: Implement empty state (AC: 8)
-  - [ ] Check if strategies array is empty or recommendation returns null
-  - [ ] Display empty state with message: "Calculate strategies to see our recommendation"
-  - [ ] Include Calculator icon from lucide-react
-  - [ ] Show "Calculate Now" button linking to calculation trigger
+- [x] Task 7: Implement empty state (AC: 8)
+  - [x] Check if strategies array is empty or recommendation returns null
+  - [x] Display empty state with message: "Calculate strategies to see our recommendation"
+  - [x] Include Calculator icon from lucide-react
+  - [x] Show "Calculate Now" button linking to calculation trigger
 
-- [ ] Task 8: Implement strategy selection from card (AC: 5)
-  - [ ] Add "Select This Strategy" button to card
-  - [ ] On click, update `selectedStrategyId` in uiStore
-  - [ ] Persist selection to Dexie settings table
-  - [ ] Show success toast: "Strategy selected: [name]"
-  - [ ] Optionally offer navigation to Track page
+- [x] Task 8: Implement strategy selection from card (AC: 5)
+  - [x] Add "Select This Strategy" button to card
+  - [x] On click, update `selectedStrategyId` in uiStore
+  - [x] Persist selection to Dexie settings table
+  - [x] Show success toast: "Strategy selected: [name]"
+  - [x] Optionally offer navigation to Track page
 
-- [ ] Task 9: Write unit tests for recommendation algorithm
-  - [ ] Test: Returns highest-scoring strategy (AC-5.5.1)
-  - [ ] Test: Scoring formula calculation is correct (AC-5.5.2)
-  - [ ] Test: Effort penalties applied correctly (AC-5.5.3)
-  - [ ] Test: Risk penalties applied for flexi strategies (AC-5.5.4)
-  - [ ] Test: Flexi strategies excluded when no flexi facility (AC-5.5.6)
-  - [ ] Test: Rationale string generated correctly (AC-5.5.5)
-  - [ ] Test: Returns null/empty when no strategies provided
+- [x] Task 9: Write unit tests for recommendation algorithm
+  - [x] Test: Returns highest-scoring strategy (AC-5.5.1)
+  - [x] Test: Scoring formula calculation is correct (AC-5.5.2)
+  - [x] Test: Effort penalties applied correctly (AC-5.5.3)
+  - [x] Test: Risk penalties applied for flexi strategies (AC-5.5.4)
+  - [x] Test: Flexi strategies excluded when no flexi facility (AC-5.5.6)
+  - [x] Test: Rationale string generated correctly (AC-5.5.5)
+  - [x] Test: Returns null/empty when no strategies provided
 
-- [ ] Task 10: Write component tests for RecommendationCard
-  - [ ] Test: Renders recommended strategy name and metrics (AC-5.5.5)
-  - [ ] Test: Shows rationale text (AC-5.5.5)
-  - [ ] Test: Loading state shows skeleton (AC-5.5.7)
-  - [ ] Test: Empty state renders when no strategies (AC-5.5.8)
-  - [ ] Test: Card has teal accent styling (AC-5.5.9)
-  - [ ] Test: Select button triggers uiStore update
+- [x] Task 10: Write component tests for RecommendationCard
+  - [x] Test: Renders recommended strategy name and metrics (AC-5.5.5)
+  - [x] Test: Shows rationale text (AC-5.5.5)
+  - [x] Test: Loading state shows skeleton (AC-5.5.7)
+  - [x] Test: Empty state renders when no strategies (AC-5.5.8)
+  - [x] Test: Card has teal accent styling (AC-5.5.9)
+  - [x] Test: Select button triggers uiStore update
 
-- [ ] Task 11: Integrate with ComparePage (AC: 9)
-  - [ ] Import RecommendationCard into `src/pages/ComparePage.tsx`
-  - [ ] Position at top of page, before WinnersPodium
-  - [ ] Pass strategies from `useStrategies` hook
-  - [ ] Determine `hasFlexiFacility` from useFlexiFacility hook or database
-  - [ ] Pass isCalculating for loading state
+- [x] Task 11: Integrate with ComparePage (AC: 9)
+  - [x] Import RecommendationCard into `src/pages/ComparePage.tsx`
+  - [x] Position at top of page, before WinnersPodium
+  - [x] Pass strategies from `useStrategies` hook
+  - [x] Determine `hasFlexiFacility` from useFlexiFacility hook or database
+  - [x] Pass isCalculating for loading state
 
-- [ ] Task 12: Update useStrategies hook (if needed)
-  - [ ] Ensure hook exposes baseline strategy for comparison
-  - [ ] Consider adding `recommendedStrategy` derived value
-  - [ ] Memoize recommendation calculation to prevent recalculation
+- [x] Task 12: Update useStrategies hook (if needed)
+  - [x] Ensure hook exposes baseline strategy for comparison
+  - [x] Consider adding `recommendedStrategy` derived value
+  - [x] Memoize recommendation calculation to prevent recalculation
 
-- [ ] Task 13: Verify build and all tests pass (AC: all)
-  - [ ] Run `npm run test` - verify all new tests pass
-  - [ ] Run `npm run build` - verify no type errors
-  - [ ] Manual test: recommendation displays with real strategy data
-  - [ ] Verify recommendation changes when flexi facility is removed
+- [x] Task 13: Verify build and all tests pass (AC: all)
+  - [x] Run `npm run test` - verify all new tests pass
+  - [x] Run `npm run build` - verify no type errors
+  - [x] Manual test: recommendation displays with real strategy data
+  - [x] Verify recommendation changes when flexi facility is removed
 
 ## Dev Notes
 
@@ -357,13 +357,35 @@ function generateRationale(strategy: StrategyProjection, baseline: StrategyProje
 
 ### Agent Model Used
 
-{{agent_model_name_version}}
+Claude Opus 4.5 (claude-opus-4-5-20251101)
 
 ### Debug Log References
 
+None required - all tests pass.
+
 ### Completion Notes List
 
+1. Implemented recommendation algorithm with scoring formula: `score = interestSaved - effortPenalty - riskPenalty`
+2. Effort penalties: high=-5000, medium=-2000, low=0
+3. Risk penalty: flexi-required strategies get -1000
+4. FLEXI_REQUIRED_STRATEGY_IDS includes 5 strategies: flexi-chunking, aggressive-flexi, velocity-banking, hybrid-snowball, hybrid-avalanche
+5. RecommendationCard component displays at top of ComparePage with teal accent styling
+6. Skeleton loading state and empty state implemented
+7. Select button updates uiStore and shows success toast
+8. Algorithm prefers first strategy on tie scores for deterministic behavior
+9. All 1509 tests pass, build successful
+
 ### File List
+
+**Created:**
+- `src/lib/calculations/recommendation.ts` - Recommendation algorithm with scoring formula
+- `src/components/strategies/RecommendationCard.tsx` - Recommendation display card component
+- `tests/lib/calculations/recommendation.test.ts` - 26 unit tests for algorithm
+- `tests/components/strategies/RecommendationCard.test.tsx` - 37 component tests
+
+**Modified:**
+- `src/components/strategies/index.ts` - Added RecommendationCard export
+- `src/pages/ComparePage.tsx` - Integrated RecommendationCard at top of page
 
 ## Change Log
 
@@ -371,3 +393,4 @@ function generateRationale(strategy: StrategyProjection, baseline: StrategyProje
 |------|--------|--------|
 | 2025-12-19 | Story drafted with full context from Epic 5 tech-spec, PRD (FR29), Architecture, and Story 5.4 learnings | SM Agent (Bob) |
 | 2025-12-19 | Story context XML generated, status updated to ready-for-dev | SM Agent (Bob) |
+| 2025-12-19 | Implementation complete - all 13 tasks done, 63 new tests (26 algorithm + 37 component), build passes | Dev Agent (Amelia) |
